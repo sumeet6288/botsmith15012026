@@ -20,6 +20,14 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
 
   const daysRemaining = usageStats?.subscription?.days_remaining || 0;
   const planName = usageStats?.plan?.name || 'Free';
+  const expiresAt = usageStats?.subscription?.expires_at;
+  
+  // Format expiry date
+  const formatExpiryDate = (dateString) => {
+    if (!dateString) return null;
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+  };
 
   return (
     <div className="w-64 h-screen bg-gray-50 border-r border-gray-200 flex flex-col">
