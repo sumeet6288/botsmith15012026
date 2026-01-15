@@ -81,13 +81,19 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
 
       {/* Bottom Section */}
       <div className="p-4 border-t border-gray-200 space-y-3">
-        {/* Plan Expiry Info */}
+        {/* Plan Info - Enhanced Display */}
         {planName !== 'Free' && (
-          <div className="p-3 bg-gray-100 rounded-lg">
-            <p className="text-xs text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>Plan expires in</p>
-            <p className="text-lg font-semibold mt-1" style={{ color: '#0B0B0B', fontFamily: 'Inter, sans-serif' }}>
-              {daysRemaining} days
+          <div className="p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg border border-purple-100">
+            <p className="text-xs font-semibold text-purple-600 mb-1" style={{ fontFamily: 'Inter, sans-serif' }}>Current Plan</p>
+            <p className="text-base font-bold text-gray-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
+              {planName}
             </p>
+            {expiresAt && (
+              <div className="text-xs text-gray-600 space-y-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
+                <p className="font-medium">Expires: {formatExpiryDate(expiresAt)}</p>
+                <p className="text-purple-600 font-semibold">{daysRemaining} days remaining</p>
+              </div>
+            )}
           </div>
         )}
         
