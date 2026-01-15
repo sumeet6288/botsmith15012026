@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, BarChart3, CreditCard, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, BarChart3, CreditCard, Settings, LogOut, BookOpen } from 'lucide-react';
 import BotSmithLogo from './BotSmithLogo';
 import { Button } from './ui/button';
 
@@ -14,6 +14,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
     { icon: BarChart3, label: 'Analytics', path: '/analytics' },
     { icon: CreditCard, label: 'Subscription', path: '/subscription' },
     { icon: Settings, label: 'Settings', path: '/account-settings' },
+    { icon: BookOpen, label: 'Documentation', path: '/resources/documentation' },
   ];
 
   const isActive = (path) => location.pathname === path;
