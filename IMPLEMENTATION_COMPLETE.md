@@ -180,7 +180,7 @@ This ensures all users have visibility into their subscription status.
 
 ## Application Access
 
-**Live URL:** https://botsmith-revamp.preview.emergentagent.com
+**Live URL:** https://auth-setup-4.preview.emergentagent.com
 
 All features are now live and accessible!
 
