@@ -8,7 +8,7 @@ import { chatbotAPI, analyticsAPI, plansAPI } from '../utils/api';
 import UpgradeModal from '../components/UpgradeModal';
 import DashboardLayout from '../components/DashboardLayout';
 
-const Dashboard = () => {
+const DashboardRedesigned = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, logout, refreshUser } = useAuth();
@@ -267,7 +267,7 @@ const Dashboard = () => {
                     Chatbots
                   </span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.chatbots?.current}/{usageStats.usage?.chatbots?.limit} used
+                    {usageStats.usage?.chatbots?.current}/{usageStats.usage?.chatbots?.limit}
                   </span>
                   <span style={{ 
                     fontFamily: 'Inter, sans-serif', 
@@ -275,7 +275,7 @@ const Dashboard = () => {
                     color: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#6B7280',
                     fontWeight: usageStats.usage?.chatbots?.percentage >= 100 ? '600' : '400'
                   }}>
-                    {usageStats.usage?.chatbots?.percentage}%
+                    {usageStats.usage?.chatbots?.percentage}% used
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -296,7 +296,7 @@ const Dashboard = () => {
                     Messages
                   </span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.messages?.current}/{usageStats.usage?.messages?.limit >= 999999 ? '∞' : usageStats.usage?.messages?.limit?.toLocaleString()} used
+                    {usageStats.usage?.messages?.current}/{usageStats.usage?.messages?.limit === 999999 || usageStats.usage?.messages?.limit === 999999999 ? '∞' : usageStats.usage?.messages?.limit?.toLocaleString()}
                   </span>
                   <span style={{ 
                     fontFamily: 'Inter, sans-serif', 
@@ -304,7 +304,7 @@ const Dashboard = () => {
                     color: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#6B7280',
                     fontWeight: usageStats.usage?.messages?.percentage >= 100 ? '600' : '400'
                   }}>
-                    {usageStats.usage?.messages?.percentage}%
+                    {usageStats.usage?.messages?.percentage}% used
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -325,7 +325,7 @@ const Dashboard = () => {
                     Files
                   </span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.file_uploads?.current}/{usageStats.usage?.file_uploads?.limit} used
+                    {usageStats.usage?.file_uploads?.current}/{usageStats.usage?.file_uploads?.limit}
                   </span>
                   <span style={{ 
                     fontFamily: 'Inter, sans-serif', 
@@ -333,7 +333,7 @@ const Dashboard = () => {
                     color: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#6B7280',
                     fontWeight: usageStats.usage?.file_uploads?.percentage >= 100 ? '600' : '400'
                   }}>
-                    {usageStats.usage?.file_uploads?.percentage}%
+                    {usageStats.usage?.file_uploads?.percentage}% used
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -354,7 +354,7 @@ const Dashboard = () => {
                     Websites
                   </span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.website_sources?.current}/{usageStats.usage?.website_sources?.limit} used
+                    {usageStats.usage?.website_sources?.current}/{usageStats.usage?.website_sources?.limit}
                   </span>
                   <span style={{ 
                     fontFamily: 'Inter, sans-serif', 
@@ -362,7 +362,7 @@ const Dashboard = () => {
                     color: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#6B7280',
                     fontWeight: usageStats.usage?.website_sources?.percentage >= 100 ? '600' : '400'
                   }}>
-                    {usageStats.usage?.website_sources?.percentage}%
+                    {usageStats.usage?.website_sources?.percentage}% used
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -383,7 +383,7 @@ const Dashboard = () => {
                     Text Sources
                   </span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.text_sources?.current}/{usageStats.usage?.text_sources?.limit} used
+                    {usageStats.usage?.text_sources?.current}/{usageStats.usage?.text_sources?.limit}
                   </span>
                   <span style={{ 
                     fontFamily: 'Inter, sans-serif', 
@@ -391,7 +391,7 @@ const Dashboard = () => {
                     color: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#6B7280',
                     fontWeight: usageStats.usage?.text_sources?.percentage >= 100 ? '600' : '400'
                   }}>
-                    {usageStats.usage?.text_sources?.percentage}%
+                    {usageStats.usage?.text_sources?.percentage}% used
                   </span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -576,4 +576,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default DashboardRedesigned;
