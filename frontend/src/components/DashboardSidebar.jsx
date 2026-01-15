@@ -103,13 +103,13 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Chatbots:</span>
                 <span className="font-semibold text-gray-700">
-                  {usageStats?.usage?.chatbots || 0} / {usageStats?.limits?.max_chatbots || 2}
+                  {usageStats?.usage?.chatbots?.current ?? 0} / {usageStats?.usage?.chatbots?.limit ?? 2}
                 </span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-gray-500">Messages:</span>
                 <span className="font-semibold text-gray-700">
-                  {usageStats?.usage?.messages || 0} / {usageStats?.limits?.max_messages_per_month || 50}
+                  {usageStats?.usage?.messages?.current ?? 0} / {usageStats?.usage?.messages?.limit ?? 50}
                 </span>
               </div>
               <div className="mt-2 pt-2 border-t border-purple-100">
