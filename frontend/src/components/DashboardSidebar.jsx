@@ -31,11 +31,21 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
 
   return (
     <div className="w-64 h-screen bg-gray-50 border-r border-gray-200 flex flex-col">
-      {/* Logo Section */}
+      {/* Logo Section - Enhanced Branding */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-          <BotSmithLogo className="w-8 h-8" />
-          <span className="text-lg font-semibold" style={{ color: '#0B0B0B', fontFamily: 'Inter, sans-serif' }}>BotSmith</span>
+        <div className="cursor-pointer" onClick={() => navigate('/')}>
+          <div className="flex items-center gap-2 mb-1">
+            <BotSmithLogo className="w-8 h-8" />
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl font-black tracking-tight bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent transition-all duration-300" style={{ fontFamily: 'Inter, sans-serif' }}>
+                BotSmith
+              </span>
+              <span className="text-[8px] font-bold text-purple-600 bg-purple-100 px-1 py-0.5 rounded-md">AI</span>
+            </div>
+          </div>
+          <span className="text-[9px] font-semibold text-gray-400 tracking-wider uppercase block ml-10">
+            Powered by Jyosha Solutions
+          </span>
         </div>
       </div>
 
