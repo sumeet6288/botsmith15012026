@@ -9,7 +9,6 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
   const location = useLocation();
 
   const navItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
     { icon: MessageSquare, label: 'Chatbots', path: '/dashboard' },
     { icon: BarChart3, label: 'Analytics', path: '/analytics' },
     { icon: CreditCard, label: 'Subscription', path: '/subscription' },
