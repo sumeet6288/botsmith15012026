@@ -270,8 +270,9 @@ const AccountSettings = () => {
           </Button>
         </div>
 
-        {/* Password */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-md hover:shadow-xl transition-all duration-500 hover-lift">
+        {/* Password - Hidden for Google OAuth users */}
+        {/* Password change is not needed since we use Google OAuth exclusively */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6 mb-6 shadow-md hover:shadow-xl transition-all duration-500 hover-lift" style={{ display: 'none' }}>
           <h2 className="text-xl font-bold mb-2 text-gray-900">Password</h2>
           <p className="text-gray-600 text-sm mb-6">Change your password</p>
 
