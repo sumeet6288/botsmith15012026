@@ -147,7 +147,7 @@ REACT_APP_RAZORPAY_PROFESSIONAL_PLAN_ID=plan_Rwz3qPb9FaUxf2
 - ✅ Backend running (PID 731)
 - ✅ Frontend running (PID 733)
 - ✅ MongoDB running (PID 734)
-- ✅ Application accessible at: https://saas-facelift-2.preview.emergentagent.com
+- ✅ Application accessible at: https://cred-vault-setup.preview.emergentagent.com
 
 ## 🎯 Success Criteria Met
 
