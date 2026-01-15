@@ -17,6 +17,7 @@ const ResponsiveNav = ({ user, onLogout }) => {
     { path: '/dashboard', label: 'Chatbots' },
     { path: '/analytics', label: 'Analytics' },
     { path: '/subscription', label: 'Subscription', icon: CreditCard },
+    { path: '/resources/documentation', label: 'Documentation', icon: FileText },
   ];
 
   // Add admin panel only for admin users
