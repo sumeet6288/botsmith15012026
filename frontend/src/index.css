@@ -1293,3 +1293,8 @@ input:focus, textarea:focus, select:focus {
 #root.auth-route .App {
   min-height: unset;
 }
+
+/* Remove zoom effect for user dashboard and related pages */
+#root.dashboard-route {
+  zoom: 1;
+}
