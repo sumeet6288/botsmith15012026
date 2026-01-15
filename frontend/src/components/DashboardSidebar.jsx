@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { LayoutDashboard, MessageSquare, BarChart3, CreditCard, Settings, LogOut, BookOpen } from 'lucide-react';
+import { MessageSquare, BarChart3, CreditCard, Settings, LogOut, BookOpen } from 'lucide-react';
 import BotSmithLogo from './BotSmithLogo';
 import { Button } from './ui/button';
 
