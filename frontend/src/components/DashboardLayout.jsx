@@ -26,6 +26,7 @@ const DashboardLayout = ({ children, user, onLogout, usageStats }) => {
               {/* Breadcrumb or Page Title could go here */}
             </div>
             <div className="flex items-center gap-4">
+              <NotificationBell />
               <UserProfileDropdown user={user} onLogout={onLogout} />
             </div>
           </div>
