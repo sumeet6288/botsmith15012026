@@ -125,16 +125,14 @@ function ScrollToTop() {
   return null;
 }
 
-// Detect auth routes and dashboard routes to apply scoped classes
+// Detect auth routes and main dashboard route to apply scoped classes
 function AuthRouteDetector() {
   const location = useLocation();
   
   useEffect(() => {
     const authRoutes = ['/signin', '/signup'];
-    const dashboardRoutes = ['/dashboard', '/chatbot', '/analytics', '/settings', '/subscription', '/leads', '/notifications'];
-    
     const isAuthRoute = authRoutes.includes(location.pathname);
-    const isDashboardRoute = dashboardRoutes.some(route => location.pathname.startsWith(route));
+    const isMainDashboard = location.pathname === '/dashboard';
     
     // Get the root element
     const rootElement = document.getElementById('root');
@@ -147,8 +145,8 @@ function AuthRouteDetector() {
         rootElement.classList.remove('auth-route');
       }
       
-      // Handle dashboard route class (remove zoom 0.8 effect)
-      if (isDashboardRoute) {
+      // Handle main dashboard route class (remove zoom 0.8 effect ONLY from /dashboard)
+      if (isMainDashboard) {
         rootElement.classList.add('dashboard-route');
       } else {
         rootElement.classList.remove('dashboard-route');
