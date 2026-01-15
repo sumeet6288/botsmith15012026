@@ -114,7 +114,7 @@ const navItems = [
 
 ## 🌐 Application Access
 
-**Preview URL:** https://secure-creds-3.preview.emergentagent.com
+**Preview URL:** https://sub-fix-3.preview.emergentagent.com
 
 ### Available Pages:
 - 🏠 **Landing Page:** `/`

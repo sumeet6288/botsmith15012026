@@ -71,7 +71,7 @@ All services running successfully:
 
 ## 🌐 Application Preview
 
-**Live URL**: https://secure-creds-3.preview.emergentagent.com
+**Live URL**: https://sub-fix-3.preview.emergentagent.com
 
 ### Features Working:
 - ✅ Landing page with AI chatbot preview

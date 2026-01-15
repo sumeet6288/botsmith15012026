@@ -147,7 +147,7 @@ REACT_APP_RAZORPAY_PROFESSIONAL_PLAN_ID=plan_Rwz3qPb9FaUxf2
 - ✅ Backend running (PID 731)
 - ✅ Frontend running (PID 733)
 - ✅ MongoDB running (PID 734)
-- ✅ Application accessible at: https://secure-creds-3.preview.emergentagent.com
+- ✅ Application accessible at: https://sub-fix-3.preview.emergentagent.com
 
 ## 🎯 Success Criteria Met
 

@@ -70,7 +70,7 @@ const baseNavItems = [
 
 ## 🌐 Live Preview
 
-**Application URL:** https://secure-creds-3.preview.emergentagent.com
+**Application URL:** https://sub-fix-3.preview.emergentagent.com
 
 You can verify the changes by:
 1. Logging into the application

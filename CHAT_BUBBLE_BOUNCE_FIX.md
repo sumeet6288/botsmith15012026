@@ -124,7 +124,7 @@ Added the following credentials to environment files:
 6. Wait 2.5 seconds - bounce should resume
 
 ### Automated Testing
-Visit: `https://secure-creds-3.preview.emergentagent.com/test-bounce.html`
+Visit: `https://sub-fix-3.preview.emergentagent.com/test-bounce.html`
 
 The test page includes:
 - Visual indicators
@@ -161,5 +161,5 @@ The chat bubble bounce animation is now fully functional and has been thoroughly
 - Is smooth and attention-grabbing
 
 ## Preview URL
-🔗 **Live Application**: https://secure-creds-3.preview.emergentagent.com
-🔗 **Test Page**: https://secure-creds-3.preview.emergentagent.com/test-bounce.html
+🔗 **Live Application**: https://sub-fix-3.preview.emergentagent.com
+🔗 **Test Page**: https://sub-fix-3.preview.emergentagent.com/test-bounce.html
