@@ -88,16 +88,36 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
           <p className="text-base font-bold text-gray-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
             {planName}
           </p>
+          
+          {/* For Paid Plans - Show Expiry Details */}
           {expiresAt && planName !== 'Free' && (
             <div className="text-xs text-gray-600 space-y-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
               <p className="font-medium">Expires: {formatExpiryDate(expiresAt)}</p>
               <p className="text-purple-600 font-semibold">{daysRemaining} days remaining</p>
             </div>
           )}
+          
+          {/* For Free Plan - Show Usage Details */}
           {planName === 'Free' && (
-            <p className="text-xs text-gray-500 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>
-              Upgrade to unlock premium features
-            </p>
+            <div className="text-xs text-gray-600 space-y-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">Chatbots:</span>
+                <span className="font-semibold text-gray-700">
+                  {usageStats?.usage?.chatbots || 0} / {usageStats?.limits?.max_chatbots || 2}
+                </span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-gray-500">Messages:</span>
+                <span className="font-semibold text-gray-700">
+                  {usageStats?.usage?.messages || 0} / {usageStats?.limits?.max_messages_per_month || 50}
+                </span>
+              </div>
+              <div className="mt-2 pt-2 border-t border-purple-100">
+                <p className="text-purple-600 font-medium text-[10px]">
+                  ✨ Upgrade for unlimited features
+                </p>
+              </div>
+            </div>
           )}
         </div>
         
