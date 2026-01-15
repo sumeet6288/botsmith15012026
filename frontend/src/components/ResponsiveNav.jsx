@@ -75,10 +75,8 @@ const ResponsiveNav = ({ user, onLogout }) => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Notification Bell - Desktop */}
-          <div className="hidden md:block">
-            <NotificationBell />
-          </div>
+          {/* Notification Bell - Now visible on all devices */}
+          <NotificationBell />
           
           <div className="hidden md:block">
             <UserProfileDropdown user={user} onLogout={onLogout} />
