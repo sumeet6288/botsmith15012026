@@ -125,24 +125,33 @@ function ScrollToTop() {
   return null;
 }
 
-// Detect auth routes and apply scoped class to fix white space
+// Detect auth routes and dashboard routes to apply scoped classes
 function AuthRouteDetector() {
   const location = useLocation();
   
   useEffect(() => {
     const authRoutes = ['/signin', '/signup'];
+    const dashboardRoutes = ['/dashboard', '/chatbot', '/analytics', '/settings', '/subscription', '/leads', '/notifications'];
+    
     const isAuthRoute = authRoutes.includes(location.pathname);
+    const isDashboardRoute = dashboardRoutes.some(route => location.pathname.startsWith(route));
     
     // Get the root element
     const rootElement = document.getElementById('root');
     
     if (rootElement) {
+      // Handle auth route class
       if (isAuthRoute) {
-        // Add auth-route class for scoped CSS fixes
         rootElement.classList.add('auth-route');
       } else {
-        // Remove auth-route class for all other pages
         rootElement.classList.remove('auth-route');
+      }
+      
+      // Handle dashboard route class (remove zoom 0.8 effect)
+      if (isDashboardRoute) {
+        rootElement.classList.add('dashboard-route');
+      } else {
+        rootElement.classList.remove('dashboard-route');
       }
     }
   }, [location.pathname]);
