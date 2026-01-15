@@ -2,6 +2,7 @@ import React from 'react';
 import DashboardSidebar from './DashboardSidebar';
 import ResponsiveNav from './ResponsiveNav';
 import UserProfileDropdown from './UserProfileDropdown';
+import NotificationBell from './NotificationBell';
 
 const DashboardLayout = ({ children, user, onLogout, usageStats }) => {
   return (
