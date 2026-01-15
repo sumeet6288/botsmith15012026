@@ -180,7 +180,7 @@ This ensures all users have visibility into their subscription status.
 
 ## Application Access
 
-**Live URL:** https://auth-notify-setup.preview.emergentagent.com
+**Live URL:** https://secure-creds-3.preview.emergentagent.com
 
 All features are now live and accessible!
 

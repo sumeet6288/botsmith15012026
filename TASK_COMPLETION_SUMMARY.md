@@ -269,5 +269,5 @@ The application is fully functional with all enhancements applied. Users now hav
 - Automatic subscription expiry warnings
 - Properly configured payment and authentication credentials
 
-**Application URL:** https://auth-notify-setup.preview.emergentagent.com
+**Application URL:** https://secure-creds-3.preview.emergentagent.com
 **Status:** ✅ Ready for user testing
