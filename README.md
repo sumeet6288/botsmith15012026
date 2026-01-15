@@ -76,4 +76,4 @@ sudo supervisorctl status
 ---
 Made with ❤️ | © 2025 BotSmith
 
-
+![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/sumeet6288/botsmith15012026?utm_source=oss&utm_medium=github&utm_campaign=sumeet6288%2Fbotsmith15012026&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
