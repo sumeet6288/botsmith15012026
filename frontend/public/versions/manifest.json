@@ -1,0 +1,22 @@
+{
+  "latest": "2.0.0",
+  "stable": "2.0.0",
+  "beta": "2.0.0-beta.1",
+  "canary": "2.1.0-canary.1",
+  "versions": [
+    {
+      "version": "2.0.0",
+      "releaseDate": "2025-01-21",
+      "status": "stable",
+      "deprecated": false,
+      "breaking_changes": false,
+      "changelog": "Added error isolation, subscription enforcement, and graceful error handling",
+      "minSupportedUntil": "2026-01-21"
+    }
+  ],
+  "deprecationPolicy": {
+    "warningPeriod": "90 days",
+    "supportPeriod": "180 days",
+    "minimumVersions": ["2.0.0"]
+  }
+}

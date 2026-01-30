@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Widget Flash Bug - Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 800px;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25);
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #10b981;
+            color: white;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+        
+        h2 {
+            color: #374151;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+        }
+        
+        p {
+            color: #6b7280;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+        
+        ul {
+            color: #6b7280;
+            line-height: 1.8;
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+        
+        .highlight {
+            background: #fef3c7;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            color: #92400e;
+        }
+        
+        .test-box {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .test-step {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        
+        .step-text {
+            color: #374151;
+            flex: 1;
+            padding-top: 4px;
+        }
+        
+        .comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 24px 0;
+        }
+        
+        .before, .after {
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        .before {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+        }
+        
+        .after {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+        }
+        
+        .before h3 {
+            color: #dc2626;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .after h3 {
+            color: #059669;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        
+        .note {
+            background: #dbeafe;
+            border-left: 4px solid #3b82f6;
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin: 24px 0;
+        }
+        
+        .note p {
+            color: #1e40af;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 24px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .comparison {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Chat Widget Flash Bug - FIXED ✅</h1>
+        <div class="status">✅ FIX APPLIED</div>
+        
+        <p>
+            The BotSmith chat widget was experiencing a visual "flash" on page load where 
+            <span class="highlight">default content would briefly display</span> before being 
+            replaced with actual chatbot data. This has been fixed!
+        </p>
+        
+        <h2>🔍 Problem Description</h2>
+        <p>When the widget loaded on a webpage, users would see:</p>
+        <ul>
+            <li>Initial display: <strong>"Chat Support"</strong> title with default branding</li>
+            <li>100-500ms delay while API data loads</li>
+            <li>Sudden change to actual chatbot name and custom branding</li>
+            <li>Result: <strong>Jarring flash effect</strong> that looked unprofessional</li>
+        </ul>
+        
+        <h2>✨ The Solution</h2>
+        <p>
+            We implemented a smooth loading strategy that hides the chat bubble until all data 
+            is loaded, then reveals it with an elegant fade-in animation.
+        </p>
+        
+        <div class="comparison">
+            <div class="before">
+                <h3>❌ Before Fix</h3>
+                <ol>
+                    <li>Bubble appears instantly</li>
+                    <li>Shows "Chat Support"</li>
+                    <li>100-500ms delay</li>
+                    <li>Content suddenly changes</li>
+                    <li><strong>Flash visible to user</strong></li>
+                </ol>
+            </div>
+            <div class="after">
+                <h3>✅ After Fix</h3>
+                <ol>
+                    <li>No bubble visible initially</li>
+                    <li>API loads in background</li>
+                    <li>100-500ms delay</li>
+                    <li>Bubble fades in smoothly (300ms)</li>
+                    <li><strong>Professional appearance</strong></li>
+                </ol>
+            </div>
+        </div>
+        
+        <h2>🧪 Testing Instructions</h2>
+        <div class="test-box">
+            <div class="test-step">
+                <div class="step-number">1</div>
+                <div class="step-text">
+                    <strong>Clear browser cache</strong> (critical to load the fresh widget script)
+                </div>
+            </div>
+            <div class="test-step">
+                <div class="step-number">2</div>
+                <div class="step-text">
+                    <strong>Reload this page</strong> and watch the bottom-right corner
+                </div>
+            </div>
+            <div class="test-step">
+                <div class="step-number">3</div>
+                <div class="step-text">
+                    <strong>Observe</strong>: The chat bubble should NOT appear immediately. 
+                    After ~100-500ms, it should <strong>fade in smoothly</strong> with the 
+                    correct chatbot name and branding
+                </div>
+            </div>
+            <div class="test-step">
+                <div class="step-number">4</div>
+                <div class="step-text">
+                    <strong>Verify</strong>: No "Chat Support" → "Real Name" flash should occur
+                </div>
+            </div>
+        </div>
+        
+        <div class="note">
+            <p>
+                <strong>💡 Note:</strong> The chat bubble in the bottom-right corner is a live 
+                demo. Watch it carefully on page load to see the smooth fade-in animation with 
+                no flash!
+            </p>
+        </div>
+        
+        <h2>📋 Technical Details</h2>
+        <p><strong>Changes Applied:</strong></p>
+        <ul>
+            <li>Initial state: <code>opacity: 0; visibility: hidden;</code></li>
+            <li>Smooth transition: <code>transition: opacity 0.3s ease, visibility 0.3s ease;</code></li>
+            <li>Show after load: <code>opacity: 1; visibility: visible;</code></li>
+            <li>Error fallback: Widget still appears with defaults if API fails</li>
+        </ul>
+        
+        <p><strong>Benefits:</strong></p>
+        <ul>
+            <li>✅ Professional appearance - no jarring flashes</li>
+            <li>✅ Smooth 300ms fade-in animation</li>
+            <li>✅ Users only see final/correct branding</li>
+            <li>✅ Error resilient - works even if API fails</li>
+            <li>✅ No breaking changes to functionality</li>
+        </ul>
+        
+        <h2>📄 Documentation</h2>
+        <p>
+            Full documentation available in 
+            <code>/app/CHAT_WIDGET_FLASH_BUG_FIX.md</code>
+        </p>
+        
+        <div class="note" style="background: #dcfce7; border-left-color: #10b981;">
+            <p style="color: #065f46;">
+                <strong>✅ Status:</strong> Fix successfully implemented and deployed. 
+                The widget now loads with a smooth, professional appearance!
+            </p>
+        </div>
+    </div>
+    
+    <!-- ✅ LIVE WIDGET DEMO - Watch it fade in smoothly on page load! -->
+    <script 
+        chatbot-id="YOUR_CHATBOT_ID_HERE" 
+        domain="YOUR_DOMAIN_HERE"
+        position="bottom-right"
+        theme="purple"
+        src="/fast-widget.js">
+    </script>
+    
+    <script>
+        // Show instructions on how to test with actual chatbot
+        console.log('%c🎯 Widget Flash Bug Fix - Test Instructions', 'font-size: 18px; font-weight: bold; color: #667eea;');
+        console.log('%cTo test with a real chatbot:', 'font-size: 14px; color: #6b7280;');
+        console.log('1. Replace YOUR_CHATBOT_ID_HERE with an actual chatbot ID');
+        console.log('2. Replace YOUR_DOMAIN_HERE with your domain or use window.location.origin');
+        console.log('3. Clear cache and reload');
+        console.log('4. Watch for smooth fade-in with no flash!');
+        console.log('%c✅ Expected: Bubble fades in smoothly after ~100-500ms', 'font-size: 14px; font-weight: bold; color: #10b981;');
+        console.log('%c❌ Old Behavior: Bubble appeared instantly with "Chat Support" then flashed', 'font-size: 14px; font-weight: bold; color: #ef4444;');
+    </script>
+</body>
+</html>
