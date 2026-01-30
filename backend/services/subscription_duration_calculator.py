@@ -68,7 +68,12 @@ class SubscriptionDurationCalculator:
             duration_days = SubscriptionDurationCalculator.PAID_PLAN_DURATION
         
         now = datetime.utcnow()
-        
+        # 🚨 HARD RULE: NEVER carry forward FREE days when moving to PAID
+        if action_type in ("upgrade", "renewal") and current_subscription:
+            if current_subscription.get("plan_id") == "free" and new_plan_id != "free":
+                return now + timedelta(
+                    days=SubscriptionDurationCalculator.PAID_PLAN_DURATION
+                )
         # Handle RENEWAL - preserve remaining days if subscription is still active
         if action_type == "renewal" and current_subscription:
             current_expires = current_subscription.get('expires_at')

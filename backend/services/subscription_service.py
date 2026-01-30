@@ -136,6 +136,16 @@ class SubscriptionService:
         
         # STEP 2: Get current subscription
         current_subscription = await self.subscriptions_collection.find_one({"user_id": user_id})
+        # 🚫 HARD BLOCK: manual_sync must NEVER modify subscription duration
+        if payment_source == "manual_sync":
+            logger.info("[SYNC] manual_sync detected — skipping expiration update entirely")
+
+            return {
+                "status": "sync_ignored",
+                "subscription": current_subscription,
+                "message": "manual_sync does not mutate expires_at"
+
+                }
         
         # STEP 3: Determine action type (upgrade vs renewal)
         # 🔥 CRITICAL FIX: Check if this is user's FIRST PAID PAYMENT
