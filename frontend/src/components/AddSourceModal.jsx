@@ -255,7 +255,7 @@ const AddSourceModal = ({ isOpen, onClose, chatbotId, onSuccess, onUpgradeRequir
                   accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.csv"
                 />
               </Label>
-              <p className="text-xs text-gray-500 mt-2">Supported: PDF, DOCX, TXT, XLSX, CSV (Max 100MB)</p>
+              <p className="text-xs text-gray-500 mt-2">Supported: PDF, DOCX, TXT, XLSX, CSV (Max 10MB)</p>
               {fileData && (
                 <p className="text-sm text-gray-700 mt-4 font-medium">Selected: {fileData.name}</p>
               )}
