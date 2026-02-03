@@ -1063,7 +1063,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
                     </p>
                     <div className="flex gap-2">
                       <Input
-                        value={`https://botsmith.io/api/webhooks/${
+                        value={`https://botsmith.pro/api/webhooks/${
                           activeIntegration.id === 'msteams' ? 'teams' : 
                           activeIntegration.id === 'messenger' ? 'facebook' : 
                           activeIntegration.id
@@ -1073,7 +1073,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
                       />
                       <Button
                         onClick={async () => {
-                          const webhookUrl = `https://botsmith.io/api/webhooks/${
+                          const webhookUrl = `https://botsmith.pro/api/webhooks/${
                             activeIntegration.id === 'msteams' ? 'teams' : 
                             activeIntegration.id === 'messenger' ? 'facebook' : 
                             activeIntegration.id
