@@ -85,7 +85,7 @@ const HelpCenter = () => {
     {
       icon: <Mail className="w-6 h-6" />,
       title: 'Email Support',
-      description: 'support@botsmith.io',
+      description: 'support@botsmith.com',
       action: 'Send Email',
       gradient: 'from-purple-500 to-pink-600'
     },
