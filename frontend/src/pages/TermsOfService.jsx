@@ -329,7 +329,7 @@ const TermsOfService = () => {
             <div className="space-y-2">
               <p className="text-gray-700 flex items-center gap-2">
                 <FileText className="w-4 h-4 text-purple-600" />
-                <strong>Email:</strong> legal@botsmith.io
+                <strong>Email:</strong> legal@botsmith.com
               </p>
               <p className="text-gray-700 flex items-center gap-2">
                 <Scale className="w-4 h-4 text-purple-600" />
