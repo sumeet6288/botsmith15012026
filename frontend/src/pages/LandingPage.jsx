@@ -246,7 +246,7 @@ const LandingPage = () => {
             <div className="inline-block">
               <span className="px-3 sm:px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm font-medium inline-flex items-center gap-2">
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                AI-Powered Customer Support
+                AI-Powered Customer Support Platform For Agencies
               </span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-slide-in-left">
@@ -255,7 +255,7 @@ const LandingPage = () => {
               </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
-              BotSmith helps you design and deploy smart AI agents that enhance customer support.
+              BotSmith helps agencies design and deploy AI agents that automate and scale customer support.
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Button 
