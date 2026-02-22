@@ -12,4 +12,11 @@ Disallow: /signin
 Disallow: /signup
 Disallow: /embed
 
+# Explicitly allow OpenAI crawlers
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
 Sitemap: https://botsmith.pro/sitemap.xml
