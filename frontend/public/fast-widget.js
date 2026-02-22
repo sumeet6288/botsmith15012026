@@ -728,7 +728,7 @@
       const brandText = chatbot.powered_by_text || 'BotSmith';
       
       brandingFooter.innerHTML = `
-        <a href="https://botsmith.io" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #9ca3af; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s; font-weight: 500;">
+        <a href="https://botsmith.pro" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #9ca3af; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s; font-weight: 500;">
           <span>Powered by</span>
           <span style="font-weight: 700; color: ${currentTheme.primary}; letter-spacing: 0.3px;">${brandText}</span>
         </a>
