@@ -30,7 +30,7 @@ const TermsOfService = () => {
             <h1 className="text-3xl lg:text-4xl font-bold">Terms of Service</h1>
           </div>
           <p className="text-blue-100 text-lg">
-            Last updated: December 29, 2024
+            Last updated: Februar
           </p>
           <p className="text-white/90 mt-4 max-w-4xl">
             Please read these terms carefully before using BotSmith. By accessing or using our service, you agree to be bound by these terms.
