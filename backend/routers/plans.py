@@ -79,21 +79,36 @@ async def check_subscription_status(current_user: User = Depends(get_current_use
 
 @router.post("/renew")
 async def renew_subscription(current_user: User = Depends(get_current_user)):
-    """Renew current subscription for another period"""
+    """Renew current subscription for another period.
+
+    SECURITY: Paid plans CANNOT be activated here. Renewing a paid subscription
+    requires a verified payment via POST /api/razorpay/create-subscription, which
+    activates the plan only after Razorpay confirms payment (webhook/sync ->
+    SubscriptionService.process_payment_idempotent). This endpoint only renews the
+    FREE plan, which involves no payment.
+    """
     try:
+        subscription = await plan_service.get_user_subscription(current_user.id)
+        plan_id = (subscription or {}).get("plan_id", "free")
+
+        # Block payment-less activation/extension of paid plans
+        if plan_id != "free":
+            raise HTTPException(
+                status_code=402,
+                detail="Paid plans must be renewed via payment. Please complete checkout to renew your subscription."
+            )
+
         updated_subscription = await plan_service.renew_subscription(current_user.id)
-        
-        # Get plan details to show correct renewal duration
-        plan_id = updated_subscription.get("plan_id", "free")
-        renewal_days = 6 if plan_id == "free" else 30
-        
+
         # Convert ObjectId to string
         if "_id" in updated_subscription:
             updated_subscription["_id"] = str(updated_subscription["_id"])
-        
+
         return {
-            "message": f"Subscription renewed successfully for {renewal_days} days",
+            "message": "Free plan renewed successfully for 6 days",
             "subscription": updated_subscription
         }
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

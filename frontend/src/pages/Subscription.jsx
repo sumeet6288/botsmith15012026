@@ -236,29 +236,42 @@ const SubscriptionNew = () => {
   };
 
   const handleRenewSubscription = async () => {
-    if (renewing) return;
-    
+    if (renewing || checkingOut) return;
+
+    // Renewal of a PAID plan must go through the verified Razorpay payment flow.
+    // We reuse the same checkout path as a new subscription — no access is
+    // restored until payment is completed and verified by the webhook/sync.
+    const planId = subscriptionStatus?.plan_id;
+    if (!planId || planId === 'free') {
+      alert('No paid plan to renew.');
+      return;
+    }
+
     try {
       setRenewing(true);
       const token = localStorage.getItem('botsmith_token');
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      
+      if (!token) {
+        alert('Please log in to renew');
+        navigate('/signin');
+        return;
+      }
+      const headers = { Authorization: `Bearer ${token}` };
+
       const response = await axios.post(
-        `${BACKEND_URL}/api/plans/renew`,
-        {},
+        `${BACKEND_URL}/api/razorpay/create-subscription`,
+        { plan_id: planId },
         { headers }
       );
-      
-      console.log('Subscription renewed:', response.data);
-      
-      // Show success message
-      alert('🎉 Subscription renewed successfully for 30 days!');
-      
-      // Refresh subscription status
-      await fetchData();
+
+      if (response.data.success && response.data.checkout_url) {
+        // Open Razorpay checkout — subscription stays expired until payment succeeds
+        window.open(response.data.checkout_url, '_blank');
+      } else {
+        throw new Error('Failed to create checkout');
+      }
     } catch (error) {
-      console.error('Error renewing subscription:', error);
-      alert(error.response?.data?.detail || 'Failed to renew subscription. Please try again or contact support.');
+      console.error('Error starting renewal:', error);
+      alert(error.response?.data?.detail || 'Failed to start renewal. Please try again or contact support.');
     } finally {
       setRenewing(false);
     }

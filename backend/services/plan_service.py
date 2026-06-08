@@ -397,15 +397,25 @@ class PlanService:
         }
     
     async def renew_subscription(self, user_id: str) -> dict:
-        """Renew user's current subscription for another month"""
+        """Renew user's current subscription for another month.
+
+        SECURITY (defense-in-depth): Paid plans must NEVER be activated/extended
+        here. Paid activation may only occur through a verified payment via
+        SubscriptionService.process_payment_idempotent(). This method only renews
+        the FREE plan (no payment involved).
+        """
         subscription = await self.get_user_subscription(user_id)
-        
+
         now = datetime.utcnow()
         current_expires_at = subscription.get("expires_at")
         plan_id = subscription.get("plan_id", "free")
-        
-        # Determine renewal duration based on plan
-        days_to_add = 6 if plan_id == "free" else 30
+
+        # Guard: refuse to renew any paid plan without a verified payment
+        if plan_id != "free":
+            raise ValueError("Paid subscriptions cannot be renewed without a verified payment")
+
+        # Free plan renewal duration
+        days_to_add = 6
         
         # Calculate new expiration date
         # If subscription is expired or has no expiration, start from now

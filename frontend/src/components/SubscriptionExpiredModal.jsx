@@ -22,24 +22,35 @@ const SubscriptionExpiredModal = ({
   const daysRemaining = subscriptionStatus?.days_remaining;
 
   const handleRenew = async () => {
+    // Renewal of a paid plan must go through the verified Razorpay payment flow.
+    // No access is restored until payment completes and is verified.
+    const planId = currentPlan?.id;
+    if (!planId || planId === 'free') {
+      toast.error('No paid plan to renew.');
+      return;
+    }
+
     setIsRenewing(true);
     try {
       const response = await axios.post(
-        `${backendUrl}/api/plans/renew`,
-        {},
+        `${backendUrl}/api/razorpay/create-subscription`,
+        { plan_id: planId },
         {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            'Authorization': `Bearer ${localStorage.getItem('botsmith_token')}`
           }
         }
       );
 
-      toast.success('Subscription renewed successfully!');
-      if (onRenewed) onRenewed();
-      onClose();
+      if (response.data.success && response.data.checkout_url) {
+        window.open(response.data.checkout_url, '_blank');
+        onClose();
+      } else {
+        throw new Error('Failed to create checkout');
+      }
     } catch (error) {
-      console.error('Error renewing subscription:', error);
-      toast.error(error.response?.data?.detail || 'Failed to renew subscription');
+      console.error('Error starting renewal:', error);
+      toast.error(error.response?.data?.detail || 'Failed to start renewal');
     } finally {
       setIsRenewing(false);
     }
