@@ -98,7 +98,7 @@ async def process_discord_message(
                 f"⚠️ **Chatbot Inactive**\n\n"
                 f"This chatbot is currently inactive and cannot process messages.\n"
                 f"Please contact the chatbot owner to activate it.\n\n"
-                f"Dashboard: {os.environ.get('FRONTEND_URL', 'https://paidsync.preview.emergentagent.com')}"
+                f"Dashboard: {os.environ.get('FRONTEND_URL', 'https://payment-bypass-audit.preview.emergentagent.com')}"
             )
             await discord_service.send_message(
                 channel_id=channel_id,
@@ -120,7 +120,7 @@ async def process_discord_message(
                     f"⚠️ **Message Limit Reached**\n\n"
                     f"This chatbot has used {limit_check['current']}/{limit_check['max']} messages this month.\n"
                     f"The owner needs to upgrade their plan to continue using this bot.\n\n"
-                    f"Dashboard: {os.environ.get('FRONTEND_URL', 'https://paidsync.preview.emergentagent.com')}"
+                    f"Dashboard: {os.environ.get('FRONTEND_URL', 'https://payment-bypass-audit.preview.emergentagent.com')}"
                 )
                 await discord_service.send_message(
                     channel_id=channel_id,

@@ -1,0 +1,302 @@
+# 🚨 BotSmith Subscription Renewal Critical Bug Investigation
+
+## Context
+
+We have discovered a critical billing/subscription bug in BotSmith.
+
+### Expected Behavior
+
+1. User purchases a paid plan.
+2. Plan remains active until expiry date.
+3. After expiry, user sees a **Renew Now** button on the Subscription page.
+4. When user clicks **Renew Now**, they should be redirected to the Razorpay payment/subscription flow.
+5. Only after successful payment verification should plan features be reactivated.
+
+### Current Bug
+
+After a paid plan expires:
+
+1. Renew Now button appears correctly.
+2. User clicks Renew Now.
+3. Instead of redirecting to Razorpay/payment page, the system immediately restores the paid plan and paid features.
+4. No payment is collected.
+5. User receives active subscription access without completing payment.
+
+This is a critical revenue leakage and subscription security issue.
+
+---
+
+# IMPORTANT INSTRUCTIONS
+
+## DO NOT MAKE ANY CODE CHANGES
+
+Your task is ONLY investigation and analysis.
+
+You are NOT allowed to:
+
+* Modify code
+* Generate fixes
+* Apply patches
+* Refactor anything
+* Update database records
+* Change frontend or backend logic
+
+You must first perform a complete root cause analysis.
+
+---
+
+# Investigation Tasks
+
+## Phase 1 — Trace Current Renewal Flow
+
+Analyze the complete renewal flow beginning from:
+
+### Frontend
+
+* Subscription page
+* Renew Now button component
+* Click handler
+* API calls triggered by Renew Now
+
+### Backend
+
+* Renewal endpoints
+* Subscription endpoints
+* Razorpay endpoints
+* Webhook handlers
+* Subscription service
+* Plan service
+* Usage service
+* Expiration handling
+
+Create a detailed flow diagram showing:
+
+User Click
+↓
+Frontend Function
+↓
+API Endpoint
+↓
+Backend Service
+↓
+Database Update
+↓
+Subscription Activation
+
+Show every step.
+
+---
+
+## Phase 2 — Identify Root Cause
+
+Determine EXACTLY why paid features are being restored.
+
+Possible examples:
+
+* Frontend directly activating plan
+* Backend endpoint skipping payment validation
+* Expired subscription treated as active
+* Renewal endpoint bypassing Razorpay
+* Webhook logic executing without payment
+* Subscription status incorrectly updated
+* Expiration checker bug
+* Cached subscription state
+* Incorrect fallback logic
+* Renewal flow calling upgrade flow
+
+Do not assume.
+
+Trace actual execution path.
+
+---
+
+## Phase 3 — Database Investigation
+
+Inspect all relevant collections:
+
+* users
+* subscriptions
+* processed_payments
+* billing_audit_logs
+
+Verify:
+
+### Before Renew Click
+
+What values exist?
+
+* plan_id
+* status
+* expires_at
+* active flags
+
+### After Renew Click
+
+What changes occur?
+
+Which fields are updated?
+
+Which service updates them?
+
+What triggered the update?
+
+---
+
+## Phase 4 — Security Impact Analysis
+
+Assess:
+
+### Severity
+
+* Critical / High / Medium / Low
+
+### Exploitability
+
+Can users repeatedly:
+
+* Expire subscription
+* Click Renew
+* Get another month free
+
+### Revenue Risk
+
+Estimate impact if bug remains live.
+
+### Abuse Risk
+
+Can automated users exploit this repeatedly?
+
+---
+
+## Phase 5 — Compare Against Intended Design
+
+Use BotSmith subscription architecture and lifecycle documentation.
+
+Expected lifecycle:
+
+ACTIVE
+↓
+EXPIRING
+↓
+EXPIRED
+↓
+PAYMENT SUCCESS
+↓
+RENEWED
+↓
+ACTIVE
+
+Verify whether current implementation follows this flow.
+
+Identify every deviation.
+
+---
+
+# Required Deliverables
+
+Provide the following sections:
+
+## 1. Executive Summary
+
+One paragraph summary.
+
+---
+
+## 2. Root Cause
+
+Precise technical explanation.
+
+---
+
+## 3. Reproduction Steps
+
+Exact steps required to reproduce.
+
+---
+
+## 4. Current Flow Diagram
+
+Detailed flow.
+
+---
+
+## 5. Intended Flow Diagram
+
+Correct flow according to architecture.
+
+---
+
+## 6. Security & Revenue Impact
+
+Severity assessment.
+
+---
+
+## 7. Files Involved
+
+List every frontend and backend file involved.
+
+Example:
+
+Frontend:
+
+* SubscriptionPage.jsx
+* SubscriptionCard.jsx
+
+Backend:
+
+* plans.py
+* razorpay_payment.py
+* subscription_service.py
+* plan_service.py
+
+---
+
+## 8. Recommended Fix Strategy
+
+DO NOT IMPLEMENT.
+
+Only describe:
+
+* What should be changed
+* Where it should be changed
+* Why it should be changed
+
+No code modifications.
+
+---
+
+## 9. Validation Checklist
+
+Provide test cases to verify the future fix.
+
+Example:
+
+Test 1:
+Expired Starter user clicks Renew Now
+Expected:
+Redirect to Razorpay
+No feature activation
+
+Test 2:
+Successful payment
+Expected:
+Plan activates
+
+Test 3:
+Payment cancelled
+Expected:
+Plan remains expired
+
+etc.
+
+---
+
+# Final Rule
+
+Do not modify any code.
+
+Stop after analysis and recommendations.
+
+Wait for approval before generating or applying any fixes.
+
