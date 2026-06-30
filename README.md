@@ -1,6 +1,6 @@
-# BotSmith - AI Chatbot Builder
+# BotSmith - AI agent Builder
 
-Complete chatbot builder with multi-provider AI support (OpenAI, Claude, Gemini)
+Complete agent builder with multi-provider AI support (OpenAI, Claude, Gemini)
 
 ## 🚀 Quick Start (New Emergent Account)
 
@@ -22,7 +22,7 @@ This checks if dependencies are already installed and only installs if needed.
 - Multi-Provider AI (GPT-4o Mini, Claude 3.5 Haiku, Gemini Flash Lite)
 - File Uploads (PDF, DOCX, TXT, XLSX, CSV)
 - Website Scraping
-- RAG System with MongoDB (Text-based, no ChromaDB)
+- RAG System with MongoDB (Text-based)
 - Real-time Chat with Session Management
 - Analytics Dashboard with Multiple Charts
 - Integration Management (Slack, Telegram, Discord, WhatsApp, etc.)
