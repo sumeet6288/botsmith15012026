@@ -148,6 +148,18 @@ const ChatbotIntegrations = ({ chatbot }) => {
         { name: 'webhook_url', label: 'Webhook URL (from Zapier)', type: 'text', required: true },
         { name: 'api_key', label: 'API Key (optional)', type: 'password', required: false }
       ]
+    },
+    {
+      id: 'twilio',
+      name: 'Twilio SMS',
+      description: 'Connect your chatbot to SMS via Twilio',
+      icon: <Phone className="w-6 h-6" />,
+      gradient: 'from-red-500 to-rose-600',
+      fields: [
+        { name: 'account_sid', label: 'Account SID', type: 'text', required: true },
+        { name: 'auth_token', label: 'Auth Token', type: 'password', required: true },
+        { name: 'phone_number', label: 'Twilio Phone Number (E.164, e.g. +14155552671)', type: 'text', required: true, placeholder: '+14155552671' }
+      ]
     }
   ];
 
@@ -453,6 +465,37 @@ const ChatbotIntegrations = ({ chatbot }) => {
       toast({
         title: 'Webhook Setup Failed',
         description: error.response?.data?.detail || 'Failed to setup Messenger webhook',
+        variant: 'destructive'
+      });
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const handleSetupTwilioWebhook = async (integrationId) => {
+    try {
+      setTesting(true);
+      const baseUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
+      const response = await api.post(`/twilio/${chatbot.id}/setup-webhook`, {
+        base_url: baseUrl
+      });
+
+      const instructions = response.data.instructions || [];
+      toast({
+        title: 'Twilio Webhook URL Generated',
+        description: `Webhook URL: ${response.data.webhook_url}\n\nCheck console for detailed setup steps.`
+      });
+
+      console.log('=== Twilio SMS Webhook Setup Instructions ===');
+      console.log(`Webhook URL: ${response.data.webhook_url}`);
+      instructions.forEach((instruction) => console.log(instruction));
+      console.log('=============================================');
+
+      fetchIntegrations();
+    } catch (error) {
+      toast({
+        title: 'Webhook Setup Failed',
+        description: error.response?.data?.detail || 'Failed to setup Twilio webhook',
         variant: 'destructive'
       });
     } finally {
@@ -861,6 +904,18 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           disabled={testing}
                           className="border-2 border-green-600 text-green-600 hover:bg-green-50"
                           title="Setup Messenger Webhook"
+                        >
+                          <Zap className="w-4 h-4" />
+                        </Button>
+                      )}
+
+                      {definition.id === 'twilio' && (
+                        <Button
+                          variant="outline"
+                          onClick={() => handleSetupTwilioWebhook(integration.id)}
+                          disabled={testing}
+                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          title="Setup Twilio SMS Webhook"
                         >
                           <Zap className="w-4 h-4" />
                         </Button>
