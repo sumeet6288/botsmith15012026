@@ -31,7 +31,7 @@ const LandingPage = () => {
     {
       icon: <MessageSquare className="w-6 h-6" />,
       title: 'Custom AI Agents',
-      description: 'Train chatbots on your own content and data sources',
+      description: 'Train agents on your own content and data sources',
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
@@ -382,7 +382,7 @@ const LandingPage = () => {
       <section className="py-12 border-y border-gray-200 bg-white/50 backdrop-blur-sm relative z-10">
         <div className="max-w-5xl mx-auto px-8">
           <p className="text-center text-xl sm:text-2xl font-semibold text-gray-800 leading-relaxed">
-            Run an AI Agency Without Coding — <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">launch, manage, and sell</span> custom AI chatbots and automations under your own brand in minutes.
+            Run an AI Agency Without Coding — <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">launch, manage, and sell</span> custom AI agents and automations under your own brand in minutes.
           </p>
         </div>
       </section>
