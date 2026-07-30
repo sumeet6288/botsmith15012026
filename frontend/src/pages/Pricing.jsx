@@ -23,7 +23,7 @@ const Pricing = () => {
       gradient: 'from-blue-400 to-cyan-400',
       features: [
         '1 chatbot',
-        '100 messages/month',
+        '100 messages credit/month',
         'Basic analytics',
         'Community support',
         'Standard AI models'
@@ -41,7 +41,7 @@ const Pricing = () => {
       popular: true,
       features: [
         '5 chatbots',
-        '15,000 messages/month',
+        '15,000 messages credit/month',
         'Advanced analytics',
         'Priority support',
         'Custom branding',
@@ -60,7 +60,7 @@ const Pricing = () => {
       gradient: 'from-blue-600 to-indigo-600',
       features: [
         '25 chatbots',
-        '1,25,000 messages/month',
+        '1,25,000 messages credit/month',
         'Advanced analytics',
         '24/7 priority support',
         'Custom branding',
@@ -81,7 +81,7 @@ const Pricing = () => {
       gradient: 'from-purple-600 to-pink-600',
       features: [
         'Unlimited chatbots',
-        'Unlimited messages',
+        'Unlimited messages credit',
         'Custom analytics',
         'Dedicated 24/7 support',
         'White-label solution',
