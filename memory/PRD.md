@@ -23,6 +23,17 @@ Fix (renewal scope only — verified in preview):
 - Verified: paid /plans/renew returns 402 with expires_at unchanged; free renew works.
 Status: CONFIRMED SOLVED by user on preview. Needs production redeploy to go live.
 
+### 2026-07 — AI models restored + Twilio SMS integration (DONE, preview)
+- Restored full AI model list (OpenAI/Anthropic/Gemini) in `frontend/src/utils/models.js`
+  and `backend/services/chat_service.py`. Verified all 3 providers respond via chat endpoint.
+- Added Twilio SMS to chatbot integrations (per-tenant creds, mirrors Telegram/WhatsApp):
+  - New: `backend/services/twilio_service.py`, `backend/routers/twilio.py`
+    (POST /api/twilio/webhook/{chatbot_id} inbound SMS; POST /api/twilio/{id}/setup-webhook).
+  - Edited: `models.py` (added "twilio" to Integration Literals), `integrations.py`
+    (twilio test-connection branch), `server.py` (import+mount), `ChatbotIntegrations.jsx`
+    (Twilio SMS card + setup-webhook button). No new dependency (httpx REST).
+  - Verified: create/setup-webhook/test(graceful 401)/delete/inbound-webhook + UI card renders.
+
 ## Known open issues (separately scoped — NOT yet fixed, user deferred)
 - P0: Entire admin API is UNAUTHENTICATED (admin_subscriptions, admin_users,
   admin_users_enhanced, admin, admin_chatbots, admin_settings, admin_leads,

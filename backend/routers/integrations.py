@@ -193,6 +193,23 @@ async def test_integration_connection(integration_type: str, credentials: dict) 
             else:
                 return {"success": False, "message": result.get("error", "Failed to verify webhook")}
         
+        elif integration_type == "twilio":
+            # Test Twilio credentials (Account SID + Auth Token)
+            account_sid = credentials.get("account_sid")
+            auth_token = credentials.get("auth_token")
+            if not account_sid or not auth_token:
+                return {"success": False, "message": "Missing Account SID or Auth Token"}
+
+            from services.twilio_service import TwilioService
+            twilio_service = TwilioService(account_sid, auth_token, credentials.get("phone_number"))
+            result = await twilio_service.verify_credentials()
+            await twilio_service.close()
+
+            if result.get("success"):
+                return {"success": True, "message": f"Connected to Twilio account: {result.get('friendly_name', account_sid)}"}
+            else:
+                return {"success": False, "message": result.get("error", "Invalid Twilio credentials")}
+
         else:
             return {"success": False, "message": "Unknown integration type"}
             
