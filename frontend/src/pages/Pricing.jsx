@@ -22,7 +22,7 @@ const Pricing = () => {
       icon: Sparkles,
       gradient: 'from-blue-400 to-cyan-400',
       features: [
-        '1 chatbot',
+        '1 Agent',
         '100 messages credit/month',
         'Basic analytics',
         'Community support',
@@ -40,7 +40,7 @@ const Pricing = () => {
       gradient: 'from-pink-500 to-purple-500',
       popular: true,
       features: [
-        '5 chatbots',
+        '5 Agents',
         '15,000 messages credit/month',
         'Advanced analytics',
         'Priority support',
@@ -59,7 +59,7 @@ const Pricing = () => {
       icon: Crown,
       gradient: 'from-blue-600 to-indigo-600',
       features: [
-        '25 chatbots',
+        '25 Agents',
         '1,25,000 messages credit/month',
         'Advanced analytics',
         '24/7 priority support',
@@ -80,7 +80,7 @@ const Pricing = () => {
       icon: Building2,
       gradient: 'from-purple-600 to-pink-600',
       features: [
-        'Unlimited chatbots',
+        'Unlimited Agents',
         'Unlimited messages credit',
         'Custom analytics',
         'Dedicated 24/7 support',
