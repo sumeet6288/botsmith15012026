@@ -163,7 +163,7 @@ const DashboardRedesigned = () => {
             fontSize: '14px',
             color: '#6B7280'
           }}>
-            Monitor your chatbot activity and usage
+            Monitor your agents' activity and usage
           </p>
         </div>
 
