@@ -251,7 +251,7 @@ const LandingPage = () => {
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-slide-in-left">
               <span className="bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent animate-gradient">
-                 𝒜𝐼 𝓉𝒽𝒶𝓉 𝑔𝓊𝒾𝒹𝑒𝓈,<br />𝓈𝓊𝓅𝓅𝑜𝓇𝓉𝓈, 𝒶𝓃𝒹 𝑒𝓂𝓅𝑜𝓌𝑒𝓇𝓈<br />𝑒𝓋𝑒𝓇𝓎 𝓈𝓉𝓊𝒹𝑒𝓃𝓉
+                 𝘈𝘐 𝘵𝘩𝘢𝘵 𝘨𝘶𝘪𝘥𝘦𝘴,<br />𝘴𝘶𝘱𝘱𝘰𝘳𝘵𝘴, 𝘢𝘯𝘥 𝘦𝘮𝘱𝘰𝘸𝘦𝘳𝘴<br />𝘦𝘷𝘦𝘳𝘺 𝘴𝘵𝘶𝘥𝘦𝘯𝘵
               </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
