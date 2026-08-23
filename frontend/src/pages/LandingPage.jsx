@@ -179,7 +179,7 @@ const LandingPage = () => {
             <div className="flex flex-col -space-y-0.5">
               <div className="flex items-baseline gap-1">
                 <span className="text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent group-hover:from-purple-800 group-hover:via-fuchsia-700 group-hover:to-pink-700 transition-all duration-300 drop-shadow-sm">
-                  BotSmith
+                  𝐵𝑜𝑡𝑆𝑚𝑖𝑡ℎ
                 </span>
                 <span className="text-[9px] font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded-md">AI</span>
               </div>
