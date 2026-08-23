@@ -246,7 +246,7 @@ const LandingPage = () => {
             <div className="inline-block">
               <span className="px-3 sm:px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm font-medium inline-flex items-center gap-2">
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                AI-Powered Student Support Platform For Universities and Colleges
+               𝐴𝐼-𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑆𝑡𝑢𝑑𝑒𝑛𝑡 𝑆𝑢𝑝𝑝𝑜𝑟𝑡 𝑃𝑙𝑎𝑡𝑓𝑜𝑟𝑚 𝐹𝑜𝑟 𝑈𝑛𝑖𝑣𝑒𝑟𝑠𝑖𝑡𝑖𝑒𝑠 𝑎𝑛𝑑 𝐶𝑜𝑙𝑙𝑒𝑔𝑒𝑠
               </span>
             </div>
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-slide-in-left">
@@ -255,14 +255,14 @@ const LandingPage = () => {
               </span>
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
-              BotSmith helps universities deploy AI assistants that automate admissions, answer student questions, and provide 24/7 campus support.
+              𝐵𝑜𝑡𝑆𝑚𝑖𝑡ℎ ℎ𝑒𝑙𝑝𝑠 𝑢𝑛𝑖𝑣𝑒𝑟𝑠𝑖𝑡𝑖𝑒𝑠 𝑑𝑒𝑝𝑙𝑜𝑦 𝐴𝐼 𝑎𝑠𝑠𝑖𝑠𝑡𝑎𝑛𝑡𝑠 𝑡ℎ𝑎𝑡 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑒 𝑎𝑑𝑚𝑖𝑠𝑠𝑖𝑜𝑛𝑠, 𝑎𝑛𝑠𝑤𝑒𝑟 𝑠𝑡𝑢𝑑𝑒𝑛𝑡 𝑞𝑢𝑒𝑠𝑡𝑖𝑜𝑛𝑠, 𝑎𝑛𝑑 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 24/7 𝑐𝑎𝑚𝑝𝑢𝑠 𝑠𝑢𝑝𝑝𝑜𝑟𝑡.
             </p>
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
               <Button 
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg rounded-xl shadow-xl transition-colors duration-300 group"
                 onClick={() => navigate('/signup')}
               >
-                Build your agent
+                𝐵𝑢𝑖𝑙𝑑 𝑦𝑜𝑢𝑟 𝑎𝑔𝑒𝑛𝑡
                 <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               <span className="text-gray-500 flex items-center gap-2">
@@ -382,7 +382,7 @@ const LandingPage = () => {
       <section className="py-12 border-y border-gray-200 bg-white/50 backdrop-blur-sm relative z-10">
         <div className="max-w-5xl mx-auto px-8">
           <p className="text-center text-xl sm:text-2xl font-semibold text-gray-800 leading-relaxed">
-            One AI platform for your entire university — <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">automate admissions, answer student questions</span> custom AI agents and automations for every department in minutes.
+            𝑂𝑛𝑒 𝐴𝐼 𝑝𝑙𝑎𝑡𝑓𝑜𝑟𝑚 𝑓𝑜𝑟 𝑦𝑜𝑢𝑟 𝑒𝑛𝑡𝑖𝑟𝑒 𝑢𝑛𝑖𝑣𝑒𝑟𝑠𝑖𝑡𝑦 — <span className="text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text">𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑒 𝑎𝑑𝑚𝑖𝑠𝑠𝑖𝑜𝑛𝑠, 𝑎𝑛𝑠𝑤𝑒𝑟 𝑠𝑡𝑢𝑑𝑒𝑛𝑡 𝑞𝑢𝑒𝑠𝑡𝑖𝑜𝑛𝑠</span> 𝑐𝑢𝑠𝑡𝑜𝑚 𝐴𝐼 𝑎𝑔𝑒𝑛𝑡𝑠 𝑎𝑛𝑑 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑖𝑜𝑛𝑠 𝑓𝑜𝑟 𝑒𝑣𝑒𝑟𝑦 𝑑𝑒𝑝𝑎𝑟𝑡𝑚𝑒𝑛𝑡 𝑖𝑛 𝑚𝑖𝑛𝑢𝑡𝑒𝑠.
           </p>
         </div>
       </section>
