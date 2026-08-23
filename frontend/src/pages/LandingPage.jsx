@@ -100,29 +100,29 @@ const LandingPage = () => {
   const useCases = [
     {
       icon: <ShoppingCart className="w-8 h-8" />,
-      title: 'E-commerce Support',
-      description: 'Handle orders, track shipments, and manage returns 24/7',
+      title: '𝐴𝑑𝑚𝑖𝑠𝑠𝑖𝑜𝑛𝑠 𝑆𝑢𝑝𝑝𝑜𝑟𝑡',
+      description: '𝐴𝑛𝑠𝑤𝑒𝑟 𝑝𝑟𝑜𝑠𝑝𝑒𝑐𝑡 𝑞𝑢𝑒𝑟𝑖𝑒𝑠, 𝑠ℎ𝑎𝑟𝑒 𝑝𝑟𝑜𝑔𝑟𝑎𝑚 𝑑𝑒𝑡𝑎𝑖𝑙𝑠, 𝑒𝑙𝑖𝑔𝑖𝑏𝑖𝑙𝑖𝑡𝑦, 𝑓𝑒𝑒𝑠, 𝑎𝑛𝑑 𝑔𝑢𝑖𝑑𝑒 𝑠𝑡𝑢𝑑𝑒𝑛𝑡𝑠 𝑡ℎ𝑟𝑜𝑢𝑔ℎ 𝑡ℎ𝑒 𝑎𝑑𝑚𝑖𝑠𝑠𝑖𝑜𝑛 𝑝𝑟𝑜𝑐𝑒𝑠𝑠.',
       stats: '3x faster resolution',
       gradient: 'from-blue-500 to-cyan-500'
     },
     {
       icon: <Briefcase className="w-8 h-8" />,
-      title: 'SaaS Onboarding',
-      description: 'Guide new users through features and answer product questions',
+      title: '𝑆𝑡𝑢𝑑𝑒𝑛𝑡 𝐻𝑒𝑙𝑝𝑑𝑒𝑠𝑘',
+      description: '𝑃𝑟𝑜𝑣𝑖𝑑𝑒 24/7 𝑠𝑢𝑝𝑝𝑜𝑟𝑡 𝑓𝑜𝑟 𝑎𝑐𝑎𝑑𝑒𝑚𝑖𝑐 𝑞𝑢𝑒𝑟𝑖𝑒𝑠, 𝑒𝑥𝑎𝑚 𝑠𝑐ℎ𝑒𝑑𝑢𝑙𝑒𝑠, 𝑟𝑒𝑠𝑢𝑙𝑡𝑠, 𝑑𝑜𝑐𝑢𝑚𝑒𝑛𝑡𝑠, 𝑎𝑛𝑑 𝑐𝑎𝑚𝑝𝑢𝑠 𝑠𝑒𝑟𝑣𝑖𝑐𝑒𝑠.',
       stats: '60% less support tickets',
       gradient: 'from-purple-500 to-pink-500'
     },
     {
       icon: <Heart className="w-8 h-8" />,
-      title: 'Healthcare FAQ',
-      description: 'Answer patient questions about services, hours, and procedures',
+      title: '𝐶𝑎𝑚𝑝𝑢𝑠 𝐼𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛',
+      description: 'A𝐼𝑛𝑠𝑡𝑎𝑛𝑡𝑙𝑦 𝑠ℎ𝑎𝑟𝑒 𝑖𝑛𝑓𝑜𝑟𝑚𝑎𝑡𝑖𝑜𝑛 𝑎𝑏𝑜𝑢𝑡 𝑒𝑣𝑒𝑛𝑡𝑠, 𝑓𝑎𝑐𝑖𝑙𝑖𝑡𝑖𝑒𝑠, 𝑑𝑒𝑝𝑎𝑟𝑡𝑚𝑒𝑛𝑡𝑠, 𝑝𝑙𝑎𝑐𝑒𝑚𝑒𝑛𝑡𝑠, ℎ𝑜𝑠𝑡𝑒𝑙𝑠, 𝑎𝑛𝑑 𝑚𝑜𝑟𝑒.',
       stats: '85% satisfaction rate',
       gradient: 'from-rose-500 to-red-500'
     },
     {
       icon: <GraduationCap className="w-8 h-8" />,
-      title: 'Education Assistant',
-      description: 'Help students with course materials, assignments, and schedules',
+      title: '𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛 𝐴𝑠𝑠𝑖𝑠𝑡𝑎𝑛𝑡',
+      description: '𝐻𝑒𝑙𝑝 𝑠𝑡𝑢𝑑𝑒𝑛𝑡𝑠 𝑤𝑖𝑡ℎ 𝑐𝑜𝑢𝑟𝑠𝑒 𝑚𝑎𝑡𝑒𝑟𝑖𝑎𝑙𝑠, 𝑎𝑠𝑠𝑖𝑔𝑛𝑚𝑒𝑛𝑡𝑠, 𝑎𝑛𝑑 𝑠𝑐ℎ𝑒𝑑𝑢𝑙𝑒𝑠',
       stats: '24/7 availability',
       gradient: 'from-green-500 to-emerald-500'
     }
@@ -393,10 +393,10 @@ const LandingPage = () => {
           {/* Header */}
           <div className={`text-center mb-12 `}>
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-              Build Smarter, Support Better, Grow Faster
+              𝐵𝑢𝑖𝑙𝑑 𝑆𝑚𝑎𝑟𝑡𝑒𝑟, 𝑆𝑢𝑝𝑝𝑜𝑟𝑡 𝐵𝑒𝑡𝑡𝑒𝑟, 𝐺𝑟𝑜𝑤 𝐹𝑎𝑠𝑡𝑒𝑟
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              A complete platform to craft, deploy and refine your AI-Powered agent ecosystem.
+              𝐴 𝑐𝑜𝑚𝑝𝑙𝑒𝑡𝑒 𝑝𝑙𝑎𝑡𝑓𝑜𝑟𝑚 𝑡𝑜 𝑐𝑟𝑎𝑓𝑡, 𝑑𝑒𝑝𝑙𝑜𝑦 𝑎𝑛𝑑 𝑟𝑒𝑓𝑖𝑛𝑒 𝑦𝑜𝑢𝑟 𝐴𝐼-𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑎𝑔𝑒𝑛𝑡 𝑒𝑐𝑜𝑠𝑦𝑠𝑡𝑒𝑚.
             </p>
           </div>
 
@@ -549,13 +549,13 @@ const LandingPage = () => {
           <div className={`text-center mb-16 `}>
             <span className="px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium inline-flex items-center gap-2 mb-4">
               <Award className="w-4 h-4" />
-              Trusted Across Industries
+              𝐵𝑢𝑖𝑙𝑑 𝑓𝑜𝑟 𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛
             </span>
             <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-              Built for Every Business
+              𝐵𝑢𝑖𝑙𝑡 𝑓𝑜𝑟 𝐸𝑣𝑒𝑟𝑦 𝐷𝑒𝑝𝑎𝑟𝑡𝑚𝑒𝑛𝑡
             </h2>
             <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              From startups to enterprises, see how teams use BotSmith to revolutionize customer experience
+              𝐸𝑚𝑝𝑜𝑤𝑒𝑟𝑖𝑛𝑔 𝑖𝑛𝑠𝑡𝑖𝑡𝑢𝑡𝑖𝑜𝑛𝑠 𝑡𝑜 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑒 𝑠𝑢𝑝𝑝𝑜𝑟𝑡, 𝑒𝑛𝑔𝑎𝑔𝑒 𝑠𝑡𝑢𝑑𝑒𝑛𝑡𝑠, 𝑎𝑛𝑑 𝑖𝑚𝑝𝑟𝑜𝑣𝑒 𝑒𝑣𝑒𝑟𝑦 𝑐𝑎𝑚𝑝𝑢𝑠 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒.
             </p>
           </div>
 
