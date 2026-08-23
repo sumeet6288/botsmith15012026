@@ -122,7 +122,7 @@ const SignUp = () => {
                 <div className="flex flex-col -space-y-0.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-xl sm:text-2xl font-black font-heading tracking-tight bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent animate-rainbow">
-                      BotSmith
+                      𝐵𝑜𝑡𝑆𝑚𝑖𝑡ℎ
                     </span>
                     <span className="text-[8px] sm:text-[9px] font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded-full animate-bounce-in stagger-1">AI</span>
                   </div>
@@ -132,7 +132,7 @@ const SignUp = () => {
               {/* Heading with stagger animation */}
               <div className="space-y-1 sm:space-y-2 mb-6 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-black font-heading bg-gradient-to-r from-purple-700 via-pink-600 to-orange-600 bg-clip-text text-transparent animate-slide-in-right leading-tight">
-                  Create your account
+                  𝐶𝑟𝑒𝑎𝑡𝑒 𝑦𝑜𝑢𝑟 𝑎𝑐𝑐𝑜𝑢𝑛𝑡
                 </h1>
                 <p className="text-gray-600 text-sm sm:text-base font-body animate-slide-in-right stagger-1">Start building your AI agents today</p>
               </div>
