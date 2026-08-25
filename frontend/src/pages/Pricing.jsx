@@ -40,7 +40,7 @@ const Pricing = () => {
       gradient: 'from-pink-500 to-purple-500',
       popular: true,
       features: [
-        '5 Agents',
+        '1 Agents',
         '15,000 messages credit/month',
         'Advanced analytics',
         'Priority support',
@@ -59,7 +59,7 @@ const Pricing = () => {
       icon: Crown,
       gradient: 'from-blue-600 to-indigo-600',
       features: [
-        '25 Agents',
+        '3 Agents',
         '1,25,000 messages credit/month',
         'Advanced analytics',
         '24/7 priority support',
