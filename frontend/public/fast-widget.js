@@ -196,6 +196,62 @@
       animation: bounce 1.5s ease-in-out infinite !important;
       transform: scale(1.05);
     }
+
+
+    /* Proactive greeting: stays beside the bubble and does NOT inherit its bounce animation */
+    .botsmith-greeting {
+      position: absolute;
+      top: 32px;
+      width: min(280px, calc(100vw - 120px));
+      transform: translateY(-50%);
+      background: #ffffff;
+      color: #293142;
+      padding: 16px 42px 16px 18px;
+      border-radius: 14px;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.16);
+      font-size: 15px;
+      line-height: 1.45;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+      z-index: 1;
+    }
+
+    .botsmith-greeting.botsmith-greeting-visible {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* Widget on the right: greeting sits to the LEFT */
+    .botsmith-greeting.botsmith-greeting-left {
+      right: 78px;
+      left: auto;
+    }
+
+    /* Widget on the left: greeting sits to the RIGHT */
+    .botsmith-greeting.botsmith-greeting-right {
+      left: 78px;
+      right: auto;
+    }
+
+    .botsmith-greeting-close {
+      position: absolute;
+      top: 7px;
+      right: 10px;
+      border: none;
+      background: transparent;
+      color: #98a2b3;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .botsmith-greeting-close:hover {
+      color: #344054;
+    }
     
     .botsmith-message-item {
       animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -319,6 +375,48 @@
   bubble.onmouseleave = () => {
     bubble.style.boxShadow = `0 8px 25px ${currentTheme.primary}50, 0 4px 12px ${currentTheme.primary}30`;
   };
+
+  // Create proactive greeting. It is separate from the bubble, so the bubble can bounce independently.
+  const greeting = document.createElement('div');
+  greeting.className = 'botsmith-greeting';
+
+  greeting.innerHTML = `
+    <button
+      class="botsmith-greeting-close"
+      type="button"
+      aria-label="Close greeting"
+    >×</button>
+    <span id="botsmith-greeting-text">Hey! 👋 Ask me anything</span>
+  `;
+
+  function updateGreetingPosition(position) {
+    greeting.classList.remove(
+      'botsmith-greeting-left',
+      'botsmith-greeting-right'
+    );
+
+    if ((position || config.position).includes('right')) {
+      greeting.classList.add('botsmith-greeting-left');
+    } else {
+      greeting.classList.add('botsmith-greeting-right');
+    }
+  }
+
+  updateGreetingPosition(config.position);
+
+  function showGreeting(delaySeconds = 1.5) {
+    const delay = Math.max(0, Number(delaySeconds) || 0) * 1000;
+
+    setTimeout(() => {
+      if (!isOpen && !(chatbot && chatbot.auto_expand)) {
+        greeting.classList.add('botsmith-greeting-visible');
+      }
+    }, delay);
+  }
+
+  function hideGreeting() {
+    greeting.classList.remove('botsmith-greeting-visible');
+  }
 
   // Create chat window with glassmorphism effect
   const chatWindow = document.createElement('div');
@@ -475,6 +573,7 @@
   chatWindow.appendChild(brandingFooter);
 
   // Assemble container
+  container.appendChild(greeting);
   container.appendChild(bubble);
   container.appendChild(chatWindow);
 
@@ -650,7 +749,10 @@
         if (newPosition.left) container.style.left = newPosition.left;
         if (newPosition.right) container.style.right = newPosition.right;
         
-        const windowPosition = chatbot.widget_position.includes('bottom') ? 'bottom: 90px;' : 'top: 90px;';
+        
+        // Keep the greeting on the correct side of the bubble for all 4 positions.
+        updateGreetingPosition(chatbot.widget_position);
+const windowPosition = chatbot.widget_position.includes('bottom') ? 'bottom: 90px;' : 'top: 90px;';
         const windowAlign = chatbot.widget_position.includes('right') ? 'right: 0;' : 'left: 0;';
         
         chatWindow.style.cssText = `
@@ -704,6 +806,7 @@
       // ✅ Show widget even on error (with defaults)
       bubble.style.opacity = '1';
       bubble.style.visibility = 'visible';
+      showGreeting(1.5);
     } finally {
       isLoading = false;
     }
@@ -863,6 +966,12 @@
 
   // Event listeners
   bubble.onclick = toggleChat;
+
+  greeting.querySelector('.botsmith-greeting-close').onclick = (e) => {
+    e.stopPropagation();
+    hideGreeting();
+  };
+
   document.getElementById('botsmith-close').onclick = (e) => {
     e.stopPropagation();
     toggleChat();
