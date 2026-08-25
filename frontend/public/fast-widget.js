@@ -891,6 +891,218 @@
     }
   }, 3000);
   
+  /* =========================================================
+   BOTSMITH SIDE GREETING - SELF CONTAINED BLOCK
+   ========================================================= */
+
+(() => {
+
+  /* ---------- 1. CREATE CSS ---------- */
+
+  const greetingStyle = document.createElement('style');
+
+  greetingStyle.textContent = `
+    #botsmith-side-greeting {
+      position: fixed;
+      z-index: 999998;
+
+      width: 280px;
+      max-width: calc(100vw - 120px);
+
+      background: #ffffff;
+      color: #293142;
+
+      padding: 16px 42px 16px 18px;
+
+      border-radius: 14px;
+
+      box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.16);
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      font-size: 15px;
+      line-height: 1.45;
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform: translateY(-50%);
+
+      transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+
+      pointer-events: none;
+    }
+
+    #botsmith-side-greeting.botsmith-greeting-show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #botsmith-side-greeting button {
+      position: absolute;
+
+      top: 7px;
+      right: 10px;
+
+      border: none;
+      background: transparent;
+
+      color: #98a2b3;
+
+      font-size: 21px;
+
+      cursor: pointer;
+
+      padding: 4px;
+
+      line-height: 1;
+    }
+
+    #botsmith-side-greeting button:hover {
+      color: #344054;
+    }
+
+    @media (max-width: 600px) {
+
+      #botsmith-side-greeting {
+        width: 230px;
+        font-size: 14px;
+      }
+
+    }
+  `;
+
+  document.head.appendChild(greetingStyle);
+
+
+  /* ---------- 2. CREATE GREETING ---------- */
+
+  const greeting = document.createElement('div');
+
+  greeting.id = 'botsmith-side-greeting';
+
+  greeting.innerHTML = `
+    <button aria-label="Close">×</button>
+
+    <strong>Hey! 👋</strong><br>
+
+    Ask me anything.
+  `;
+
+  document.body.appendChild(greeting);
+
+
+  /* ---------- 3. GET CURRENT POSITION ---------- */
+
+  function getWidgetPosition() {
+
+    return config.position || 'bottom-right';
+
+  }
+
+
+  /* ---------- 4. POSITION GREETING ---------- */
+
+  function positionGreeting() {
+
+    const position = getWidgetPosition();
+
+    const bubbleRect = bubble.getBoundingClientRect();
+
+    const greetingWidth = 280;
+
+    /* Reset */
+
+    greeting.style.top = '';
+    greeting.style.right = '';
+    greeting.style.bottom = '';
+    greeting.style.left = '';
+
+
+    /* RIGHT SIDE WIDGET */
+
+    if (position.includes('right')) {
+
+      greeting.style.top =
+        `${bubbleRect.top + bubbleRect.height / 2}px`;
+
+      greeting.style.right =
+        `${window.innerWidth - bubbleRect.left + 14}px`;
+
+    }
+
+
+    /* LEFT SIDE WIDGET */
+
+    else {
+
+      greeting.style.top =
+        `${bubbleRect.top + bubbleRect.height / 2}px`;
+
+      greeting.style.left =
+        `${bubbleRect.right + 14}px`;
+
+    }
+
+  }
+
+
+  /* ---------- 5. SHOW AFTER DELAY ---------- */
+
+  setTimeout(() => {
+
+    positionGreeting();
+
+    greeting.classList.add(
+      'botsmith-greeting-show'
+    );
+
+  }, 1500);
+
+
+  /* ---------- 6. KEEP POSITION UPDATED ---------- */
+
+  window.addEventListener(
+    'resize',
+    positionGreeting
+  );
+
+
+  /* ---------- 7. CLOSE BUTTON ---------- */
+
+  greeting
+    .querySelector('button')
+    .addEventListener('click', (event) => {
+
+      event.stopPropagation();
+
+      greeting.classList.remove(
+        'botsmith-greeting-show'
+      );
+
+    });
+
+
+  /* ---------- 8. HIDE WHEN WIDGET OPENS ---------- */
+
+  bubble.addEventListener('click', () => {
+
+    greeting.classList.remove(
+      'botsmith-greeting-show'
+    );
+
+  });
+
+})();
+
   // Mark as initialized
   window.BotSmithWidget.initialized = true;
   window.BotSmithWidget.version = '2.0.0'; // Version tracking
