@@ -992,9 +992,9 @@
   greeting.innerHTML = `
     <button aria-label="Close">×</button>
 
-    <strong>Hey! 👋</strong><br>
+    <strong>👋 Have questions?</strong><br>
 
-    Ask me anything.
+    I'm here to help!
   `;
 
   document.body.appendChild(greeting);
