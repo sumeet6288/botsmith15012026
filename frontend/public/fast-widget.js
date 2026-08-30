@@ -1901,7 +1901,7 @@
       border-radius: 11px;
 
       background:
-        ${currentTheme.primary};
+        #000000;
 
       color: #ffffff;
 
