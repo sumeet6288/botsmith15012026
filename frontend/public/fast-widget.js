@@ -237,8 +237,8 @@
     }
     
     #botsmith-input:focus {
-      border-color: ${currentTheme.primary} !important;
-      box-shadow: 0 0 0 3px ${currentTheme.primary}20 !important;
+      border-color: #000000 !important;
+      box-shadow: 0 0 0 3px #00000020 !important;
       transition: all 0.3s ease;
     }
     
