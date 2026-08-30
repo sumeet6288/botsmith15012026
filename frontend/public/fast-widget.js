@@ -1723,6 +1723,753 @@
 
 })();
 
+/* =========================================================
+   BOTSMITH LEAD CAPTURE FORM
+   SELF-CONTAINED BLOCK
+   ========================================================= */
+
+(() => {
+
+  /* =========================
+     1. ADD LEAD FORM CSS
+     Uses existing theme color
+     ========================= */
+
+  const leadFormStyle = document.createElement('style');
+
+  leadFormStyle.textContent = `
+
+    #botsmith-lead-form-wrapper {
+      flex: 1;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      background: #ffffff;
+
+      overflow-y: auto;
+    }
+
+
+    #botsmith-lead-form-card {
+      width: 100%;
+
+      max-width: 340px;
+
+      background: #ffffff;
+
+      border: 1px solid rgba(0, 0, 0, 0.08);
+
+      border-radius: 18px;
+
+      padding: 24px;
+
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.08);
+
+      animation:
+        botsmithLeadFormEnter
+        0.35s ease;
+    }
+
+
+    @keyframes botsmithLeadFormEnter {
+
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+
+    #botsmith-lead-icon {
+
+      width: 46px;
+      height: 46px;
+
+      border-radius: 14px;
+
+      background: ${currentTheme.primary};
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      font-size: 22px;
+
+      margin-bottom: 16px;
+
+      color: white;
+    }
+
+
+    #botsmith-lead-title {
+
+      margin: 0 0 8px 0;
+
+      font-size: 21px;
+
+      font-weight: 700;
+
+      color: #222222;
+
+      line-height: 1.2;
+    }
+
+
+    #botsmith-lead-description {
+
+      margin: 0 0 22px 0;
+
+      color: #737373;
+
+      font-size: 13.5px;
+
+      line-height: 1.5;
+    }
+
+
+    .botsmith-lead-field {
+
+      margin-bottom: 14px;
+    }
+
+
+    .botsmith-lead-label {
+
+      display: block;
+
+      margin-bottom: 7px;
+
+      font-size: 12px;
+
+      font-weight: 600;
+
+      color: #4b5563;
+    }
+
+
+    .botsmith-lead-input {
+
+      width: 100%;
+
+      height: 46px;
+
+      border:
+        1.5px solid
+        #e1e1e1;
+
+      border-radius: 10px;
+
+      padding: 0 13px;
+
+      font-size: 14px;
+
+      font-family: inherit;
+
+      color: #222222;
+
+      outline: none;
+
+      background: #ffffff;
+
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+
+    .botsmith-lead-input:focus {
+
+      border-color:
+        ${currentTheme.primary};
+
+      box-shadow:
+        0 0 0 3px
+        ${currentTheme.primary}20;
+    }
+
+
+    .botsmith-lead-input::placeholder {
+
+      color: #a3a3a3;
+    }
+
+
+    #botsmith-lead-submit {
+
+      width: 100%;
+
+      height: 47px;
+
+      margin-top: 4px;
+
+      border: none;
+
+      border-radius: 11px;
+
+      background:
+        ${currentTheme.primary};
+
+      color: #ffffff;
+
+      font-family: inherit;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.2s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+
+    #botsmith-lead-submit:hover {
+
+      transform:
+        translateY(-1px);
+
+      opacity: 0.92;
+
+      box-shadow:
+        0 8px 20px
+        ${currentTheme.primary}40;
+    }
+
+
+    #botsmith-lead-submit:active {
+
+      transform:
+        translateY(0);
+    }
+
+
+    #botsmith-lead-submit:disabled {
+
+      opacity: 0.6;
+
+      cursor: not-allowed;
+    }
+
+
+    #botsmith-lead-note {
+
+      margin-top: 12px;
+
+      text-align: center;
+
+      font-size: 10.5px;
+
+      color: #a3a3a3;
+
+      line-height: 1.4;
+    }
+
+
+    #botsmith-lead-error {
+
+      display: none;
+
+      margin-top: 8px;
+
+      font-size: 11px;
+
+      color: #dc2626;
+    }
+
+
+    @media (max-width: 480px) {
+
+      #botsmith-lead-form-wrapper {
+
+        padding: 16px;
+      }
+
+
+      #botsmith-lead-form-card {
+
+        max-width: none;
+
+        padding: 22px;
+      }
+
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    leadFormStyle
+  );
+
+
+
+  /* =========================
+     2. FIND EXISTING CHAT
+     ELEMENTS
+     ========================= */
+
+  const existingMessages =
+    document.getElementById(
+      'botsmith-messages'
+    );
+
+
+  const existingInput =
+    document.getElementById(
+      'botsmith-input'
+    );
+
+
+  const chatWindow =
+    document.getElementById(
+      'botsmith-window'
+    );
+
+
+  if (
+    !existingMessages ||
+    !existingInput ||
+    !chatWindow
+  ) {
+
+    console.warn(
+      '[BotSmith] Lead form could not find widget elements'
+    );
+
+    return;
+  }
+
+
+
+  /* =========================
+     3. FIND INPUT AREA
+     ========================= */
+
+  const existingInputArea =
+    existingInput.parentElement;
+
+
+
+  /* =========================
+     4. SAVE ORIGINAL DISPLAY
+     STATES
+     ========================= */
+
+  const originalMessagesDisplay =
+    existingMessages.style.display;
+
+
+  const originalInputDisplay =
+    existingInputArea.style.display;
+
+
+
+  /* =========================
+     5. HIDE CHAT INITIALLY
+     ========================= */
+
+  existingMessages.style.display =
+    'none';
+
+
+  existingInputArea.style.display =
+    'none';
+
+
+
+  /* =========================
+     6. CREATE LEAD FORM
+     ========================= */
+
+  const leadFormWrapper =
+    document.createElement('div');
+
+
+  leadFormWrapper.id =
+    'botsmith-lead-form-wrapper';
+
+
+  leadFormWrapper.innerHTML = `
+
+    <form id="botsmith-lead-form-card">
+
+
+      <!-- ICON -->
+
+      <div id="botsmith-lead-icon">
+
+        👋
+
+      </div>
+
+
+
+      <!-- TITLE -->
+
+      <h2 id="botsmith-lead-title">
+
+        Before we begin
+
+      </h2>
+
+
+
+      <!-- DESCRIPTION -->
+
+      <p id="botsmith-lead-description">
+
+        Tell us a little about yourself so we can assist you better.
+
+      </p>
+
+
+
+      <!-- NAME -->
+
+      <div class="botsmith-lead-field">
+
+        <label
+          class="botsmith-lead-label"
+          for="botsmith-lead-name"
+        >
+
+          Your name
+
+        </label>
+
+
+        <input
+          id="botsmith-lead-name"
+          class="botsmith-lead-input"
+          type="text"
+          placeholder="Enter your name"
+          autocomplete="name"
+          required
+        >
+
+      </div>
+
+
+
+      <!-- PHONE -->
+
+      <div class="botsmith-lead-field">
+
+        <label
+          class="botsmith-lead-label"
+          for="botsmith-lead-phone"
+        >
+
+          Phone number
+
+        </label>
+
+
+        <input
+          id="botsmith-lead-phone"
+          class="botsmith-lead-input"
+          type="tel"
+          placeholder="Enter your phone number"
+          autocomplete="tel"
+          required
+        >
+
+      </div>
+
+
+
+      <!-- SUBMIT -->
+
+      <button
+        id="botsmith-lead-submit"
+        type="submit"
+      >
+
+        Start chatting →
+
+      </button>
+
+
+
+      <!-- ERROR -->
+
+      <div id="botsmith-lead-error">
+
+        Please enter your name and phone number.
+
+      </div>
+
+
+
+      <!-- NOTE -->
+
+      <div id="botsmith-lead-note">
+
+        Your information is kept private.
+
+      </div>
+
+
+    </form>
+
+  `;
+
+
+
+  /* =========================
+     7. INSERT FORM
+     BEFORE CHAT MESSAGES
+     ========================= */
+
+  existingMessages.parentNode.insertBefore(
+    leadFormWrapper,
+    existingMessages
+  );
+
+
+
+  /* =========================
+     8. GET FORM ELEMENTS
+     ========================= */
+
+  const leadForm =
+    document.getElementById(
+      'botsmith-lead-form-card'
+    );
+
+
+  const leadNameInput =
+    document.getElementById(
+      'botsmith-lead-name'
+    );
+
+
+  const leadPhoneInput =
+    document.getElementById(
+      'botsmith-lead-phone'
+    );
+
+
+  const leadSubmitButton =
+    document.getElementById(
+      'botsmith-lead-submit'
+    );
+
+
+  const leadError =
+    document.getElementById(
+      'botsmith-lead-error'
+    );
+
+
+
+  /* =========================
+     9. HANDLE SUBMISSION
+     ========================= */
+
+  leadForm.addEventListener(
+    'submit',
+    (event) => {
+
+      event.preventDefault();
+
+
+      const leadName =
+        leadNameInput.value.trim();
+
+
+      const leadPhone =
+        leadPhoneInput.value.trim();
+
+
+
+      /* VALIDATION */
+
+      if (
+        !leadName ||
+        !leadPhone
+      ) {
+
+        leadError.style.display =
+          'block';
+
+        return;
+      }
+
+
+
+      leadError.style.display =
+        'none';
+
+
+
+      /* DISABLE BUTTON */
+
+      leadSubmitButton.disabled =
+        true;
+
+
+      leadSubmitButton.textContent =
+        'Starting...';
+
+
+
+      /* =========================
+         CAPTURE LEAD DATA
+
+         Later connect this
+         to your backend API
+         ========================= */
+
+      const leadData = {
+
+        name:
+          leadName,
+
+        phone:
+          leadPhone,
+
+        chatbot_id:
+          chatbot?.id ||
+          chatbotId ||
+          null,
+
+        captured_at:
+          new Date().toISOString()
+
+      };
+
+
+
+      /* TEMPORARY STORAGE */
+
+      window.BotSmithLeadData =
+        leadData;
+
+
+
+      console.log(
+        '[BotSmith] Lead captured:',
+        leadData
+      );
+
+
+
+      /* CUSTOM EVENT
+
+         Useful later for backend
+         or analytics integration
+      */
+
+      window.dispatchEvent(
+
+        new CustomEvent(
+          'botsmithLeadCaptured',
+          {
+            detail: leadData
+          }
+        )
+
+      );
+
+
+
+      /* =========================
+         SMALL TRANSITION
+         ========================= */
+
+      leadFormWrapper.style.transition =
+        'opacity 0.25s ease, transform 0.25s ease';
+
+
+      leadFormWrapper.style.opacity =
+        '0';
+
+
+      leadFormWrapper.style.transform =
+        'translateY(-10px)';
+
+
+
+      setTimeout(
+        () => {
+
+
+          /* REMOVE LEAD FORM */
+
+          leadFormWrapper.remove();
+
+
+
+          /* SHOW CHAT */
+
+          existingMessages.style.display =
+            originalMessagesDisplay ||
+            'flex';
+
+
+          existingInputArea.style.display =
+            originalInputDisplay ||
+            'flex';
+
+
+
+          /* OPTIONAL:
+             Update first assistant
+             greeting with name
+          */
+
+          const firstAssistantMessage =
+            existingMessages.querySelector(
+              '.botsmith-message-item'
+            );
+
+
+          console.log(
+            '[BotSmith] Chat started for:',
+            leadName
+          );
+
+
+
+          /* FOCUS CHAT INPUT */
+
+          setTimeout(
+            () => {
+
+              existingInput.focus();
+
+            },
+            100
+          );
+
+
+        },
+        250
+      );
+
+    }
+  );
+
+
+})();
+
   // Mark as initialized
   window.BotSmithWidget.initialized = true;
   window.BotSmithWidget.version = '2.0.0'; // Version tracking
