@@ -1792,26 +1792,7 @@
     }
 
 
-    #botsmith-lead-icon {
-
-      width: 46px;
-      height: 46px;
-
-      border-radius: 14px;
-
-      background: ${currentTheme.primary};
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      font-size: 22px;
-
-      margin-bottom: 16px;
-
-      color: white;
-    }
+   
 
 
     #botsmith-lead-title {
@@ -2112,11 +2093,7 @@
 
       <!-- ICON -->
 
-      <div id="botsmith-lead-icon">
-
-        👋
-
-      </div>
+      
 
 
 
