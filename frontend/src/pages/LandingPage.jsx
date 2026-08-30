@@ -338,7 +338,7 @@ const LandingPage = () => {
                         <Sparkles className="w-4 h-4 text-white" />
                       </div>
                       <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-2.5 max-w-[75%] shadow-sm">
-                        <p className="text-sm text-gray-800">I can help with customer support, answer questions, and provide 24/7 assistance! 🚀</p>
+                        <p className="text-sm text-gray-800">I can help students with admissions, campus information, and answer questions instantly! 🎓</p>
                       </div>
                     </div>
                     
