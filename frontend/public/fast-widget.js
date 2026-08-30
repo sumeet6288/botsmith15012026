@@ -1103,6 +1103,626 @@
 
 })();
 
+/* =========================================================
+   BOTSMITH THREE DOT MENU
+   SELF-CONTAINED BLOCK
+   ========================================================= */
+
+(() => {
+
+  /* =========================
+     1. ADD CSS
+     ========================= */
+
+  const botsmithMenuStyle = document.createElement('style');
+
+  botsmithMenuStyle.textContent = `
+
+    #botsmith-three-dot-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      z-index: 999999;
+    }
+
+    #botsmith-three-dot-btn {
+      width: 40px;
+      height: 40px;
+
+      padding: 0;
+
+      border-radius: 12px;
+
+      border: 1px solid rgba(255,255,255,0.3);
+
+      background: rgba(255,255,255,0.2);
+
+      backdrop-filter: blur(10px);
+
+      color: white;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      transition: all 0.2s ease;
+    }
+
+    #botsmith-three-dot-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.05);
+    }
+
+
+    /* DROPDOWN MENU */
+
+    #botsmith-chat-menu {
+      position: fixed;
+
+      width: 245px;
+
+      background: #ffffff;
+
+      border: 1px solid rgba(0,0,0,0.08);
+
+      border-radius: 12px;
+
+      box-shadow: 0 16px 45px rgba(0,0,0,0.22);
+
+      padding: 7px;
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform: translateY(-8px) scale(0.98);
+
+      transform-origin: top right;
+
+      transition: all 0.18s ease;
+
+      z-index: 2147483647;
+    }
+
+
+    #botsmith-chat-menu.botsmith-menu-active {
+      opacity: 1;
+      visibility: visible;
+
+      transform: translateY(0) scale(1);
+    }
+
+
+    /* MENU ITEM */
+
+    .botsmith-menu-item {
+      width: 100%;
+
+      border: none;
+
+      background: transparent;
+
+      color: #30343b;
+
+      display: flex;
+      align-items: center;
+
+      gap: 13px;
+
+      padding: 13px 14px;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      text-align: left;
+
+      font-size: 15px;
+
+      font-weight: 500;
+
+      font-family: inherit;
+
+      transition: background 0.15s ease;
+    }
+
+
+    .botsmith-menu-item:hover {
+      background: #f4f5f7;
+    }
+
+
+    /* MENU ICON */
+
+    .botsmith-menu-icon {
+      width: 20px;
+      height: 20px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      color: #7b818c;
+
+      flex-shrink: 0;
+    }
+
+
+    /* DIVIDER */
+
+    .botsmith-menu-divider {
+      height: 1px;
+
+      background: #e8eaed;
+
+      margin: 5px 0;
+    }
+
+
+    @media (max-width: 600px) {
+      #botsmith-chat-menu {
+        width: 235px;
+      }
+    }
+
+  `;
+
+  document.head.appendChild(botsmithMenuStyle);
+
+
+
+  /* =========================
+     2. CREATE THREE DOT BUTTON
+     ========================= */
+
+  const menuWrapper = document.createElement('div');
+
+  menuWrapper.id = 'botsmith-three-dot-wrapper';
+
+
+  menuWrapper.innerHTML = `
+
+    <button
+      id="botsmith-three-dot-btn"
+      aria-label="More options"
+    >
+
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+
+        <circle cx="5" cy="12" r="1.8"></circle>
+
+        <circle cx="12" cy="12" r="1.8"></circle>
+
+        <circle cx="19" cy="12" r="1.8"></circle>
+
+      </svg>
+
+    </button>
+
+  `;
+
+
+
+  /* =========================
+     3. FIND CLOSE BUTTON
+     AND INSERT THREE DOTS
+     BEFORE IT
+     ========================= */
+
+  const existingCloseButton =
+    header.querySelector(
+      '#botsmith-close'
+    );
+
+
+  if (existingCloseButton) {
+
+    existingCloseButton.parentNode.insertBefore(
+      menuWrapper,
+      existingCloseButton
+    );
+
+  } else {
+
+    console.warn(
+      '[BotSmith] Close button not found'
+    );
+
+  }
+
+
+
+  /* =========================
+     4. CREATE DROPDOWN
+     OUTSIDE HEADER
+     ========================= */
+
+  const chatMenu = document.createElement('div');
+
+  chatMenu.id = 'botsmith-chat-menu';
+
+
+  chatMenu.innerHTML = `
+
+
+    <!-- START NEW CHAT -->
+
+    <button
+      class="botsmith-menu-item"
+      id="botsmith-new-chat"
+    >
+
+      <span class="botsmith-menu-icon">
+
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <path d="M12 20h9"></path>
+
+          <path
+            d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"
+          ></path>
+
+        </svg>
+
+      </span>
+
+      Start a new chat
+
+    </button>
+
+
+
+    <!-- END CHAT -->
+
+    <button
+      class="botsmith-menu-item"
+      id="botsmith-end-chat"
+    >
+
+      <span class="botsmith-menu-icon">
+
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <path d="M18 6L6 18"></path>
+
+          <path d="M6 6l12 12"></path>
+
+        </svg>
+
+      </span>
+
+      End chat
+
+    </button>
+
+
+
+    <!-- DIVIDER -->
+
+    <div
+      class="botsmith-menu-divider"
+    ></div>
+
+
+
+    <!-- RECENT CHATS -->
+
+    <button
+      class="botsmith-menu-item"
+      id="botsmith-recent-chats"
+    >
+
+      <span class="botsmith-menu-icon">
+
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+          ></circle>
+
+          <path d="M12 7v5l3 2"></path>
+
+        </svg>
+
+      </span>
+
+      View recent chats
+
+    </button>
+
+  `;
+
+
+  /* IMPORTANT:
+     Add to body so existing header overflow
+     cannot clip the dropdown
+  */
+
+  document.body.appendChild(chatMenu);
+
+
+
+  /* =========================
+     5. GET BUTTON
+     ========================= */
+
+  const threeDotBtn =
+    document.getElementById(
+      'botsmith-three-dot-btn'
+    );
+
+
+
+  /* =========================
+     6. POSITION MENU
+     ========================= */
+
+  function positionBotSmithMenu() {
+
+    const buttonRect =
+      threeDotBtn.getBoundingClientRect();
+
+
+    const menuWidth = 245;
+
+
+    let menuLeft =
+      buttonRect.right - menuWidth;
+
+
+    /* Prevent going outside left screen */
+
+    if (menuLeft < 12) {
+      menuLeft = 12;
+    }
+
+
+    /* Prevent going outside right screen */
+
+    if (
+      menuLeft + menuWidth >
+      window.innerWidth - 12
+    ) {
+
+      menuLeft =
+        window.innerWidth -
+        menuWidth -
+        12;
+
+    }
+
+
+    chatMenu.style.top =
+      buttonRect.bottom + 8 + 'px';
+
+
+    chatMenu.style.left =
+      menuLeft + 'px';
+
+  }
+
+
+
+  /* =========================
+     7. OPEN / CLOSE MENU
+     ========================= */
+
+  threeDotBtn.addEventListener(
+    'click',
+    (event) => {
+
+      event.stopPropagation();
+
+
+      positionBotSmithMenu();
+
+
+      chatMenu.classList.toggle(
+        'botsmith-menu-active'
+      );
+
+    }
+  );
+
+
+
+  /* =========================
+     8. CLOSE WHEN CLICKING
+     OUTSIDE
+     ========================= */
+
+  document.addEventListener(
+    'click',
+    (event) => {
+
+      if (
+        !menuWrapper.contains(event.target) &&
+        !chatMenu.contains(event.target)
+      ) {
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+      }
+
+    }
+  );
+
+
+
+  /* =========================
+     9. REPOSITION ON RESIZE
+     ========================= */
+
+  window.addEventListener(
+    'resize',
+    () => {
+
+      if (
+        chatMenu.classList.contains(
+          'botsmith-menu-active'
+        )
+      ) {
+
+        positionBotSmithMenu();
+
+      }
+
+    }
+  );
+
+
+
+  /* =========================
+     10. START NEW CHAT
+     ========================= */
+
+  document
+    .getElementById('botsmith-new-chat')
+    .addEventListener(
+      'click',
+      () => {
+
+        /*
+         Clear existing UI messages
+        */
+
+        messages.length = 0;
+
+        messagesContainer.innerHTML = '';
+
+
+
+        /*
+         Add welcome message again
+        */
+
+        if (
+          chatbot &&
+          chatbot.welcome_message
+        ) {
+
+          addMessage(
+            'assistant',
+            chatbot.welcome_message
+          );
+
+        }
+
+
+        /*
+         Close menu
+        */
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+      }
+    );
+
+
+
+  /* =========================
+     11. END CHAT
+     ========================= */
+
+  document
+    .getElementById('botsmith-end-chat')
+    .addEventListener(
+      'click',
+      () => {
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+
+        /*
+         Use existing widget close logic
+        */
+
+        if (
+          typeof isOpen !== 'undefined' &&
+          isOpen &&
+          typeof toggleChat === 'function'
+        ) {
+
+          toggleChat();
+
+        }
+
+      }
+    );
+
+
+
+  /* =========================
+     12. RECENT CHATS
+     ========================= */
+
+  document
+    .getElementById('botsmith-recent-chats')
+    .addEventListener(
+      'click',
+      () => {
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+
+        /*
+         Placeholder for future
+         conversation history system
+        */
+
+        console.log(
+          '[BotSmith] Recent chats clicked'
+        );
+
+
+        alert(
+          'Recent chats feature coming soon!'
+        );
+
+      }
+    );
+
+
+})();
+
   // Mark as initialized
   window.BotSmithWidget.initialized = true;
   window.BotSmithWidget.version = '2.0.0'; // Version tracking
