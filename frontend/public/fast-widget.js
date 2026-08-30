@@ -1901,7 +1901,7 @@
       border-radius: 11px;
 
       background:
-        ${customization.primary_color} !important;
+        ${currentTheme.primary};
 
       color: #ffffff;
 
