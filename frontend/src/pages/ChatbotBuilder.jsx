@@ -7,7 +7,8 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Slider } from '../components/ui/slider';
-import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code } from 'lucide-react';
+import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Users, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code } from 'lucide-react';
+import LeadCaptured from '../components/LeadCaptured';
 import { Progress } from '../components/ui/progress';
 import UserProfileDropdown from '../components/UserProfileDropdown';
 import AddSourceModal from '../components/AddSourceModal';
@@ -372,7 +373,7 @@ const ChatbotBuilder = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile: Horizontal scrolling tabs */}
           <div className="mb-6 overflow-x-auto scrollbar-hide">
-            <TabsList className="inline-flex w-max min-w-full lg:grid lg:w-full lg:grid-cols-7 gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-1 rounded-xl shadow-lg animate-fade-in-up">
+            <TabsList className="inline-flex w-max min-w-full lg:grid lg:w-full lg:grid-cols-8 gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-1 rounded-xl shadow-lg animate-fade-in-up">
               <TabsTrigger value="sources" className="whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 flex-shrink-0">
                 <FileText className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Sources</span>
@@ -407,6 +408,11 @@ const ChatbotBuilder = () => {
                 <Zap className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Integrations</span>
                 <span className="sm:hidden">Integrations</span>
+              </TabsTrigger>
+              <TabsTrigger value="leads-captured" className="whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 flex-shrink-0">
+                <Users className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Lead Captured</span>
+                <span className="sm:hidden">Leads</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1146,6 +1152,13 @@ const ChatbotBuilder = () => {
           <TabsContent value="integrations" className="animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <ChatbotIntegrations chatbot={chatbot} />
+            </div>
+          </TabsContent>
+
+          {/* Lead Captured Tab */}
+          <TabsContent value="leads-captured" className="animate-fade-in-up">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
+              <LeadCaptured chatbot={chatbot} />
             </div>
           </TabsContent>
 

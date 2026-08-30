@@ -1,10 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import uuid
-from models import User, Lead, LeadResponse, LeadCreate, LeadUpdate, LeadStatsResponse
+from models import (
+    User, Lead, LeadResponse, LeadCreate, LeadUpdate, LeadStatsResponse,
+    ChatbotLead, ChatbotLeadCreate, ChatbotLeadResponse
+)
 from services.plan_service import plan_service
 from auth import get_current_user
 
@@ -16,6 +19,78 @@ DB_NAME = os.environ.get('DB_NAME', 'chatbase_db')
 client = AsyncIOMotorClient(MONGO_URL)
 db = client[DB_NAME]
 leads_collection = db.leads
+chatbot_leads_collection = db.chatbot_leads
+chatbots_collection = db.chatbots
+
+
+@router.post("/public/lead/{chatbot_id}", response_model=ChatbotLeadResponse)
+async def capture_chatbot_lead(chatbot_id: str, payload: ChatbotLeadCreate):
+    """PUBLIC endpoint: capture a lead submitted through a chatbot's widget lead form.
+
+    No auth (widgets are embedded on third-party sites). We validate that the
+    chatbot actually exists and associate the lead with it server-side.
+    """
+    try:
+        name = (payload.name or "").strip()
+        phone = (payload.phone or "").strip()
+        if not name or not phone:
+            raise HTTPException(status_code=400, detail="Name and phone are required")
+
+        # Validate chatbot exists
+        chatbot = await chatbots_collection.find_one({"id": chatbot_id})
+        if not chatbot:
+            raise HTTPException(status_code=404, detail="Chatbot not found")
+
+        # Deduplicate rapid/retry submissions (same chatbot + name + phone within 15s)
+        recent_cutoff = datetime.now(timezone.utc) - timedelta(seconds=15)
+        existing = await chatbot_leads_collection.find_one({
+            "chatbot_id": chatbot_id,
+            "name": name,
+            "phone": phone,
+            "created_at": {"$gte": recent_cutoff}
+        })
+        if existing:
+            if "_id" in existing:
+                existing.pop("_id")
+            return ChatbotLeadResponse(**existing)
+
+        lead = ChatbotLead(chatbot_id=chatbot_id, name=name, phone=phone)
+        lead_dict = lead.model_dump()
+        await chatbot_leads_collection.insert_one(lead_dict)
+        if "_id" in lead_dict:
+            lead_dict.pop("_id")
+        return ChatbotLeadResponse(**lead_dict)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/chatbot-leads/{chatbot_id}", response_model=List[ChatbotLeadResponse])
+async def get_chatbot_leads(chatbot_id: str, current_user: User = Depends(get_current_user)):
+    """Get widget-captured leads for a chatbot. Verifies chatbot ownership server-side."""
+    try:
+        # Multi-tenant safety: only the owner of the chatbot can view its leads
+        chatbot = await chatbots_collection.find_one({"id": chatbot_id, "user_id": current_user.id})
+        if not chatbot:
+            raise HTTPException(status_code=404, detail="Chatbot not found or access denied")
+
+        leads = await chatbot_leads_collection.find(
+            {"chatbot_id": chatbot_id}
+        ).sort("created_at", -1).to_list(length=10000)
+
+        responses = []
+        for lead in leads:
+            if "_id" in lead:
+                lead.pop("_id")
+            responses.append(ChatbotLeadResponse(**lead))
+        return responses
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @router.get("/leads", response_model=List[LeadResponse])

@@ -491,6 +491,30 @@ class LeadStatsResponse(BaseModel):
     plan_name: str
 
 
+# Chatbot Lead Capture Models (leads captured via the public widget lead form)
+class ChatbotLead(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    chatbot_id: str
+    name: str
+    phone: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class ChatbotLeadCreate(BaseModel):
+    name: str
+    phone: str
+
+
+class ChatbotLeadResponse(BaseModel):
+    id: str
+    chatbot_id: str
+    name: str
+    phone: str
+    created_at: datetime
+
+
 # Chatbot Models
 class Chatbot(BaseModel):
     model_config = ConfigDict(extra="ignore")

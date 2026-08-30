@@ -2262,7 +2262,7 @@
 
   leadForm.addEventListener(
     'submit',
-    (event) => {
+    async (event) => {
 
       event.preventDefault();
 
@@ -2309,60 +2309,77 @@
 
       /* =========================
          CAPTURE LEAD DATA
-
-         Later connect this
-         to your backend API
          ========================= */
 
+      const currentChatbotId =
+        (chatbot && chatbot.id) ||
+        config.chatbotId ||
+        chatbotId ||
+        null;
+
       const leadData = {
-
-        name:
-          leadName,
-
-        phone:
-          leadPhone,
-
-        chatbot_id:
-          chatbot?.id ||
-          chatbotId ||
-          null,
-
-        captured_at:
-          new Date().toISOString()
-
+        name: leadName,
+        phone: leadPhone,
+        chatbot_id: currentChatbotId,
+        captured_at: new Date().toISOString()
       };
 
 
 
-      /* TEMPORARY STORAGE */
+      /* =========================
+         PERSIST LEAD TO BACKEND
+         (best-effort: never trap
+          the visitor in the form)
+         ========================= */
 
-      window.BotSmithLeadData =
-        leadData;
+      try {
+
+        const leadResp = await fetch(
+          config.apiUrl + '/public/lead/' + currentChatbotId,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: leadName,
+              phone: leadPhone
+            })
+          }
+        );
+
+        if (!leadResp.ok) {
+          console.error(
+            '[BotSmith] Lead save failed:',
+            leadResp.status
+          );
+        }
+
+      } catch (err) {
+
+        console.error(
+          '[BotSmith] Lead save error:',
+          err
+        );
+
+        if (leadError) {
+          leadError.textContent =
+            'Could not save your details, continuing to chat…';
+          leadError.style.display = 'block';
+        }
+      }
 
 
 
-      console.log(
-        '[BotSmith] Lead captured:',
-        leadData
-      );
+      /* CUSTOM EVENT (analytics) */
 
-
-
-      /* CUSTOM EVENT
-
-         Useful later for backend
-         or analytics integration
-      */
+      window.BotSmithLeadData = leadData;
 
       window.dispatchEvent(
-
         new CustomEvent(
           'botsmithLeadCaptured',
-          {
-            detail: leadData
-          }
+          { detail: leadData }
         )
-
       );
 
 

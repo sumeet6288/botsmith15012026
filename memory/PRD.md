@@ -34,6 +34,18 @@ Status: CONFIRMED SOLVED by user on preview. Needs production redeploy to go liv
     (Twilio SMS card + setup-webhook button). No new dependency (httpx REST).
   - Verified: create/setup-webhook/test(graceful 401)/delete/inbound-webhook + UI card renders.
 
+### 2026-08 — Lead Captured tab (widget lead persistence) DONE
+- New `chatbot_leads` collection (separate from existing CRM `leads`).
+- models.py: ChatbotLead / ChatbotLeadCreate / ChatbotLeadResponse.
+- leads.py: POST /api/public/lead/{chatbot_id} (public capture, validates chatbot,
+  15s dedup) + GET /api/chatbot-leads/{chatbot_id} (authed, ownership-checked, newest first).
+- fast-widget.js: lead form now POSTs to backend (best-effort, non-blocking) instead of
+  window/console only.
+- ChatbotBuilder.jsx: added "Lead Captured" tab (last, after Integrations, Users icon);
+  new component LeadCaptured.jsx (table Name|Number|Date&Time, loading/empty states).
+- Verified: capture 200, dedup, 404 invalid chatbot, 400 missing fields, owner sees lead,
+  cross-user 404, unauth 403, UI renders.
+
 ## Known open issues (separately scoped — NOT yet fixed, user deferred)
 - P0: Entire admin API is UNAUTHENTICATED (admin_subscriptions, admin_users,
   admin_users_enhanced, admin, admin_chatbots, admin_settings, admin_leads,
