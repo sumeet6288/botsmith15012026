@@ -707,6 +707,15 @@
     } finally {
       isLoading = false;
     }
+
+    // Show lead capture form before chat only if enabled for this chatbot (default: enabled)
+    if (!window.BotSmithWidget.leadCaptureInitialized) {
+      window.BotSmithWidget.leadCaptureInitialized = true;
+      const leadCaptureEnabled = !chatbot || chatbot.lead_capture_enabled !== false;
+      if (leadCaptureEnabled && typeof botsmithInitLeadCapture === 'function') {
+        botsmithInitLeadCapture();
+      }
+    }
   }
   
   function updateBotAvatarColors() {
@@ -1725,10 +1734,11 @@
 
 /* =========================================================
    BOTSMITH LEAD CAPTURE FORM
-   SELF-CONTAINED BLOCK
+   Invoked conditionally after chatbot config loads,
+   based on chatbot.lead_capture_enabled
    ========================================================= */
 
-(() => {
+function botsmithInitLeadCapture() {
 
   /* =========================
      1. ADD LEAD FORM CSS
@@ -2461,8 +2471,7 @@
     }
   );
 
-
-})();
+}
 
   // Mark as initialized
   window.BotSmithWidget.initialized = true;

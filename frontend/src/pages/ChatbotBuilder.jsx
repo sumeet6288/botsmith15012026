@@ -409,7 +409,7 @@ const ChatbotBuilder = () => {
                 <span className="hidden sm:inline">Integrations</span>
                 <span className="sm:hidden">Integrations</span>
               </TabsTrigger>
-              <TabsTrigger value="leads-captured" className="whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 flex-shrink-0">
+              <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" className="whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 flex-shrink-0">
                 <Users className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Lead Captured</span>
                 <span className="sm:hidden">Leads</span>
@@ -1158,7 +1158,7 @@ const ChatbotBuilder = () => {
           {/* Lead Captured Tab */}
           <TabsContent value="leads-captured" className="animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
-              <LeadCaptured chatbot={chatbot} />
+              <LeadCaptured chatbot={chatbot} onUpdate={refreshChatbot} />
             </div>
           </TabsContent>
 

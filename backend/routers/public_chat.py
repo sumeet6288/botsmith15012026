@@ -79,6 +79,7 @@ async def get_public_chatbot(chatbot_id: str):
         widget_position=chatbot.get("widget_position", "bottom-right"),
         widget_size=chatbot.get("widget_size", "medium"),
         auto_expand=chatbot.get("auto_expand", False),
+        lead_capture_enabled=chatbot.get("lead_capture_enabled", True),
         powered_by_text=chatbot.get("powered_by_text")
     )
     

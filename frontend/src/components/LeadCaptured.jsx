@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Users, RefreshCw, Inbox } from 'lucide-react';
-import api from '../utils/api';
+import api, { chatbotAPI } from '../utils/api';
+import { Switch } from './ui/switch';
+import { useToast } from '../hooks/use-toast';
 
 const formatDateTime = (iso) => {
   try {
@@ -18,10 +20,38 @@ const formatDateTime = (iso) => {
   }
 };
 
-const LeadCaptured = ({ chatbot }) => {
+const LeadCaptured = ({ chatbot, onUpdate }) => {
+  const { toast } = useToast();
   const [leads, setLeads] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [togglingCapture, setTogglingCapture] = useState(false);
+
+  const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false;
+
+  const handleToggleLeadCapture = async (checked) => {
+    if (!chatbot?.id || togglingCapture) return;
+    try {
+      setTogglingCapture(true);
+      await chatbotAPI.update(chatbot.id, { lead_capture_enabled: checked });
+      toast({
+        title: checked ? 'Lead Capture Enabled' : 'Lead Capture Disabled',
+        description: checked
+          ? 'Visitors will see the lead form before chatting.'
+          : 'Visitors will chat directly without submitting details.'
+      });
+      if (onUpdate) await onUpdate();
+    } catch (err) {
+      console.error('Error updating lead capture setting:', err);
+      toast({
+        title: 'Error',
+        description: 'Failed to update lead capture setting',
+        variant: 'destructive'
+      });
+    } finally {
+      setTogglingCapture(false);
+    }
+  };
 
   const fetchLeads = async () => {
     try {
@@ -43,6 +73,25 @@ const LeadCaptured = ({ chatbot }) => {
 
   return (
     <div className="space-y-6 animate-fade-in-up" data-testid="lead-captured-tab">
+      {/* Lead Capture Toggle Settings */}
+      <div
+        className="flex items-center justify-between gap-4 p-5 bg-white rounded-xl border-2 border-purple-200/50 shadow-sm"
+        data-testid="lead-capture-settings-card"
+      >
+        <div>
+          <h3 className="text-base font-semibold text-gray-900">Lead Capture</h3>
+          <p className="text-sm text-gray-600 mt-1 max-w-md">
+            Require visitors to provide their details before starting a conversation with the AI.
+          </p>
+        </div>
+        <Switch
+          checked={leadCaptureEnabled}
+          onCheckedChange={handleToggleLeadCapture}
+          disabled={togglingCapture}
+          data-testid="lead-capture-toggle"
+        />
+      </div>
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
