@@ -604,6 +604,30 @@
     if (typing) typing.remove();
   }
 
+  // Smart auto-scroll: follow new messages only while the user stays near the bottom.
+  // If the user scrolls up to read, automatic scrolling pauses.
+  let isUserNearBottom = true;
+
+  function updateUserScrollPosition() {
+    const distanceFromBottom =
+      messagesContainer.scrollHeight -
+      messagesContainer.scrollTop -
+      messagesContainer.clientHeight;
+
+    // 80px tolerance prevents tiny layout changes from disabling auto-scroll.
+    isUserNearBottom = distanceFromBottom <= 80;
+  }
+
+  function smartScrollToBottom(force = false) {
+    if (force || isUserNearBottom) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  messagesContainer.addEventListener('scroll', updateUserScrollPosition, {
+    passive: true
+  });
+
   // Animate a completed AI response word-by-word (ChatGPT-style)
   async function streamAssistantMessage(content) {
     const bubbleRadius = getBubbleRadius();
@@ -650,7 +674,7 @@
       displayedText += part;
       contentElement.textContent = displayedText;
 
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      smartScrollToBottom();
 
       const word = part.trim();
       let delay = 18;
