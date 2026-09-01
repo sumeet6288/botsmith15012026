@@ -2299,7 +2299,7 @@ function botsmithInitLeadCapture() {
         type="submit"
       >
 
-        Start chatting →
+        Start chatting with AI→
 
       </button>
 
