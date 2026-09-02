@@ -1112,7 +1112,7 @@
   greeting.innerHTML = `
     <button aria-label="Close">×</button>
 
-    <strong>👋 Have questions?</strong><br>
+    <strong>👋 I'm your AI assistant</strong><br>
 
     I'm here to help!
   `;
