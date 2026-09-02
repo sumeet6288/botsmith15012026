@@ -3,7 +3,6 @@ from typing import Optional, List, Literal, Dict, Any
 from datetime import datetime, timezone, date
 import uuid
 
-
 # User Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")

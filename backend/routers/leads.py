@@ -84,6 +84,11 @@ async def get_chatbot_leads(chatbot_id: str, current_user: User = Depends(get_cu
         for lead in leads:
             if "_id" in lead:
                 lead.pop("_id")
+
+            if lead.get("created_at") and isinstance(lead["created_at"], datetime):
+                if lead["created_at"].tzinfo is None:
+                    lead["created_at"] = lead["created_at"].replace(tzinfo=timezone.utc)
+
             responses.append(ChatbotLeadResponse(**lead))
         return responses
 
