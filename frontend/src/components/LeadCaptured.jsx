@@ -121,7 +121,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
 
       const rows = filteredLeads.map((lead) => [
         lead.name || '',
-        lead.phone || '',
+        `'${lead.phone || ''}`,
         lead.created_at ? formatDateTime(lead.created_at) : ''
       ]);
 
