@@ -156,7 +156,7 @@ const DashboardRedesigned = () => {
             color: '#0B0B0B',
             marginBottom: '4px'
           }}>
-            𝑾𝒆𝒍𝒄𝒐𝒎𝒆 𝒃𝒂𝒄𝒌, {user?.name || 'Demo User'}
+            𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑏𝑎𝑐𝑘, {user?.name || 'Demo User'}
           </h1>
           <p style={{ 
             fontFamily: 'Inter, sans-serif', 
