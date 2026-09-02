@@ -1927,6 +1927,8 @@ function botsmithInitLeadCapture() {
       color: #222222;
 
       line-height: 1.2;
+
+      font-family: sans-serif;
     }
 
 
