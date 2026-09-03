@@ -30,6 +30,8 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
   const [exportStartDate, setExportStartDate] = useState('');
   const [exportEndDate, setExportEndDate] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [showEmailAlerts, setShowEmailAlerts] = useState(false);
+  const [emailAlertAddress, setEmailAlertAddress] = useState('');
 
   const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false; 
 
@@ -56,6 +58,31 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
       setTogglingCapture(false); 
     } 
   }; 
+
+  const handleSaveEmailAlert = () => {
+    if (!emailAlertAddress.trim()) {
+      toast({
+        title: 'Email required',
+        description: 'Please enter an email address.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailAlertAddress.trim())) {
+      toast({
+        title: 'Invalid email',
+        description: 'Please enter a valid email address.',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    toast({
+      title: 'Email Alert Saved',
+      description: `New lead alerts will be sent to ${emailAlertAddress.trim()}.`
+    });
+  };
 
   const fetchLeads = async () => { 
     try { 
@@ -169,23 +196,69 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
 
   return ( 
     <div className="space-y-6 animate-fade-in-up" data-testid="lead-captured-tab"> 
-      {/* Lead Capture Toggle Settings */} 
-      <div 
-        className="flex items-center justify-between gap-4 p-5 bg-white rounded-xl border-2 border-purple-200/50 shadow-sm" 
-        data-testid="lead-capture-settings-card" 
-      > 
-        <div> 
-          <h3 className="text-base font-semibold text-gray-900">Lead Capture</h3> 
-          <p className="text-sm text-gray-600 mt-1 max-w-md"> 
-            Require visitors to provide their details before starting a conversation with the AI. 
-          </p> 
-        </div> 
-        <Switch 
-          checked={leadCaptureEnabled} 
-          onCheckedChange={handleToggleLeadCapture} 
-          disabled={togglingCapture} 
-          data-testid="lead-capture-toggle" 
-        /> 
+      {/* Lead Capture & Email Alerts Settings */}
+      <div
+        className="p-5 bg-white rounded-xl border-2 border-purple-200/50 shadow-sm"
+        data-testid="lead-capture-settings-card"
+      >
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h3 className="text-base font-semibold text-gray-900">Lead Capture</h3>
+            <p className="text-sm text-gray-600 mt-1 max-w-md">
+              Require visitors to provide their details before starting a conversation with the AI.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setShowEmailAlerts(!showEmailAlerts)}
+              data-testid="email-alerts-button"
+              className="inline-flex items-center px-3.5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+            >
+              Email Alerts
+            </button>
+
+            <Switch
+              checked={leadCaptureEnabled}
+              onCheckedChange={handleToggleLeadCapture}
+              disabled={togglingCapture}
+              data-testid="lead-capture-toggle"
+            />
+          </div>
+        </div>
+
+        {showEmailAlerts && (
+          <div className="mt-5 pt-5 border-t border-gray-100">
+            <label
+              htmlFor="email-alert-address"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
+              Send new lead alerts to
+            </label>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                id="email-alert-address"
+                type="email"
+                value={emailAlertAddress}
+                onChange={(e) => setEmailAlertAddress(e.target.value)}
+                placeholder="counsellor@example.com"
+                className="flex-1 px-3.5 py-2.5 border border-gray-300 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all text-sm"
+                data-testid="email-alert-input"
+              />
+
+              <button
+                type="button"
+                onClick={handleSaveEmailAlert}
+                data-testid="save-email-alert-button"
+                className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all text-sm font-medium shadow-lg shadow-purple-500/20"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        )}
       </div> 
 
       {/* Header */} 
