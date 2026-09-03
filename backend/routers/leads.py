@@ -1,17 +1,21 @@
 from fastapi import APIRouter, HTTPException, Depends
+import asyncio
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import uuid
+import logging
 from models import (
     User, Lead, LeadResponse, LeadCreate, LeadUpdate, LeadStatsResponse,
     ChatbotLead, ChatbotLeadCreate, ChatbotLeadResponse
 )
 from services.plan_service import plan_service
+from services.resend_service import send_lead_alert
 from auth import get_current_user
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # MongoDB connection
 MONGO_URL = os.environ.get('MONGO_URL', 'mongodb://localhost:27017')
@@ -57,6 +61,22 @@ async def capture_chatbot_lead(chatbot_id: str, payload: ChatbotLeadCreate):
         lead = ChatbotLead(chatbot_id=chatbot_id, name=name, phone=phone)
         lead_dict = lead.model_dump()
         await chatbot_leads_collection.insert_one(lead_dict)
+
+        if chatbot.get("email_alerts_enabled") and chatbot.get("email_alert_address"):
+            try:
+                await asyncio.wait_for(
+                    send_lead_alert(
+                        recipient=str(chatbot["email_alert_address"]),
+                        chatbot_name=chatbot.get("name", "Chatbot"),
+                        lead_name=name,
+                        lead_phone=phone,
+                        created_at=lead.created_at,
+                    ),
+                    timeout=8,
+                )
+            except Exception as email_error:
+                logger.error("Failed to send lead alert: %s", email_error)
+
         if "_id" in lead_dict:
             lead_dict.pop("_id")
         return ChatbotLeadResponse(**lead_dict)

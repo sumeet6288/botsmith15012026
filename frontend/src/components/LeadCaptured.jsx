@@ -32,6 +32,8 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
   const [exporting, setExporting] = useState(false);
   const [showEmailAlerts, setShowEmailAlerts] = useState(false);
   const [emailAlertAddress, setEmailAlertAddress] = useState('');
+  const [emailAlertsEnabled, setEmailAlertsEnabled] = useState(false);
+  const [savingEmailAlert, setSavingEmailAlert] = useState(false);
 
   const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false; 
 
@@ -59,7 +61,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
     } 
   }; 
 
-  const handleSaveEmailAlert = () => {
+  const handleSaveEmailAlert = async () => {
     if (!emailAlertAddress.trim()) {
       toast({
         title: 'Email required',
@@ -69,7 +71,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
       return;
     }
 
-    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(emailAlertAddress.trim())) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAlertAddress.trim())) {
       toast({
         title: 'Invalid email',
         description: 'Please enter a valid email address.',
@@ -78,10 +80,28 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
       return;
     }
 
-    toast({
-      title: 'Email Alert Saved',
-      description: `New lead alerts will be sent to ${emailAlertAddress.trim()}.`
-    });
+    try {
+      setSavingEmailAlert(true);
+      await chatbotAPI.update(chatbot.id, {
+        email_alerts_enabled: true,
+        email_alert_address: emailAlertAddress.trim()
+      });
+      setEmailAlertsEnabled(true);
+      toast({
+        title: 'Email Alert Saved',
+        description: `New lead alerts will be sent to ${emailAlertAddress.trim()}.`
+      });
+      if (onUpdate) await onUpdate();
+    } catch (err) {
+      console.error('Error saving email alert settings:', err);
+      toast({
+        title: 'Error',
+        description: err.response?.data?.detail || 'Failed to save email alert settings',
+        variant: 'destructive'
+      });
+    } finally {
+      setSavingEmailAlert(false);
+    }
   };
 
   const fetchLeads = async () => { 
@@ -99,7 +119,12 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
   }; 
 
   useEffect(() => { 
-    if (chatbot?.id) fetchLeads(); 
+    if (chatbot?.id) {
+      setEmailAlertsEnabled(chatbot.email_alerts_enabled === true);
+      setEmailAlertAddress(chatbot.email_alert_address || '');
+      setShowEmailAlerts(chatbot.email_alerts_enabled === true);
+      fetchLeads();
+    }
   }, [chatbot?.id]);
 
   const handleExportLeads = async () => {
@@ -214,7 +239,8 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
               type="button"
               onClick={() => setShowEmailAlerts(!showEmailAlerts)}
               data-testid="email-alerts-button"
-              className="inline-flex items-center px-3.5 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium"
+              aria-pressed={showEmailAlerts}
+              className={`inline-flex items-center px-3.5 py-2 border rounded-lg transition-colors text-sm font-medium ${showEmailAlerts || emailAlertsEnabled ? 'border-purple-600 bg-purple-50 text-purple-700' : 'border-gray-300 text-gray-700 hover:bg-gray-50'}`}
             >
               Email Alerts
             </button>
@@ -251,8 +277,9 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
               <button
                 type="button"
                 onClick={handleSaveEmailAlert}
+                disabled={savingEmailAlert}
                 data-testid="save-email-alert-button"
-                className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all text-sm font-medium shadow-lg shadow-purple-500/20"
+                className="inline-flex items-center justify-center px-5 py-2.5 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all text-sm font-medium shadow-lg shadow-purple-500/20 disabled:opacity-50"
               >
                 Save
               </button>

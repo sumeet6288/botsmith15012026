@@ -563,6 +563,8 @@ class Chatbot(BaseModel):
     
     # Lead Capture Settings
     lead_capture_enabled: bool = True
+    email_alerts_enabled: bool = False
+    email_alert_address: Optional[EmailStr] = None
     
     # White Label Branding (for paid plans only)
     powered_by_text: Optional[str] = None  # Custom "Powered by [Brand]" text for paid plans
@@ -623,6 +625,8 @@ class ChatbotUpdate(BaseModel):
     widget_size: Optional[Literal["small", "medium", "large"]] = None
     auto_expand: Optional[bool] = None
     lead_capture_enabled: Optional[bool] = None
+    email_alerts_enabled: Optional[bool] = None
+    email_alert_address: Optional[EmailStr] = None
     powered_by_text: Optional[str] = None  # Custom "Powered by [Brand]" text
     rate_limit_enabled: Optional[bool] = None
     messages_per_hour: Optional[int] = None
@@ -661,6 +665,8 @@ class ChatbotResponse(BaseModel):
     widget_size: str = "medium"
     auto_expand: bool = False
     lead_capture_enabled: bool = True
+    email_alerts_enabled: bool = False
+    email_alert_address: Optional[EmailStr] = None
     powered_by_text: Optional[str] = None  # Custom "Powered by" text for white label
 
 
