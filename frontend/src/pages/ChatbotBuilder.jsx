@@ -7,7 +7,8 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Slider } from '../components/ui/slider';
-import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code } from 'lucide-react';
+import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Users, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code } from 'lucide-react';
+import LeadCaptured from '../components/LeadCaptured';
 import { Progress } from '../components/ui/progress';
 import UserProfileDropdown from '../components/UserProfileDropdown';
 import AddSourceModal from '../components/AddSourceModal';
@@ -372,7 +373,7 @@ const ChatbotBuilder = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Mobile: Horizontal scrolling tabs */}
           <div className="mb-6 overflow-x-auto scrollbar-hide">
-            <TabsList className="inline-flex w-max min-w-full lg:grid lg:w-full lg:grid-cols-7 gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-1 rounded-xl shadow-lg animate-fade-in-up">
+            <TabsList className="inline-flex w-max min-w-full lg:grid lg:w-full lg:grid-cols-8 gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-1 rounded-xl shadow-lg animate-fade-in-up">
               <TabsTrigger value="sources" className="whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 flex-shrink-0">
                 <FileText className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Sources</span>
@@ -408,6 +409,11 @@ const ChatbotBuilder = () => {
                 <span className="hidden sm:inline">Integrations</span>
                 <span className="sm:hidden">Integrations</span>
               </TabsTrigger>
+              <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" className="whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 flex-shrink-0">
+                <Users className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Lead Captured</span>
+                <span className="sm:hidden">Leads</span>
+              </TabsTrigger>
             </TabsList>
           </div>
 
@@ -417,7 +423,7 @@ const ChatbotBuilder = () => {
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Training Sources</h2>
-                  <p className="text-gray-600 text-sm mt-1">Add data to train your chatbot</p>
+                  <p className="text-gray-600 text-sm mt-1">Add data to train your agent</p>
                 </div>
                 <Button 
                   onClick={() => setIsAddSourceModalOpen(true)}
@@ -513,12 +519,12 @@ const ChatbotBuilder = () => {
           <TabsContent value="settings" className="animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl space-y-6">
               <div>
-                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Chatbot Settings</h2>
+                <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Agent Settings</h2>
               </div>
 
               <div className="space-y-6">
                 <div className="group">
-                  <Label className="text-gray-700 font-medium">Chatbot Name</Label>
+                  <Label className="text-gray-700 font-medium">Agent Name</Label>
                   <Input
                     value={chatbot.name}
                     onChange={(e) => setChatbot({ ...chatbot, name: e.target.value })}
@@ -630,7 +636,7 @@ const ChatbotBuilder = () => {
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-gray-900">Public Access</h3>
-                        <p className="text-sm text-gray-600">Your chatbot is publicly accessible</p>
+                        <p className="text-sm text-gray-600">Your agent is publicly accessible</p>
                       </div>
                     </div>
                     <div className="px-4 py-2 bg-green-500 text-white rounded-full font-semibold text-sm shadow-lg">
@@ -693,8 +699,8 @@ const ChatbotBuilder = () => {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Embed Your Chatbot</h2>
-                  <p className="text-gray-600 text-sm">Choose how you want to integrate the chatbot into your website</p>
+                  <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Embed Your agent</h2>
+                  <p className="text-gray-600 text-sm">Choose how you want to integrate the agent into your website</p>
                 </div>
 
                 {/* Embed Options */}
@@ -939,7 +945,7 @@ const ChatbotBuilder = () => {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h3 className="text-xl font-bold text-gray-900 mb-1 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Live Preview</h3>
-                    <p className="text-sm text-gray-600">See how your chatbot will look when embedded</p>
+                    <p className="text-sm text-gray-600">See how your agent will look when embedded</p>
                   </div>
                   <Button
                     onClick={() => setIframeKey(prev => prev + 1)}
@@ -962,7 +968,7 @@ const ChatbotBuilder = () => {
                 </div>
                 <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-purple-300 rounded-xl shadow-sm">
                   <p className="text-sm text-purple-800 font-medium">
-                    <strong>💡 Tip:</strong> The chatbot automatically adapts to your website's style and works on all devices.
+                    <strong>💡 Tip:</strong> The agent automatically adapts to your website's style and works on all devices.
                   </p>
                 </div>
               </div>
@@ -972,7 +978,7 @@ const ChatbotBuilder = () => {
           {/* Analytics Tab */}
           <TabsContent value="analytics" className="animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl mb-6">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Chatbot Analytics</h2>
+              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Agent Analytics</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="group p-6 border-2 border-purple-200/50 rounded-xl hover:border-purple-400 hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-r from-white to-purple-50/30">
                   <p className="text-gray-600 text-sm font-medium mb-2">Total Conversations</p>
@@ -1146,6 +1152,13 @@ const ChatbotBuilder = () => {
           <TabsContent value="integrations" className="animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <ChatbotIntegrations chatbot={chatbot} />
+            </div>
+          </TabsContent>
+
+          {/* Lead Captured Tab */}
+          <TabsContent value="leads-captured" className="animate-fade-in-up">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
+              <LeadCaptured chatbot={chatbot} onUpdate={refreshChatbot} />
             </div>
           </TabsContent>
 

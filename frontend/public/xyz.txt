@@ -215,22 +215,6 @@
     .botsmith-typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .botsmith-typing-dot:nth-child(3) { animation-delay: 0.4s; }
     
-    @keyframes botsmithCursorBlink {
-      0%, 50% { opacity: 1; }
-      51%, 100% { opacity: 0; }
-    }
-
-    .botsmith-streaming-cursor {
-      display: inline-block;
-      width: 2px;
-      height: 18px;
-      background: ${currentTheme.primary};
-      margin-left: 3px;
-      vertical-align: -3px;
-      border-radius: 2px;
-      animation: botsmithCursorBlink 0.8s step-end infinite;
-    }
-
     #botsmith-messages {
       scroll-behavior: smooth;
     }
@@ -604,99 +588,6 @@
     if (typing) typing.remove();
   }
 
-  // Smart auto-scroll: follow new messages only while the user stays near the bottom.
-  // If the user scrolls up to read, automatic scrolling pauses.
-  let isUserNearBottom = true;
-
-  function updateUserScrollPosition() {
-    const distanceFromBottom =
-      messagesContainer.scrollHeight -
-      messagesContainer.scrollTop -
-      messagesContainer.clientHeight;
-
-    // 80px tolerance prevents tiny layout changes from disabling auto-scroll.
-    isUserNearBottom = distanceFromBottom <= 80;
-  }
-
-  function smartScrollToBottom(force = false) {
-    if (force || isUserNearBottom) {
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
-  }
-
-  messagesContainer.addEventListener('scroll', updateUserScrollPosition, {
-    passive: true
-  });
-
-  // Animate a completed AI response word-by-word (ChatGPT-style)
-  async function streamAssistantMessage(content) {
-    const bubbleRadius = getBubbleRadius();
-    const fontSize = getFontSize();
-
-    const msgDiv = document.createElement('div');
-    msgDiv.className = 'botsmith-message-item';
-    msgDiv.style.cssText = `
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-    `;
-
-    const avatarContent = chatbot?.avatar_url
-      ? `<img src="${chatbot.avatar_url}" alt="Bot" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">`
-      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="0.5">
-          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-        </svg>`;
-
-    msgDiv.innerHTML = `
-      <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 3px 10px ${customization.accent_color}30;">
-        ${avatarContent}
-      </div>
-      <div style="max-width: 72%; padding: 14px 18px; border-radius: ${bubbleRadius}; background: white; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05); word-wrap: break-word; font-size: ${fontSize}; line-height: 1.6; font-family: ${customization.font_family}; border: 1px solid rgba(0, 0, 0, 0.05);">
-        <span class="botsmith-streaming-content"></span><span class="botsmith-streaming-cursor"></span>
-      </div>
-    `;
-
-    messagesContainer.appendChild(msgDiv);
-
-    const contentElement = msgDiv.querySelector('.botsmith-streaming-content');
-    const cursor = msgDiv.querySelector('.botsmith-streaming-cursor');
-
-    // Preserve the API response as plain text while animating it safely
-    const tempDiv = document.createElement('div');
-    tempDiv.innerHTML = content;
-    const plainText = tempDiv.textContent || tempDiv.innerText || '';
-
-    // Split while preserving spaces
-    const parts = plainText.split(/(\s+)/);
-    let displayedText = '';
-
-    for (const part of parts) {
-      displayedText += part;
-      contentElement.textContent = displayedText;
-
-      smartScrollToBottom();
-
-      const word = part.trim();
-      let delay = 18;
-
-      if (word.length > 8) delay = 30;
-      if (/[.!?]$/.test(word)) delay = 80;
-
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-
-    if (cursor) cursor.remove();
-
-    // Save the completed response so conversation history still works
-    messages.push({
-      role: 'assistant',
-      content,
-      timestamp: new Date()
-    });
-
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
-
   async function loadChatbot() {
     try {
       isLoading = true;
@@ -919,9 +810,7 @@
       
       const data = await response.json();
       hideTyping();
-
-      // Show the AI response with a smooth ChatGPT-style streaming animation
-      await streamAssistantMessage(data.message);
+      addMessage('assistant', data.message);
     } catch (error) {
       console.error('[BotSmith Widget] Error sending message:', error);
       hideTyping();
@@ -1112,7 +1001,7 @@
   greeting.innerHTML = `
     <button aria-label="Close">×</button>
 
-    <strong>👋 I'm your AI assistant</strong><br>
+    <strong>👋 Have questions?</strong><br>
 
     I'm here to help!
   `;
@@ -1927,8 +1816,6 @@ function botsmithInitLeadCapture() {
       color: #222222;
 
       line-height: 1.2;
-
-      font-family: sans-serif;
     }
 
 
@@ -2301,7 +2188,7 @@ function botsmithInitLeadCapture() {
         type="submit"
       >
 
-        Start chatting with AI→
+        Start chatting →
 
       </button>
 

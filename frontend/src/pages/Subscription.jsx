@@ -34,7 +34,7 @@ const SubscriptionNew = () => {
       icon: Sparkles,
       gradient: 'from-blue-400 to-cyan-400',
       features: [
-        '1 chatbot',
+        '1 Agent',
         '100 messages/month',
         'Basic analytics',
         'Community support',
@@ -53,7 +53,7 @@ const SubscriptionNew = () => {
       gradient: 'from-pink-500 to-purple-500',
       popular: true,
       features: [
-        '5 chatbots',
+        '1 Agents',
         '15,000 messages/month',
         'Advanced analytics',
         'Priority support',
@@ -72,7 +72,7 @@ const SubscriptionNew = () => {
       icon: Crown,
       gradient: 'from-blue-600 to-indigo-600',
       features: [
-        '25 chatbots',
+        '3 Agents',
         '1,25,000 messages/month',
         'Advanced analytics',
         '24/7 priority support',
@@ -93,7 +93,7 @@ const SubscriptionNew = () => {
       icon: Building2,
       gradient: 'from-purple-600 to-pink-600',
       features: [
-        'Unlimited chatbots',
+        'Unlimited Agents',
         'Unlimited messages',
         'Custom analytics',
         'Dedicated 24/7 support',

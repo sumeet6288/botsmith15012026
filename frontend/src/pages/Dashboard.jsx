@@ -156,14 +156,14 @@ const DashboardRedesigned = () => {
             color: '#0B0B0B',
             marginBottom: '4px'
           }}>
-            Welcome back, {user?.name || 'Demo User'}
+            𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑏𝑎𝑐𝑘, {user?.name || 'Demo User'}
           </h1>
           <p style={{ 
             fontFamily: 'Inter, sans-serif', 
             fontSize: '14px',
             color: '#6B7280'
           }}>
-            Monitor your chatbot activity and usage
+            Monitor your agent's activity and usage
           </p>
         </div>
 
@@ -175,7 +175,7 @@ const DashboardRedesigned = () => {
             style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', fontWeight: '500' }}
           >
             <Plus className="w-4 h-4 mr-2" />
-            Create New Chatbot
+            Create New Agent
           </Button>
         </div>
 
@@ -201,7 +201,7 @@ const DashboardRedesigned = () => {
                 color: '#6B7280',
                 marginBottom: '4px'
               }}>
-                Total Chatbots
+                Total Agents
               </p>
               <p style={{ 
                 fontFamily: 'Inter, sans-serif', 
@@ -274,7 +274,7 @@ const DashboardRedesigned = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#0B0B0B' }}>
-                    Chatbots
+                    Agents
                   </span>
                   <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
                     {usageStats.usage?.chatbots?.current}/{usageStats.usage?.chatbots?.limit}
@@ -427,14 +427,14 @@ const DashboardRedesigned = () => {
             color: '#0B0B0B',
             marginBottom: '16px'
           }}>
-            Your Chatbots
+            Your Agents
           </h2>
           
           {chatbots.length === 0 ? (
             <div className="text-center py-12 border border-gray-200 rounded-lg">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
               <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#6B7280' }}>
-                No chatbots yet. Create your first one to get started.
+                No agents yet. Create your first one to get started.
               </p>
             </div>
           ) : (
@@ -450,7 +450,7 @@ const DashboardRedesigned = () => {
                       textAlign: 'left',
                       padding: '12px 16px'
                     }}>
-                      Chatbot Name
+                      Agent Name
                     </th>
                     <th style={{ 
                       fontFamily: 'Inter, sans-serif', 

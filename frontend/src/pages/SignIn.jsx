@@ -82,7 +82,7 @@ const SignIn = () => {
                 <div className="flex flex-col -space-y-0.5">
                   <div className="flex items-baseline gap-1">
                     <span className="text-xl sm:text-2xl font-black font-heading tracking-tight bg-gradient-to-r from-purple-700 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent animate-rainbow">
-                      BotSmith
+                      𝐵𝑜𝑡𝑆𝑚𝑖𝑡ℎ
                     </span>
                     <span className="text-[8px] sm:text-[9px] font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded-full animate-bounce-in stagger-1">AI</span>
                   </div>
@@ -92,7 +92,7 @@ const SignIn = () => {
               {/* Heading with stagger animation */}
               <div className="space-y-1 sm:space-y-2 mb-6 sm:mb-8">
                 <h1 className="text-2xl sm:text-3xl font-black font-heading bg-gradient-to-r from-purple-700 via-pink-600 to-orange-600 bg-clip-text text-transparent animate-slide-in-left leading-tight">
-                  Welcome back
+                  𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑏𝑎𝑐𝑘
                 </h1>
                 <p className="text-gray-600 text-sm sm:text-base font-body animate-slide-in-left stagger-1">Sign in to continue your journey with AI</p>
               </div>
@@ -212,10 +212,10 @@ const SignIn = () => {
                 <Sparkles className="w-20 h-20 animate-neon-glow" />
               </div>
               <h2 className="text-6xl font-black font-display drop-shadow-2xl leading-tight animate-slide-in-right">
-                Build smarter<br />chatbots faster
+                𝐵𝑢𝑖𝑙𝑑 𝑠𝑚𝑎𝑟𝑡𝑒𝑟<br />𝑎𝑔𝑒𝑛𝑡𝑠 𝑓𝑎𝑠𝑡𝑒𝑟
               </h2>
               <p className="text-xl font-body opacity-95 drop-shadow-xl animate-slide-in-right stagger-1">
-                Create AI-powered customer support that delights your users in minutes
+                Create AI-powered student support that delights your users in minutes
               </p>
               <div className="flex items-center justify-center gap-12 mt-10 animate-fade-in-scale stagger-2">
                 <div className="text-center transform hover:scale-110 transition-transform duration-300">

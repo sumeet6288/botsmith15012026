@@ -3,7 +3,6 @@ from typing import Optional, List, Literal, Dict, Any
 from datetime import datetime, timezone, date
 import uuid
 
-
 # User Models
 class User(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -491,6 +490,30 @@ class LeadStatsResponse(BaseModel):
     plan_name: str
 
 
+# Chatbot Lead Capture Models (leads captured via the public widget lead form)
+class ChatbotLead(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    chatbot_id: str
+    name: str
+    phone: str
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+
+class ChatbotLeadCreate(BaseModel):
+    name: str
+    phone: str
+
+
+class ChatbotLeadResponse(BaseModel):
+    id: str
+    chatbot_id: str
+    name: str
+    phone: str
+    created_at: datetime
+
+
 # Chatbot Models
 class Chatbot(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -537,6 +560,11 @@ class Chatbot(BaseModel):
     widget_theme: Literal["light", "dark", "auto"] = "auto"
     widget_size: Literal["small", "medium", "large"] = "medium"
     auto_expand: bool = False
+    
+    # Lead Capture Settings
+    lead_capture_enabled: bool = True
+    email_alerts_enabled: bool = False
+    email_alert_address: Optional[EmailStr] = None
     
     # White Label Branding (for paid plans only)
     powered_by_text: Optional[str] = None  # Custom "Powered by [Brand]" text for paid plans
@@ -596,6 +624,9 @@ class ChatbotUpdate(BaseModel):
     widget_theme: Optional[Literal["light", "dark", "auto"]] = None
     widget_size: Optional[Literal["small", "medium", "large"]] = None
     auto_expand: Optional[bool] = None
+    lead_capture_enabled: Optional[bool] = None
+    email_alerts_enabled: Optional[bool] = None
+    email_alert_address: Optional[EmailStr] = None
     powered_by_text: Optional[str] = None  # Custom "Powered by [Brand]" text
     rate_limit_enabled: Optional[bool] = None
     messages_per_hour: Optional[int] = None
@@ -633,6 +664,9 @@ class ChatbotResponse(BaseModel):
     widget_theme: str = "auto"
     widget_size: str = "medium"
     auto_expand: bool = False
+    lead_capture_enabled: bool = True
+    email_alerts_enabled: bool = False
+    email_alert_address: Optional[EmailStr] = None
     powered_by_text: Optional[str] = None  # Custom "Powered by" text for white label
 
 
@@ -866,6 +900,7 @@ class PublicChatbotInfo(BaseModel):
     widget_position: Optional[str] = "bottom-right"
     widget_size: Optional[str] = "medium"
     auto_expand: Optional[bool] = False
+    lead_capture_enabled: Optional[bool] = True
     powered_by_text: Optional[str] = None
 
 
