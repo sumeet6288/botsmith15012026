@@ -2,7 +2,8 @@ import asyncio
 from html import escape
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import resend
 
@@ -27,8 +28,20 @@ async def send_lead_alert(
     safe_chatbot_name = escape(chatbot_name)
     safe_lead_name = escape(lead_name)
     safe_lead_phone = escape(lead_phone)
+
+    # Lead timestamps are stored in UTC. Convert them to India Standard
+    # Time before displaying them in the email, so the email matches the
+    # dashboard time shown to users in India.
+    #
+    # If the datetime is timezone-naive, treat it as UTC because the
+    # database timestamp is stored in UTC.
+    if created_at.tzinfo is None:
+        created_at = created_at.replace(tzinfo=timezone.utc)
+
+    india_time = created_at.astimezone(ZoneInfo("Asia/Kolkata"))
+
     safe_created_at = escape(
-        created_at.strftime("%d %B %Y, %I:%M %p")
+        india_time.strftime("%d %B %Y, %I:%M %p")
     )
 
     email_html = f"""
