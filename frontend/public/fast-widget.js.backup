@@ -272,15 +272,37 @@
     
     @media (max-width: 768px) {
       #botsmith-window {
-        width: 100vw !important; 
-        height: 100vh !important;
-        bottom: 0 !important; 
-        right: 0 !important; 
-        left: 0 !important; 
-        top: 0 !important;
-        border-radius: 0 !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
+        position: fixed !important;
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+        top: auto !important;
+        width: auto !important;
+        height: calc(100dvh - 16px) !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 22px !important;
+        overflow: hidden !important;
+      }
+
+      #botsmith-messages {
+        min-width: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      #botsmith-input {
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+
+      #botsmith-send {
+        flex-shrink: 0 !important;
+      }
+
+      #botsmith-window * {
+        max-width: 100%;
       }
     }
   `;
@@ -425,8 +447,8 @@
     overflow-y: auto; 
     padding: 24px; 
     background-color: #fafafa;
-    background-image: radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px);
-    background-size: 18px 18px;
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.42) 1px, transparent 1px);
+    background-size: 20px 20px;
     display: flex; 
     flex-direction: column; 
     gap: 16px;
@@ -788,9 +810,9 @@
       
       if (chatbot.widget_theme) {
         const themeColors = {
-          'light': 'radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px)',
+          'light': 'linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%)',
           'dark': 'linear-gradient(to bottom, #1f2937 0%, #111827 100%)',
-          'auto': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'linear-gradient(to bottom, #1f2937 0%, #111827 100%)' : 'radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px)'
+          'auto': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'linear-gradient(to bottom, #1f2937 0%, #111827 100%)' : 'linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%)'
         };
         messagesContainer.style.background = themeColors[chatbot.widget_theme] || themeColors['light'];
       }
@@ -2589,20 +2611,6 @@ function botsmithInitLeadCapture() {
 }
 
   // Mark as initialized
-
-  // FORCE DOT GRID: apply after every theme/style update
-  const botsmithDotGridStyle = document.createElement('style');
-  botsmithDotGridStyle.id = 'botsmith-force-dot-grid';
-  botsmithDotGridStyle.textContent = `
-    #botsmith-messages {
-      background-color: #fafafa !important;
-      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.35) 1px, transparent 1px) !important;
-      background-size: 20px 20px !important;
-      background-repeat: repeat !important;
-    }
-  `;
-  document.head.appendChild(botsmithDotGridStyle);
-
   window.BotSmithWidget.initialized = true;
   window.BotSmithWidget.version = '2.0.0'; // Version tracking
   
