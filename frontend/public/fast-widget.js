@@ -2596,8 +2596,8 @@ function botsmithInitLeadCapture() {
   botsmithDotGridStyle.textContent = `
     #botsmith-messages {
       background-color: #fafafa !important;
-      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px) !important;
-      background-size: 18px 18px !important;
+      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.35) 1px, transparent 1px) !important;
+      background-size: 20px 20px !important;
       background-repeat: repeat !important;
     }
   `;
