@@ -425,8 +425,8 @@
     overflow-y: auto; 
     padding: 24px; 
     background-color: #fafafa;
-    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.42) 1px, transparent 1px);
-    background-size: 20px 20px;
+    background-image: radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px);
+    background-size: 18px 18px;
     display: flex; 
     flex-direction: column; 
     gap: 16px;
@@ -788,9 +788,9 @@
       
       if (chatbot.widget_theme) {
         const themeColors = {
-          'light': 'linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%)',
+          'light': 'radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px)',
           'dark': 'linear-gradient(to bottom, #1f2937 0%, #111827 100%)',
-          'auto': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'linear-gradient(to bottom, #1f2937 0%, #111827 100%)' : 'linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%)'
+          'auto': window.matchMedia('(prefers-color-scheme: dark)').matches ? 'linear-gradient(to bottom, #1f2937 0%, #111827 100%)' : 'radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px)'
         };
         messagesContainer.style.background = themeColors[chatbot.widget_theme] || themeColors['light'];
       }
@@ -2589,6 +2589,20 @@ function botsmithInitLeadCapture() {
 }
 
   // Mark as initialized
+
+  // FORCE DOT GRID: apply after every theme/style update
+  const botsmithDotGridStyle = document.createElement('style');
+  botsmithDotGridStyle.id = 'botsmith-force-dot-grid';
+  botsmithDotGridStyle.textContent = `
+    #botsmith-messages {
+      background-color: #fafafa !important;
+      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.55) 1.2px, transparent 1.2px) !important;
+      background-size: 18px 18px !important;
+      background-repeat: repeat !important;
+    }
+  `;
+  document.head.appendChild(botsmithDotGridStyle);
+
   window.BotSmithWidget.initialized = true;
   window.BotSmithWidget.version = '2.0.0'; // Version tracking
   
