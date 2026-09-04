@@ -795,8 +795,6 @@
           animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
           border: 1px solid rgba(255, 255, 255, 0.8);
         `;
-
-        window.dispatchEvent(new Event('botsmith-position-changed'));
       }
       
       if (chatbot.widget_size) {
@@ -1146,16 +1144,24 @@
   document.body.appendChild(greeting);
 
 
-  /* ---------- 3. POSITION GREETING ---------- */
+  /* ---------- 3. GET CURRENT POSITION ---------- */
+
+  function getWidgetPosition() {
+
+    return config.position || 'bottom-right';
+
+  }
+
+
+  /* ---------- 4. POSITION GREETING ---------- */
 
   function positionGreeting() {
 
+    const position = getWidgetPosition();
+
     const bubbleRect = bubble.getBoundingClientRect();
 
-    const greetingWidth = greeting.offsetWidth || 280;
-    const greetingHeight = greeting.offsetHeight || 90;
-    const gap = 14;
-    const screenPadding = 12;
+    const greetingWidth = 280;
 
     /* Reset */
 
@@ -1164,59 +1170,29 @@
     greeting.style.bottom = '';
     greeting.style.left = '';
 
-    /* Keep greeting vertically aligned with the bubble */
 
-    let top =
-      bubbleRect.top +
-      bubbleRect.height / 2 -
-      greetingHeight / 2;
+    /* RIGHT SIDE WIDGET */
 
-    /* Prevent greeting from going outside the screen vertically */
+    if (position.includes('right')) {
 
-    top = Math.max(
-      screenPadding,
-      Math.min(
-        top,
-        window.innerHeight - greetingHeight - screenPadding
-      )
-    );
-
-    greeting.style.top = `${top}px`;
-
-    /* Use the bubble's actual screen position */
-
-    if (bubbleRect.left < window.innerWidth / 2) {
-
-      let left = bubbleRect.right + gap;
-
-      /* Prevent greeting from going outside the right edge */
-
-      if (left + greetingWidth > window.innerWidth - screenPadding) {
-        left = window.innerWidth - greetingWidth - screenPadding;
-      }
-
-      greeting.style.left =
-        `${Math.max(screenPadding, left)}px`;
-
-    } else {
-
-      let right =
-        window.innerWidth - bubbleRect.left + gap;
-
-      /* Prevent greeting from going outside the left edge */
-
-      if (
-        window.innerWidth - right - greetingWidth <
-        screenPadding
-      ) {
-        right =
-          window.innerWidth -
-          greetingWidth -
-          screenPadding;
-      }
+      greeting.style.top =
+        `${bubbleRect.top + bubbleRect.height / 2}px`;
 
       greeting.style.right =
-        `${Math.max(screenPadding, right)}px`;
+        `${window.innerWidth - bubbleRect.left + 14}px`;
+
+    }
+
+
+    /* LEFT SIDE WIDGET */
+
+    else {
+
+      greeting.style.top =
+        `${bubbleRect.top + bubbleRect.height / 2}px`;
+
+      greeting.style.left =
+        `${bubbleRect.right + 14}px`;
 
     }
 
@@ -1240,11 +1216,6 @@
 
   window.addEventListener(
     'resize',
-    positionGreeting
-  );
-
-  window.addEventListener(
-    'botsmith-position-changed',
     positionGreeting
   );
 
