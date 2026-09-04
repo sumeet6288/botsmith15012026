@@ -424,7 +424,9 @@
     flex: 1; 
     overflow-y: auto; 
     padding: 24px; 
-    background: linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%);
+    background-color: #fafafa;
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.42) 1px, transparent 1px);
+    background-size: 20px 20px;
     display: flex; 
     flex-direction: column; 
     gap: 16px;
