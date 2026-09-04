@@ -2620,3 +2620,24 @@ function botsmithInitLeadCapture() {
     // Silently fail - customer's website continues to work
   }
 })();
+
+/* BotSmith grid background — added only */
+(function () {
+  const styleId = 'botsmith-force-dot-grid';
+  let style = document.getElementById(styleId);
+
+  if (!style) {
+    style = document.createElement('style');
+    style.id = styleId;
+    document.head.appendChild(style);
+  }
+
+  style.textContent = `
+    #botsmith-messages {
+      background-color: #fafafa !important;
+      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.35) 1px, transparent 1px) !important;
+      background-size: 20px 20px !important;
+      background-repeat: repeat !important;
+    }
+  `;
+})();
