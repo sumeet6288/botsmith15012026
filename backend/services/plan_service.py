@@ -55,7 +55,7 @@ class PlanService:
                 "price": 7999.0,
                 "description": "For growing businesses",
                 "limits": {
-                    "max_chatbots": 5,
+                    "max_chatbots": 1,
                     "max_messages_per_month": 15000,
                     "max_file_uploads": 20,
                     "max_file_size_mb": 50,
@@ -70,7 +70,7 @@ class PlanService:
                     "support_level": "priority"
                 },
                 "features": [
-                    "5 chatbots",
+                    "1 chatbots",
                     "15,000 messages/month",
                     "Advanced analytics",
                     "Priority support",
@@ -87,7 +87,7 @@ class PlanService:
                 "price": 24999.0,
                 "description": "For large teams & high volume",
                 "limits": {
-                    "max_chatbots": 25,
+                    "max_chatbots": 3,
                     "max_messages_per_month": 125000,
                     "max_file_uploads": 100,
                     "max_file_size_mb": 100,
@@ -102,7 +102,7 @@ class PlanService:
                     "support_level": "24/7 priority"
                 },
                 "features": [
-                    "25 chatbots",
+                    "3 chatbots",
                     "1,25,000 messages/month",
                     "Advanced analytics",
                     "24/7 priority support",
