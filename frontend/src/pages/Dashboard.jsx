@@ -8,6 +8,16 @@ import { chatbotAPI, analyticsAPI, plansAPI } from '../utils/api';
 import UpgradeModal from '../components/UpgradeModal';
 import DashboardLayout from '../components/DashboardLayout';
 
+const dashboardGridStyle = {
+  backgroundColor: '#FFFFFF',
+  backgroundImage: `
+    linear-gradient(rgba(147, 51, 234, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 51, 234, 0.045) 1px, transparent 1px)
+  `,
+  backgroundSize: '32px 32px',
+  backgroundPosition: '0 0',
+};
+
 const DashboardRedesigned = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -146,7 +156,21 @@ const DashboardRedesigned = () => {
 
   return (
     <DashboardLayout user={user} onLogout={handleLogout} usageStats={usageStats}>
-      <div className="p-8 max-w-7xl mx-auto">
+      <div
+        className="relative min-h-full overflow-hidden"
+        style={dashboardGridStyle}
+      >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage: `
+              radial-gradient(circle at 18% 12%, rgba(147, 51, 234, 0.07), transparent 24%),
+              radial-gradient(circle at 82% 78%, rgba(147, 51, 234, 0.045), transparent 28%)
+            `,
+          }}
+        />
+        <div className="relative p-8 max-w-7xl mx-auto">
         {/* Personalized Welcome Header */}
         <div className="mb-8">
           <h1 style={{ 
@@ -571,6 +595,7 @@ const DashboardRedesigned = () => {
               </table>
             </div>
           )}
+        </div>
         </div>
       </div>
 

@@ -1,6 +1,65 @@
 (function() {
   'use strict';
   
+  // ✅ LEVEL 1: Global error boundary - CRITICAL FOR PUBLIC LAUNCH
+  try {
+    window.BotSmithWidget = window.BotSmithWidget || {};
+    
+    // Prevent double initialization
+    if (window.BotSmithWidget.initialized) {
+      console.warn('[BotSmith Widget] Already initialized');
+      return;
+    }
+    
+    // ✅ LEVEL 2: Isolated error handler
+    window.BotSmithWidget.handleError = function(error, context) {
+      console.error('[BotSmith Widget Error]', context, error);
+      
+      // Send error to BotSmith monitoring (non-blocking)
+      try {
+        const errorData = {
+          error: error.message,
+          stack: error.stack,
+          context: context,
+          chatbotId: config?.chatbotId,
+          userAgent: navigator.userAgent,
+          timestamp: new Date().toISOString(),
+          url: window.location.href
+        };
+        
+        // Non-blocking error reporting - don't break customer site
+        if (config && config.apiUrl) {
+          fetch(config.apiUrl + '/widget-errors', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(errorData)
+          }).catch(() => {}); // Silent fail - critical for customer site safety
+        }
+      } catch (e) {
+        // Even error reporting failed - stay silent
+      }
+    };
+    
+    // ✅ LEVEL 3: Wrap async operations
+    async function safeAsyncOperation(operation, context) {
+      try {
+        return await operation();
+      } catch (error) {
+        window.BotSmithWidget.handleError(error, context);
+        return null;
+      }
+    }
+    
+    // ✅ LEVEL 4: Wrap DOM operations
+    function safeDOMOperation(operation, context) {
+      try {
+        return operation();
+      } catch (error) {
+        window.BotSmithWidget.handleError(error, context);
+        return null;
+      }
+    }
+  
   // Get configuration from script tag
   const script = document.currentScript;
   const config = {
@@ -12,7 +71,7 @@
   };
   
   if (!config.chatbotId) {
-    console.error('BotSmith Widget: chatbot-id is required');
+    console.error('[BotSmith Widget] chatbot-id is required');
     return;
   }
   
@@ -156,6 +215,22 @@
     .botsmith-typing-dot:nth-child(2) { animation-delay: 0.2s; }
     .botsmith-typing-dot:nth-child(3) { animation-delay: 0.4s; }
     
+    @keyframes botsmithCursorBlink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .botsmith-streaming-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 18px;
+      background: ${currentTheme.primary};
+      margin-left: 3px;
+      vertical-align: -3px;
+      border-radius: 2px;
+      animation: botsmithCursorBlink 0.8s step-end infinite;
+    }
+
     #botsmith-messages {
       scroll-behavior: smooth;
     }
@@ -178,8 +253,8 @@
     }
     
     #botsmith-input:focus {
-      border-color: ${currentTheme.primary} !important;
-      box-shadow: 0 0 0 3px ${currentTheme.primary}20 !important;
+      border-color: #000000 !important;
+      box-shadow: 0 0 0 3px #00000020 !important;
       transition: all 0.3s ease;
     }
     
@@ -197,15 +272,37 @@
     
     @media (max-width: 768px) {
       #botsmith-window {
-        width: 100vw !important; 
-        height: 100vh !important;
-        bottom: 0 !important; 
-        right: 0 !important; 
-        left: 0 !important; 
-        top: 0 !important;
-        border-radius: 0 !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
+        position: fixed !important;
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+        top: auto !important;
+        width: auto !important;
+        height: calc(100dvh - 16px) !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 22px !important;
+        overflow: hidden !important;
+      }
+
+      #botsmith-messages {
+        min-width: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      #botsmith-input {
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+
+      #botsmith-send {
+        flex-shrink: 0 !important;
+      }
+
+      #botsmith-window * {
+        max-width: 100%;
       }
     }
   `;
@@ -249,6 +346,9 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
   `;
   
   bubble.onmouseenter = () => {
@@ -346,7 +446,9 @@
     flex: 1; 
     overflow-y: auto; 
     padding: 24px; 
-    background: linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%);
+    background-color: #fafafa;
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.42) 1px, transparent 1px);
+    background-size: 20px 20px;
     display: flex; 
     flex-direction: column; 
     gap: 16px;
@@ -389,7 +491,7 @@
     border-top: 1px solid #f0f0f0;
   `;
   brandingFooter.innerHTML = `
-    <a href="https://botsmith.io" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #9ca3af; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s; font-weight: 500;">
+    <a href="https://botsmith.pro" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #9ca3af; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s; font-weight: 500;">
       <span>Powered by</span>
       <span style="font-weight: 700; color: ${currentTheme.primary}; letter-spacing: 0.3px;">BotSmith</span>
     </a>
@@ -526,6 +628,99 @@
     if (typing) typing.remove();
   }
 
+  // Smart auto-scroll: follow new messages only while the user stays near the bottom.
+  // If the user scrolls up to read, automatic scrolling pauses.
+  let isUserNearBottom = true;
+
+  function updateUserScrollPosition() {
+    const distanceFromBottom =
+      messagesContainer.scrollHeight -
+      messagesContainer.scrollTop -
+      messagesContainer.clientHeight;
+
+    // 80px tolerance prevents tiny layout changes from disabling auto-scroll.
+    isUserNearBottom = distanceFromBottom <= 80;
+  }
+
+  function smartScrollToBottom(force = false) {
+    if (force || isUserNearBottom) {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+  }
+
+  messagesContainer.addEventListener('scroll', updateUserScrollPosition, {
+    passive: true
+  });
+
+  // Animate a completed AI response word-by-word (ChatGPT-style)
+  async function streamAssistantMessage(content) {
+    const bubbleRadius = getBubbleRadius();
+    const fontSize = getFontSize();
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'botsmith-message-item';
+    msgDiv.style.cssText = `
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    `;
+
+    const avatarContent = chatbot?.avatar_url
+      ? `<img src="${chatbot.avatar_url}" alt="Bot" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">`
+      : `<svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="0.5">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>`;
+
+    msgDiv.innerHTML = `
+      <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; box-shadow: 0 3px 10px ${customization.accent_color}30;">
+        ${avatarContent}
+      </div>
+      <div style="max-width: 72%; padding: 14px 18px; border-radius: ${bubbleRadius}; background: white; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05); word-wrap: break-word; font-size: ${fontSize}; line-height: 1.6; font-family: ${customization.font_family}; border: 1px solid rgba(0, 0, 0, 0.05);">
+        <span class="botsmith-streaming-content"></span><span class="botsmith-streaming-cursor"></span>
+      </div>
+    `;
+
+    messagesContainer.appendChild(msgDiv);
+
+    const contentElement = msgDiv.querySelector('.botsmith-streaming-content');
+    const cursor = msgDiv.querySelector('.botsmith-streaming-cursor');
+
+    // Preserve the API response as plain text while animating it safely
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = content;
+    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+
+    // Split while preserving spaces
+    const parts = plainText.split(/(\s+)/);
+    let displayedText = '';
+
+    for (const part of parts) {
+      displayedText += part;
+      contentElement.textContent = displayedText;
+
+      smartScrollToBottom();
+
+      const word = part.trim();
+      let delay = 18;
+
+      if (word.length > 8) delay = 30;
+      if (/[.!?]$/.test(word)) delay = 80;
+
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+
+    if (cursor) cursor.remove();
+
+    // Save the completed response so conversation history still works
+    messages.push({
+      role: 'assistant',
+      content,
+      timestamp: new Date()
+    });
+
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
   async function loadChatbot() {
     try {
       isLoading = true;
@@ -631,11 +826,28 @@
       if (chatbot.welcome_message) {
         addMessage('assistant', chatbot.welcome_message);
       }
+      
+      // ✅ Show widget after data is fully loaded
+      bubble.style.opacity = '1';
+      bubble.style.visibility = 'visible';
     } catch (error) {
       console.error('Error loading chatbot:', error);
       addMessage('assistant', 'Hello! How can I help you today?');
+      
+      // ✅ Show widget even on error (with defaults)
+      bubble.style.opacity = '1';
+      bubble.style.visibility = 'visible';
     } finally {
       isLoading = false;
+    }
+
+    // Show lead capture form before chat only if enabled for this chatbot (default: enabled)
+    if (!window.BotSmithWidget.leadCaptureInitialized) {
+      window.BotSmithWidget.leadCaptureInitialized = true;
+      const leadCaptureEnabled = !chatbot || chatbot.lead_capture_enabled !== false;
+      if (leadCaptureEnabled && typeof botsmithInitLeadCapture === 'function') {
+        botsmithInitLeadCapture();
+      }
     }
   }
   
@@ -658,7 +870,7 @@
       const brandText = chatbot.powered_by_text || 'BotSmith';
       
       brandingFooter.innerHTML = `
-        <a href="https://botsmith.io" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #9ca3af; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s; font-weight: 500;">
+        <a href="https://botsmith.pro" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: #9ca3af; font-size: 11px; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.3s; font-weight: 500;">
           <span>Powered by</span>
           <span style="font-weight: 700; color: ${currentTheme.primary}; letter-spacing: 0.3px;">${brandText}</span>
         </a>
@@ -697,15 +909,47 @@
         body: JSON.stringify({ message, session_id: sessionId })
       });
       
-      if (!response.ok) throw new Error('Failed to send message');
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        hideTyping();
+        
+        // ✅ HANDLE SUBSCRIPTION ERRORS GRACEFULLY
+        if (response.status === 402) {
+          // Payment required (expired/payment failed)
+          if (error.detail?.error === 'subscription_expired') {
+            addMessage('assistant', '⚠️ This chatbot is temporarily unavailable. The subscription has expired.');
+          } else if (error.detail?.error === 'payment_failed') {
+            addMessage('assistant', '⚠️ This chatbot is temporarily unavailable. Please try again later.');
+          } else {
+            addMessage('assistant', '⚠️ This chatbot is temporarily unavailable.');
+          }
+          return;
+        }
+        
+        if (response.status === 403) {
+          // Suspended
+          addMessage('assistant', '⚠️ This chatbot is currently unavailable.');
+          return;
+        }
+        
+        if (response.status === 429) {
+          // Limit exceeded
+          addMessage('assistant', '⚠️ Monthly message limit reached. Please try again later.');
+          return;
+        }
+        
+        throw new Error('Failed to send message');
+      }
       
       const data = await response.json();
       hideTyping();
-      addMessage('assistant', data.message);
+
+      // Show the AI response with a smooth ChatGPT-style streaming animation
+      await streamAssistantMessage(data.message);
     } catch (error) {
-      console.error('Error sending message:', error);
+      console.error('[BotSmith Widget] Error sending message:', error);
       hideTyping();
-      addMessage('assistant', 'Sorry, I encountered an error. Please try again.');
+      addMessage('assistant', '❌ Unable to send message. Please check your connection and try again.');
     } finally {
       isSending = false;
       input.disabled = false;
@@ -790,4 +1034,1610 @@
       startAttentionAnimation();
     }
   }, 3000);
+  
+  /* =========================================================
+   BOTSMITH SIDE GREETING - SELF CONTAINED BLOCK
+   ========================================================= */
+
+(() => {
+
+  /* ---------- 1. CREATE CSS ---------- */
+
+  const greetingStyle = document.createElement('style');
+
+  greetingStyle.textContent = `
+    #botsmith-side-greeting {
+      position: fixed;
+      z-index: 999998;
+
+      width: 280px;
+      max-width: calc(100vw - 120px);
+
+      background: #ffffff;
+      color: #293142;
+
+      padding: 16px 42px 16px 18px;
+
+      border-radius: 14px;
+
+      box-shadow:
+        0 10px 35px rgba(0, 0, 0, 0.16);
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      font-size: 15px;
+      line-height: 1.45;
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform: translateY(-50%);
+
+      transition:
+        opacity 0.3s ease,
+        visibility 0.3s ease;
+
+      pointer-events: none;
+    }
+
+    #botsmith-side-greeting.botsmith-greeting-show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    #botsmith-side-greeting button {
+      position: absolute;
+
+      top: 7px;
+      right: 10px;
+
+      border: none;
+      background: transparent;
+
+      color: #98a2b3;
+
+      font-size: 21px;
+
+      cursor: pointer;
+
+      padding: 4px;
+
+      line-height: 1;
+    }
+
+    #botsmith-side-greeting button:hover {
+      color: #344054;
+    }
+
+    @media (max-width: 600px) {
+
+      #botsmith-side-greeting {
+        width: 230px;
+        font-size: 14px;
+      }
+
+    }
+  `;
+
+  document.head.appendChild(greetingStyle);
+
+
+  /* ---------- 2. CREATE GREETING ---------- */
+
+  const greeting = document.createElement('div');
+
+  greeting.id = 'botsmith-side-greeting';
+
+  greeting.innerHTML = `
+    <button aria-label="Close">×</button>
+
+    <strong>👋 I'm your AI assistant</strong><br>
+
+    I'm here to help!
+  `;
+
+  document.body.appendChild(greeting);
+
+
+  /* ---------- 3. GET CURRENT POSITION ---------- */
+
+  function getWidgetPosition() {
+
+    return config.position || 'bottom-right';
+
+  }
+
+
+  /* ---------- 4. POSITION GREETING ---------- */
+
+  function positionGreeting() {
+
+    const position = getWidgetPosition();
+
+    const bubbleRect = bubble.getBoundingClientRect();
+
+    const greetingWidth = 280;
+
+    /* Reset */
+
+    greeting.style.top = '';
+    greeting.style.right = '';
+    greeting.style.bottom = '';
+    greeting.style.left = '';
+
+
+    /* RIGHT SIDE WIDGET */
+
+    if (position.includes('right')) {
+
+      greeting.style.top =
+        `${bubbleRect.top + bubbleRect.height / 2}px`;
+
+      greeting.style.right =
+        `${window.innerWidth - bubbleRect.left + 14}px`;
+
+    }
+
+
+    /* LEFT SIDE WIDGET */
+
+    else {
+
+      greeting.style.top =
+        `${bubbleRect.top + bubbleRect.height / 2}px`;
+
+      greeting.style.left =
+        `${bubbleRect.right + 14}px`;
+
+    }
+
+  }
+
+
+  /* ---------- 5. SHOW AFTER DELAY ---------- */
+
+  setTimeout(() => {
+
+    positionGreeting();
+
+    greeting.classList.add(
+      'botsmith-greeting-show'
+    );
+
+  }, 1500);
+
+
+  /* ---------- 6. KEEP POSITION UPDATED ---------- */
+
+  window.addEventListener(
+    'resize',
+    positionGreeting
+  );
+
+
+  /* ---------- 7. CLOSE BUTTON ---------- */
+
+  greeting
+    .querySelector('button')
+    .addEventListener('click', (event) => {
+
+      event.stopPropagation();
+
+      greeting.classList.remove(
+        'botsmith-greeting-show'
+      );
+
+    });
+
+
+  /* ---------- 8. HIDE WHEN WIDGET OPENS ---------- */
+
+  bubble.addEventListener('click', () => {
+
+    greeting.classList.remove(
+      'botsmith-greeting-show'
+    );
+
+  });
+
+})();
+
+/* =========================================================
+   BOTSMITH THREE DOT MENU
+   SELF-CONTAINED BLOCK
+   ========================================================= */
+
+(() => {
+
+  /* =========================
+     1. ADD CSS
+     ========================= */
+
+  const botsmithMenuStyle = document.createElement('style');
+
+  botsmithMenuStyle.textContent = `
+
+    #botsmith-three-dot-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+      z-index: 999999;
+    }
+
+    #botsmith-three-dot-btn {
+      width: 40px;
+      height: 40px;
+
+      padding: 0;
+
+      border-radius: 12px;
+
+      border: 1px solid rgba(255,255,255,0.3);
+
+      background: rgba(255,255,255,0.2);
+
+      backdrop-filter: blur(10px);
+
+      color: white;
+
+      cursor: pointer;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      transition: all 0.2s ease;
+    }
+
+    #botsmith-three-dot-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: scale(1.05);
+    }
+
+
+    /* DROPDOWN MENU */
+
+    #botsmith-chat-menu {
+      position: fixed;
+
+      width: 245px;
+
+      background: #ffffff;
+
+      border: 1px solid rgba(0,0,0,0.08);
+
+      border-radius: 12px;
+
+      box-shadow: 0 16px 45px rgba(0,0,0,0.22);
+
+      padding: 7px;
+
+      opacity: 0;
+      visibility: hidden;
+
+      transform: translateY(-8px) scale(0.98);
+
+      transform-origin: top right;
+
+      transition: all 0.18s ease;
+
+      z-index: 2147483647;
+    }
+
+
+    #botsmith-chat-menu.botsmith-menu-active {
+      opacity: 1;
+      visibility: visible;
+
+      transform: translateY(0) scale(1);
+    }
+
+
+    /* MENU ITEM */
+
+    .botsmith-menu-item {
+      width: 100%;
+
+      border: none;
+
+      background: transparent;
+
+      color: #30343b;
+
+      display: flex;
+      align-items: center;
+
+      gap: 13px;
+
+      padding: 13px 14px;
+
+      border-radius: 8px;
+
+      cursor: pointer;
+
+      text-align: left;
+
+      font-size: 15px;
+
+      font-weight: 500;
+
+      font-family: inherit;
+
+      transition: background 0.15s ease;
+    }
+
+
+    .botsmith-menu-item:hover {
+      background: #f4f5f7;
+    }
+
+
+    /* MENU ICON */
+
+    .botsmith-menu-icon {
+      width: 20px;
+      height: 20px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      color: #7b818c;
+
+      flex-shrink: 0;
+    }
+
+
+    /* DIVIDER */
+
+    .botsmith-menu-divider {
+      height: 1px;
+
+      background: #e8eaed;
+
+      margin: 5px 0;
+    }
+
+
+    @media (max-width: 600px) {
+      #botsmith-chat-menu {
+        width: 235px;
+      }
+    }
+
+  `;
+
+  document.head.appendChild(botsmithMenuStyle);
+
+
+
+  /* =========================
+     2. CREATE THREE DOT BUTTON
+     ========================= */
+
+  const menuWrapper = document.createElement('div');
+
+  menuWrapper.id = 'botsmith-three-dot-wrapper';
+
+
+  menuWrapper.innerHTML = `
+
+    <button
+      id="botsmith-three-dot-btn"
+      aria-label="More options"
+    >
+
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="currentColor"
+      >
+
+        <circle cx="5" cy="12" r="1.8"></circle>
+
+        <circle cx="12" cy="12" r="1.8"></circle>
+
+        <circle cx="19" cy="12" r="1.8"></circle>
+
+      </svg>
+
+    </button>
+
+  `;
+
+
+
+  /* =========================
+     3. FIND CLOSE BUTTON
+     AND INSERT THREE DOTS
+     BEFORE IT
+     ========================= */
+
+  const existingCloseButton =
+    header.querySelector(
+      '#botsmith-close'
+    );
+
+
+  if (existingCloseButton) {
+
+    existingCloseButton.parentNode.insertBefore(
+      menuWrapper,
+      existingCloseButton
+    );
+
+  } else {
+
+    console.warn(
+      '[BotSmith] Close button not found'
+    );
+
+  }
+
+
+
+  /* =========================
+     4. CREATE DROPDOWN
+     OUTSIDE HEADER
+     ========================= */
+
+  const chatMenu = document.createElement('div');
+
+  chatMenu.id = 'botsmith-chat-menu';
+
+
+  chatMenu.innerHTML = `
+
+
+    <!-- START NEW CHAT -->
+
+    <button
+      class="botsmith-menu-item"
+      id="botsmith-new-chat"
+    >
+
+      <span class="botsmith-menu-icon">
+
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <path d="M12 20h9"></path>
+
+          <path
+            d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"
+          ></path>
+
+        </svg>
+
+      </span>
+
+      Start a new chat
+
+    </button>
+
+
+
+    <!-- END CHAT -->
+
+    <button
+      class="botsmith-menu-item"
+      id="botsmith-end-chat"
+    >
+
+      <span class="botsmith-menu-icon">
+
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <path d="M18 6L6 18"></path>
+
+          <path d="M6 6l12 12"></path>
+
+        </svg>
+
+      </span>
+
+      End chat
+
+    </button>
+
+
+
+    <!-- DIVIDER -->
+
+    <div
+      class="botsmith-menu-divider"
+    ></div>
+
+
+
+    <!-- RECENT CHATS -->
+
+    <button
+      class="botsmith-menu-item"
+      id="botsmith-recent-chats"
+    >
+
+      <span class="botsmith-menu-icon">
+
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+
+          <circle
+            cx="12"
+            cy="12"
+            r="9"
+          ></circle>
+
+          <path d="M12 7v5l3 2"></path>
+
+        </svg>
+
+      </span>
+
+      View recent chats
+
+    </button>
+
+  `;
+
+
+  /* IMPORTANT:
+     Add to body so existing header overflow
+     cannot clip the dropdown
+  */
+
+  document.body.appendChild(chatMenu);
+
+
+
+  /* =========================
+     5. GET BUTTON
+     ========================= */
+
+  const threeDotBtn =
+    document.getElementById(
+      'botsmith-three-dot-btn'
+    );
+
+
+
+  /* =========================
+     6. POSITION MENU
+     ========================= */
+
+  function positionBotSmithMenu() {
+
+    const buttonRect =
+      threeDotBtn.getBoundingClientRect();
+
+
+    const menuWidth = 245;
+
+
+    let menuLeft =
+      buttonRect.right - menuWidth;
+
+
+    /* Prevent going outside left screen */
+
+    if (menuLeft < 12) {
+      menuLeft = 12;
+    }
+
+
+    /* Prevent going outside right screen */
+
+    if (
+      menuLeft + menuWidth >
+      window.innerWidth - 12
+    ) {
+
+      menuLeft =
+        window.innerWidth -
+        menuWidth -
+        12;
+
+    }
+
+
+    chatMenu.style.top =
+      buttonRect.bottom + 8 + 'px';
+
+
+    chatMenu.style.left =
+      menuLeft + 'px';
+
+  }
+
+
+
+  /* =========================
+     7. OPEN / CLOSE MENU
+     ========================= */
+
+  threeDotBtn.addEventListener(
+    'click',
+    (event) => {
+
+      event.stopPropagation();
+
+
+      positionBotSmithMenu();
+
+
+      chatMenu.classList.toggle(
+        'botsmith-menu-active'
+      );
+
+    }
+  );
+
+
+
+  /* =========================
+     8. CLOSE WHEN CLICKING
+     OUTSIDE
+     ========================= */
+
+  document.addEventListener(
+    'click',
+    (event) => {
+
+      if (
+        !menuWrapper.contains(event.target) &&
+        !chatMenu.contains(event.target)
+      ) {
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+      }
+
+    }
+  );
+
+
+
+  /* =========================
+     9. REPOSITION ON RESIZE
+     ========================= */
+
+  window.addEventListener(
+    'resize',
+    () => {
+
+      if (
+        chatMenu.classList.contains(
+          'botsmith-menu-active'
+        )
+      ) {
+
+        positionBotSmithMenu();
+
+      }
+
+    }
+  );
+
+
+
+  /* =========================
+     10. START NEW CHAT
+     ========================= */
+
+  document
+    .getElementById('botsmith-new-chat')
+    .addEventListener(
+      'click',
+      () => {
+
+        /*
+         Clear existing UI messages
+        */
+
+        messages.length = 0;
+
+        messagesContainer.innerHTML = '';
+
+
+
+        /*
+         Add welcome message again
+        */
+
+        if (
+          chatbot &&
+          chatbot.welcome_message
+        ) {
+
+          addMessage(
+            'assistant',
+            chatbot.welcome_message
+          );
+
+        }
+
+
+        /*
+         Close menu
+        */
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+      }
+    );
+
+
+
+  /* =========================
+     11. END CHAT
+     ========================= */
+
+  document
+    .getElementById('botsmith-end-chat')
+    .addEventListener(
+      'click',
+      () => {
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+
+        /*
+         Use existing widget close logic
+        */
+
+        if (
+          typeof isOpen !== 'undefined' &&
+          isOpen &&
+          typeof toggleChat === 'function'
+        ) {
+
+          toggleChat();
+
+        }
+
+      }
+    );
+
+
+
+  /* =========================
+     12. RECENT CHATS
+     ========================= */
+
+  document
+    .getElementById('botsmith-recent-chats')
+    .addEventListener(
+      'click',
+      () => {
+
+        chatMenu.classList.remove(
+          'botsmith-menu-active'
+        );
+
+
+        /*
+         Placeholder for future
+         conversation history system
+        */
+
+        console.log(
+          '[BotSmith] Recent chats clicked'
+        );
+
+
+        alert(
+          'Recent chats feature coming soon!'
+        );
+
+      }
+    );
+
+
+})();
+
+/* =========================================================
+   BOTSMITH LEAD CAPTURE FORM
+   Invoked conditionally after chatbot config loads,
+   based on chatbot.lead_capture_enabled
+   ========================================================= */
+
+function botsmithInitLeadCapture() {
+
+  /* =========================
+     1. ADD LEAD FORM CSS
+     Uses existing theme color
+     ========================= */
+
+  const leadFormStyle = document.createElement('style');
+
+  leadFormStyle.textContent = `
+
+    #botsmith-lead-form-wrapper {
+      flex: 1;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      padding: 20px;
+
+      background: #ffffff;
+
+      overflow-y: auto;
+    }
+
+
+    #botsmith-lead-form-card {
+      width: 100%;
+
+      max-width: 340px;
+
+      background: #ffffff;
+
+      border: 1px solid rgba(0, 0, 0, 0.08);
+
+      border-radius: 18px;
+
+      padding: 24px;
+
+      box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.08);
+
+      animation:
+        botsmithLeadFormEnter
+        0.35s ease;
+    }
+
+
+    @keyframes botsmithLeadFormEnter {
+
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+    }
+
+
+   
+
+
+    #botsmith-lead-title {
+
+      margin: 0 0 8px 0;
+
+      font-size: 21px;
+
+      font-weight: 700;
+
+      color: #222222;
+
+      line-height: 1.2;
+
+      font-family: sans-serif;
+    }
+
+
+    #botsmith-lead-description {
+
+      margin: 0 0 22px 0;
+
+      color: #737373;
+
+      font-size: 13.5px;
+
+      line-height: 1.5;
+    }
+
+
+    .botsmith-lead-field {
+
+      margin-bottom: 14px;
+    }
+
+
+    .botsmith-lead-label {
+
+      display: block;
+
+      margin-bottom: 7px;
+
+      font-size: 12px;
+
+      font-weight: 600;
+
+      color: #4b5563;
+    }
+
+
+    .botsmith-lead-input {
+
+      width: 100%;
+
+      height: 46px;
+
+      border:
+        1.5px solid
+        #e1e1e1;
+
+      border-radius: 10px;
+
+      padding: 0 13px;
+
+      font-size: 14px;
+
+      font-family: inherit;
+
+      color: #222222;
+
+      outline: none;
+
+      background: #ffffff;
+
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+
+    .botsmith-lead-input:focus {
+
+      border-color:
+        ${currentTheme.primary};
+
+      box-shadow:
+        0 0 0 3px
+        ${currentTheme.primary}20;
+    }
+
+
+    .botsmith-lead-input::placeholder {
+
+      color: #a3a3a3;
+    }
+
+
+    #botsmith-lead-submit {
+
+      width: 100%;
+
+      height: 47px;
+
+      margin-top: 4px;
+
+      border: none;
+
+      border-radius: 11px;
+
+      background:
+        #000000;
+
+      color: #ffffff;
+
+      font-family: inherit;
+
+      font-size: 14px;
+
+      font-weight: 600;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.2s ease,
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+
+    #botsmith-lead-submit:hover {
+
+      transform:
+        translateY(-1px);
+
+      opacity: 0.92;
+
+      box-shadow:
+        0 8px 20px
+        ${currentTheme.primary}40;
+    }
+
+
+    #botsmith-lead-submit:active {
+
+      transform:
+        translateY(0);
+    }
+
+
+    #botsmith-lead-submit:disabled {
+
+      opacity: 0.6;
+
+      cursor: not-allowed;
+    }
+
+
+    #botsmith-lead-note {
+
+      margin-top: 12px;
+
+      text-align: center;
+
+      font-size: 10.5px;
+
+      color: #a3a3a3;
+
+      line-height: 1.4;
+    }
+
+
+    #botsmith-lead-error {
+
+      display: none;
+
+      margin-top: 8px;
+
+      font-size: 11px;
+
+      color: #dc2626;
+    }
+
+
+    @media (max-width: 480px) {
+
+      #botsmith-lead-form-wrapper {
+
+        padding: 16px;
+      }
+
+
+      #botsmith-lead-form-card {
+
+        max-width: none;
+
+        padding: 22px;
+      }
+
+    }
+
+  `;
+
+
+  document.head.appendChild(
+    leadFormStyle
+  );
+
+
+
+  /* =========================
+     2. FIND EXISTING CHAT
+     ELEMENTS
+     ========================= */
+
+  const existingMessages =
+    document.getElementById(
+      'botsmith-messages'
+    );
+
+
+  const existingInput =
+    document.getElementById(
+      'botsmith-input'
+    );
+
+
+  const chatWindow =
+    document.getElementById(
+      'botsmith-window'
+    );
+
+
+  if (
+    !existingMessages ||
+    !existingInput ||
+    !chatWindow
+  ) {
+
+    console.warn(
+      '[BotSmith] Lead form could not find widget elements'
+    );
+
+    return;
+  }
+
+
+
+  /* =========================
+     3. FIND INPUT AREA
+     ========================= */
+
+  const existingInputArea =
+    existingInput.parentElement;
+
+
+
+  /* =========================
+     4. SAVE ORIGINAL DISPLAY
+     STATES
+     ========================= */
+
+  const originalMessagesDisplay =
+    existingMessages.style.display;
+
+
+  const originalInputDisplay =
+    existingInputArea.style.display;
+
+
+
+  /* =========================
+     5. HIDE CHAT INITIALLY
+     ========================= */
+
+  existingMessages.style.display =
+    'none';
+
+
+  existingInputArea.style.display =
+    'none';
+
+
+
+  /* =========================
+     6. CREATE LEAD FORM
+     ========================= */
+
+  const leadFormWrapper =
+    document.createElement('div');
+
+
+  leadFormWrapper.id =
+    'botsmith-lead-form-wrapper';
+
+
+  leadFormWrapper.innerHTML = `
+
+    <form id="botsmith-lead-form-card">
+
+
+      <!-- ICON -->
+
+      
+
+
+
+      <!-- TITLE -->
+
+      <h2 id="botsmith-lead-title">
+
+        Before we begin
+
+      </h2>
+
+
+
+      <!-- DESCRIPTION -->
+
+      <p id="botsmith-lead-description">
+
+        Tell us a little about yourself so we can assist you better.
+
+      </p>
+
+
+
+      <!-- NAME -->
+
+      <div class="botsmith-lead-field">
+
+        <label
+          class="botsmith-lead-label"
+          for="botsmith-lead-name"
+        >
+
+          Your name
+
+        </label>
+
+
+        <input
+          id="botsmith-lead-name"
+          class="botsmith-lead-input"
+          type="text"
+          placeholder="Enter your name"
+          autocomplete="name"
+          required
+        >
+
+      </div>
+
+
+
+      <!-- PHONE -->
+
+      <div class="botsmith-lead-field">
+
+        <label
+          class="botsmith-lead-label"
+          for="botsmith-lead-phone"
+        >
+
+          Phone number
+
+        </label>
+
+
+        <input
+          id="botsmith-lead-phone"
+          class="botsmith-lead-input"
+          type="tel"
+          placeholder="Enter your phone number"
+          autocomplete="tel"
+          required
+        >
+
+      </div>
+
+
+
+      <!-- SUBMIT -->
+
+      <button
+        id="botsmith-lead-submit"
+        type="submit"
+      >
+
+        Start chatting with AI→
+
+      </button>
+
+
+
+      <!-- ERROR -->
+
+      <div id="botsmith-lead-error">
+
+        Please enter your name and phone number.
+
+      </div>
+
+
+
+      <!-- NOTE -->
+
+      <div id="botsmith-lead-note">
+
+        Your information is kept private.
+
+      </div>
+
+
+    </form>
+
+  `;
+
+
+
+  /* =========================
+     7. INSERT FORM
+     BEFORE CHAT MESSAGES
+     ========================= */
+
+  existingMessages.parentNode.insertBefore(
+    leadFormWrapper,
+    existingMessages
+  );
+
+
+
+  /* =========================
+     8. GET FORM ELEMENTS
+     ========================= */
+
+  const leadForm =
+    document.getElementById(
+      'botsmith-lead-form-card'
+    );
+
+
+  const leadNameInput =
+    document.getElementById(
+      'botsmith-lead-name'
+    );
+
+
+  const leadPhoneInput =
+    document.getElementById(
+      'botsmith-lead-phone'
+    );
+
+
+  const leadSubmitButton =
+    document.getElementById(
+      'botsmith-lead-submit'
+    );
+
+
+  const leadError =
+    document.getElementById(
+      'botsmith-lead-error'
+    );
+
+
+
+  /* =========================
+     9. HANDLE SUBMISSION
+     ========================= */
+
+  leadForm.addEventListener(
+    'submit',
+    async (event) => {
+
+      event.preventDefault();
+
+
+      const leadName =
+        leadNameInput.value.trim();
+
+
+      const leadPhone =
+        leadPhoneInput.value.trim();
+
+
+
+      /* VALIDATION */
+
+      if (
+        !leadName ||
+        !leadPhone
+      ) {
+
+        leadError.style.display =
+          'block';
+
+        return;
+      }
+
+
+
+      leadError.style.display =
+        'none';
+
+
+
+      /* DISABLE BUTTON */
+
+      leadSubmitButton.disabled =
+        true;
+
+
+      leadSubmitButton.textContent =
+        'Starting...';
+
+
+
+      /* =========================
+         CAPTURE LEAD DATA
+         ========================= */
+
+      const currentChatbotId =
+        (chatbot && chatbot.id) ||
+        config.chatbotId ||
+        chatbotId ||
+        null;
+
+      const leadData = {
+        name: leadName,
+        phone: leadPhone,
+        chatbot_id: currentChatbotId,
+        captured_at: new Date().toISOString()
+      };
+
+
+
+      /* =========================
+         PERSIST LEAD TO BACKEND
+         (best-effort: never trap
+          the visitor in the form)
+         ========================= */
+
+      try {
+
+        const leadResp = await fetch(
+          config.apiUrl + '/public/lead/' + currentChatbotId,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              name: leadName,
+              phone: leadPhone
+            })
+          }
+        );
+
+        if (!leadResp.ok) {
+          console.error(
+            '[BotSmith] Lead save failed:',
+            leadResp.status
+          );
+        }
+
+      } catch (err) {
+
+        console.error(
+          '[BotSmith] Lead save error:',
+          err
+        );
+
+        if (leadError) {
+          leadError.textContent =
+            'Could not save your details, continuing to chat…';
+          leadError.style.display = 'block';
+        }
+      }
+
+
+
+      /* CUSTOM EVENT (analytics) */
+
+      window.BotSmithLeadData = leadData;
+
+      window.dispatchEvent(
+        new CustomEvent(
+          'botsmithLeadCaptured',
+          { detail: leadData }
+        )
+      );
+
+
+
+      /* =========================
+         SMALL TRANSITION
+         ========================= */
+
+      leadFormWrapper.style.transition =
+        'opacity 0.25s ease, transform 0.25s ease';
+
+
+      leadFormWrapper.style.opacity =
+        '0';
+
+
+      leadFormWrapper.style.transform =
+        'translateY(-10px)';
+
+
+
+      setTimeout(
+        () => {
+
+
+          /* REMOVE LEAD FORM */
+
+          leadFormWrapper.remove();
+
+
+
+          /* SHOW CHAT */
+
+          existingMessages.style.display =
+            originalMessagesDisplay ||
+            'flex';
+
+
+          existingInputArea.style.display =
+            originalInputDisplay ||
+            'flex';
+
+
+
+          /* OPTIONAL:
+             Update first assistant
+             greeting with name
+          */
+
+          const firstAssistantMessage =
+            existingMessages.querySelector(
+              '.botsmith-message-item'
+            );
+
+
+          console.log(
+            '[BotSmith] Chat started for:',
+            leadName
+          );
+
+
+
+          /* FOCUS CHAT INPUT */
+
+          setTimeout(
+            () => {
+
+              existingInput.focus();
+
+            },
+            100
+          );
+
+
+        },
+        250
+      );
+
+    }
+  );
+
+}
+
+  // Mark as initialized
+  window.BotSmithWidget.initialized = true;
+  window.BotSmithWidget.version = '2.0.0'; // Version tracking
+  
+  } catch (error) {
+    // ✅ ULTIMATE FAILSAFE: If widget completely fails, don't break customer site
+    console.error('[BotSmith Widget] Fatal error during initialization:', error);
+    // Silently fail - customer's website continues to work
+  }
+})();
+
+/* BotSmith grid background — added only */
+(function () {
+  const styleId = 'botsmith-force-dot-grid';
+  let style = document.getElementById(styleId);
+
+  if (!style) {
+    style = document.createElement('style');
+    style.id = styleId;
+    document.head.appendChild(style);
+  }
+
+  style.textContent = `
+    #botsmith-messages {
+      background-color: #fafafa !important;
+      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.35) 1px, transparent 1px) !important;
+      background-size: 20px 20px !important;
+      background-repeat: repeat !important;
+    }
+  `;
 })();

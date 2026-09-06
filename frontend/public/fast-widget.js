@@ -272,15 +272,37 @@
     
     @media (max-width: 768px) {
       #botsmith-window {
-        width: 100vw !important; 
-        height: 100vh !important;
-        bottom: 0 !important; 
-        right: 0 !important; 
-        left: 0 !important; 
-        top: 0 !important;
-        border-radius: 0 !important;
-        max-width: 100vw !important;
-        max-height: 100vh !important;
+        position: fixed !important;
+        left: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+        top: auto !important;
+        width: auto !important;
+        height: calc(100dvh - 16px) !important;
+        max-width: none !important;
+        max-height: none !important;
+        border-radius: 22px !important;
+        overflow: hidden !important;
+      }
+
+      #botsmith-messages {
+        min-width: 0 !important;
+        width: 100% !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+      }
+
+      #botsmith-input {
+        min-width: 0 !important;
+        width: 100% !important;
+      }
+
+      #botsmith-send {
+        flex-shrink: 0 !important;
+      }
+
+      #botsmith-window * {
+        max-width: 100%;
       }
     }
   `;
@@ -424,7 +446,9 @@
     flex: 1; 
     overflow-y: auto; 
     padding: 24px; 
-    background: linear-gradient(to bottom, #fafafa 0%, #f5f5f5 100%);
+    background-color: #fafafa;
+    background-image: radial-gradient(circle, rgba(148, 163, 184, 0.42) 1px, transparent 1px);
+    background-size: 20px 20px;
     display: flex; 
     flex-direction: column; 
     gap: 16px;
@@ -2595,4 +2619,25 @@ function botsmithInitLeadCapture() {
     console.error('[BotSmith Widget] Fatal error during initialization:', error);
     // Silently fail - customer's website continues to work
   }
+})();
+
+/* BotSmith grid background — added only */
+(function () {
+  const styleId = 'botsmith-force-dot-grid';
+  let style = document.getElementById(styleId);
+
+  if (!style) {
+    style = document.createElement('style');
+    style.id = styleId;
+    document.head.appendChild(style);
+  }
+
+  style.textContent = `
+    #botsmith-messages {
+      background-color: #fafafa !important;
+      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.16) 1px, transparent 1px) !important;
+      background-size: 20px 20px !important;
+      background-repeat: repeat !important;
+    }
+  `;
 })();
