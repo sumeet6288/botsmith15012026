@@ -464,17 +464,32 @@
   `;
   inputArea.innerHTML = `
     <form id="botsmith-form" style="display: flex; gap: 10px; margin: 0;">
-      <input 
-        type="text" 
-        id="botsmith-input" 
+      <input
+        type="text"
+        id="botsmith-input"
         placeholder="Type your message..."
-        style="flex: 1; padding: 12px 18px; border: 2px solid #e5e7eb; border-radius: 28px; outline: none; font-size: 15px; transition: all 0.3s ease; background: #fafafa;"
+        style="flex: 1; min-width: 0; padding: 12px 18px; border: 2px solid #e5e7eb; border-radius: 28px; outline: none; font-size: 15px; transition: all 0.3s ease; background: #fafafa;"
       />
-      <button 
-        type="submit" 
-        id="botsmith-send" 
+
+      <button
+        type="button"
+        id="botsmith-mic"
+        aria-label="Start dictation"
+        title="Start dictation"
+        style="width: 48px; height: 48px; flex-shrink: 0; border: none; border-radius: 50%; background: #e5e7eb; color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;"
+      >
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button
+        type="submit"
+        id="botsmith-send"
         class="botsmith-send-button"
-        style="width: 48px; height: 48px; border-radius: 50%; border: none; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px ${customization.accent_color}40;">
+        style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; border: none; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px ${customization.accent_color}40;"
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1018,6 +1033,43 @@
     sendMessage(input.value);
   };
 
+  // Voice-to-text dictation
+  const micButton = document.getElementById('botsmith-mic');
+  const messageInput = document.getElementById('botsmith-input');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    micButton.addEventListener('click', () => {
+      recognition.start();
+      micButton.style.background = '#111827';
+      micButton.style.color = 'white';
+      micButton.title = 'Listening...';
+    });
+
+    recognition.onresult = (event) => {
+      messageInput.value = event.results[0][0].transcript;
+    };
+
+    recognition.onend = () => {
+      micButton.style.background = '#e5e7eb';
+      micButton.style.color = '#6b7280';
+      micButton.title = 'Start dictation';
+    };
+
+    recognition.onerror = () => {
+      micButton.style.background = '#e5e7eb';
+      micButton.style.color = '#6b7280';
+      micButton.title = 'Start dictation';
+    };
+  } else {
+    micButton.style.display = 'none';
+  }
+
   // API
   window.BotSmith = {
     open: () => { if (!isOpen) toggleChat(); },
@@ -1267,6 +1319,7 @@
       display: flex;
       align-items: center;
       z-index: 999999;
+      margin-right: 8px;
     }
 
     #botsmith-three-dot-btn {
