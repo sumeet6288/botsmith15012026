@@ -171,7 +171,7 @@ const ForgotPassword = () => {
 
         {/* Additional Help */}
         <div className="text-center mt-6 text-sm text-gray-600">
-          Need help? <a href="mailto:support@botsmith.io" className="text-purple-600 hover:text-pink-600 font-semibold">Contact Support</a>
+          Need help? <a href="mailto:support@botsmith.pro" className="text-purple-600 hover:text-pink-600 font-semibold">Contact Support</a>
         </div>
       </div>
     </div>

@@ -182,9 +182,9 @@ const SecurityOverview = () => {
                 <Button
                   variant="secondary"
                   className="bg-white text-red-600 hover:bg-gray-100"
-                  onClick={() => window.location.href = 'mailto:security@botsmith.com'}
+                  onClick={() => window.location.href = 'mailto:security@botsmith.pro'}
                 >
-                  📧 security@botsmith.com
+                  📧 security@botsmith.pro
                 </Button>
                 <Button
                   variant="outline"
