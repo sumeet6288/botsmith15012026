@@ -373,44 +373,44 @@ const ChatbotBuilder = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Left Sidebar Navigation */}
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <aside className="w-full lg:w-60 lg:lg:flex-shrink-0">
-              <TabsList className="flex lg:flex-col h-auto w-full gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-2 rounded-xl shadow-lg animate-fade-in-up">
-              <TabsTrigger value="sources" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+            <aside className="w-full lg:w-72 lg:lg:flex-shrink-0">
+              <TabsList className="flex lg:flex-col h-auto w-full gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-3 rounded-xl shadow-lg animate-fade-in-up">
+              <TabsTrigger value="sources" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <FileText className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Sources</span>
                 <span className="sm:hidden">Sources</span>
               </TabsTrigger>
-              <TabsTrigger value="settings" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="settings" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <Settings className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Settings</span>
                 <span className="sm:hidden">Settings</span>
               </TabsTrigger>
-              <TabsTrigger value="appearance" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="appearance" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <Palette className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Appearance</span>
                 <span className="sm:hidden">Appear</span>
               </TabsTrigger>
-              <TabsTrigger value="widget" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="widget" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <MessageSquare className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Widget</span>
                 <span className="sm:hidden">Widget</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="analytics" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <BarChart3 className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Analytics</span>
                 <span className="sm:hidden">Analytics</span>
               </TabsTrigger>
-              <TabsTrigger value="advanced-analytics" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="advanced-analytics" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <TrendingUp className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Insights</span>
                 <span className="sm:hidden">Insights</span>
               </TabsTrigger>
-              <TabsTrigger value="integrations" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="integrations" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <Zap className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Integrations</span>
                 <span className="sm:hidden">Integrations</span>
               </TabsTrigger>
-              <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" className="w-full justify-start whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
+              <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
                 <Users className="w-4 h-4 mr-2" />
                 <span className="hidden sm:inline">Lead Captured</span>
                 <span className="sm:hidden">Leads</span>
