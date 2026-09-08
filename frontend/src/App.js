@@ -133,7 +133,6 @@ function AuthRouteDetector() {
     const authRoutes = ['/signin', '/signup'];
     const isAuthRoute = authRoutes.includes(location.pathname);
     const isMainDashboard = location.pathname === '/dashboard';
-    const isChatbotBuilder = location.pathname.startsWith('/chatbot/');
     
     // Get the root element
     const rootElement = document.getElementById('root');
@@ -151,12 +150,6 @@ function AuthRouteDetector() {
         rootElement.classList.add('dashboard-route');
       } else {
         rootElement.classList.remove('dashboard-route');
-      }
-
-      if (isChatbotBuilder) {
-        rootElement.classList.add('chatbotbuilder-route');
-      } else {
-        rootElement.classList.remove('chatbotbuilder-route');
       }
     }
   }, [location.pathname]);
