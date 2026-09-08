@@ -1298,3 +1298,7 @@ input:focus, textarea:focus, select:focus {
 #root.dashboard-route {
   zoom: 1;
 }
+
+#root.chatbotbuilder-route {
+  zoom: 1;
+}
