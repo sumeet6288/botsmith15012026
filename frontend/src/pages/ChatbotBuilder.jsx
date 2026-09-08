@@ -7,7 +7,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Slider } from '../components/ui/slider';
-import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Users, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code } from 'lucide-react';
+import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Users, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import LeadCaptured from '../components/LeadCaptured';
 import { Progress } from '../components/ui/progress';
 import UserProfileDropdown from '../components/UserProfileDropdown';
@@ -48,10 +48,21 @@ const ChatbotBuilder = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEnabled, setWebhookEnabled] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    const saved = localStorage.getItem('botsmith-chatbot-builder-sidebar-collapsed');
+    return saved === 'true';
+  });
 
   useEffect(() => {
     loadChatbot();
   }, [id]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      'botsmith-chatbot-builder-sidebar-collapsed',
+      String(isSidebarCollapsed)
+    );
+  }, [isSidebarCollapsed]);
 
   // Sync public access state with chatbot data
   useEffect(() => {
@@ -373,49 +384,52 @@ const ChatbotBuilder = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Left Sidebar Navigation */}
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <aside className="w-full lg:w-72 lg:lg:flex-shrink-0">
-              <TabsList className="flex lg:flex-col h-auto w-full gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-3 rounded-xl shadow-lg animate-fade-in-up">
-              <TabsTrigger value="sources" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <FileText className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Sources</span>
-                <span className="sm:hidden">Sources</span>
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <Settings className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Settings</span>
-                <span className="sm:hidden">Settings</span>
-              </TabsTrigger>
-              <TabsTrigger value="appearance" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <Palette className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Appearance</span>
-                <span className="sm:hidden">Appear</span>
-              </TabsTrigger>
-              <TabsTrigger value="widget" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <MessageSquare className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Widget</span>
-                <span className="sm:hidden">Widget</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <BarChart3 className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Analytics</span>
-                <span className="sm:hidden">Analytics</span>
-              </TabsTrigger>
-              <TabsTrigger value="advanced-analytics" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Insights</span>
-                <span className="sm:hidden">Insights</span>
-              </TabsTrigger>
-              <TabsTrigger value="integrations" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <Zap className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Integrations</span>
-                <span className="sm:hidden">Integrations</span>
-              </TabsTrigger>
-              <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" className="w-full justify-start px-4 py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0">
-                <Users className="w-4 h-4 mr-2" />
-                <span className="hidden sm:inline">Lead Captured</span>
-                <span className="sm:hidden">Leads</span>
-              </TabsTrigger>
-            </TabsList>
+            <aside className={`w-full ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72'} lg:flex-shrink-0 transition-all duration-300 ease-in-out`}>
+              <div className={`flex mb-2 ${isSidebarCollapsed ? 'lg:justify-center' : 'justify-end'}`}>
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
+                  aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                  className="p-2 rounded-lg text-purple-600 hover:bg-purple-100/70 transition-colors"
+                >
+                  {isSidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+                </button>
+              </div>
+              <TabsList className={`flex lg:flex-col h-auto w-full gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-3 rounded-xl shadow-lg animate-fade-in-up ${isSidebarCollapsed ? 'lg:items-center' : ''}`}>
+                <TabsTrigger value="sources" title="Sources" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <FileText className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Sources</span>
+                </TabsTrigger>
+                <TabsTrigger value="settings" title="Settings" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <Settings className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Settings</span>
+                </TabsTrigger>
+                <TabsTrigger value="appearance" title="Appearance" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <Palette className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Appearance</span>
+                </TabsTrigger>
+                <TabsTrigger value="widget" title="Widget" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <MessageSquare className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Widget</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" title="Analytics" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <BarChart3 className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Analytics</span>
+                </TabsTrigger>
+                <TabsTrigger value="advanced-analytics" title="Advanced Analytics" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <TrendingUp className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Insights</span>
+                </TabsTrigger>
+                <TabsTrigger value="integrations" title="Integrations" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <Zap className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Integrations</span>
+                </TabsTrigger>
+                <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" title="Lead Captured" className={`w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300 lg:flex-shrink-0`}>
+                  <Users className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
+                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Lead Captured</span>
+                </TabsTrigger>
+              </TabsList>
             </aside>
 
             {/* Main Tab Content */}
