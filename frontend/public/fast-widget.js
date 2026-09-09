@@ -1108,7 +1108,7 @@
       background: #ffffff;
       color: #293142;
 
-      padding: 10px 42px 10px 18px;
+      padding: 10px 30px 10px 18px;
 
       border-radius: 14px;
 
