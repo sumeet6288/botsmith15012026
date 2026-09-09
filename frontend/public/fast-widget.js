@@ -1108,7 +1108,7 @@
       background: #ffffff;
       color: #293142;
 
-      padding: 16px 42px 16px 18px;
+      padding: 10px 42px 10px 18px;
 
       border-radius: 14px;
 
@@ -1121,8 +1121,8 @@
         "Segoe UI",
         sans-serif;
 
-      font-size: 15px;
-      line-height: 1.45;
+      font-size: 14px;
+      line-height: 1.3;
 
       opacity: 0;
       visibility: hidden;
@@ -1140,6 +1140,12 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
+    }
+
+    #botsmith-side-greeting strong {
+      display: inline-block;
+      margin-bottom: 2px;
+      font-size: 14px;
     }
 
     #botsmith-side-greeting button {
