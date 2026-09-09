@@ -265,7 +265,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
             </p>
 
             {showUpgradeMessage && !isPaidUser && (
-              <p className="mt-2 text-sm text-purple-600">
+              <p className="mt-2 text-sm text-red-600">
                 Please upgrade to use the Lead Capture feature.
               </p>
             )}
