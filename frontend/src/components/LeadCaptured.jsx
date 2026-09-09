@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { Users, RefreshCw, Inbox, Download, Calendar } from 'lucide-react'; 
-import api, { chatbotAPI } from '../utils/api'; 
+import api, { chatbotAPI, plansAPI } from '../utils/api'; 
 import { Switch } from './ui/switch'; 
 import { useToast } from '../hooks/use-toast'; 
 
@@ -20,7 +20,7 @@ const formatDateTime = (iso) => {
   } 
 }; 
 
-const LeadCaptured = ({ chatbot, onUpdate, isPaidUser = false }) => { 
+const LeadCaptured = ({ chatbot, onUpdate }) => { 
   const { toast } = useToast(); 
   const [leads, setLeads] = useState([]); 
   const [loading, setLoading] = useState(true); 
@@ -35,8 +35,28 @@ const LeadCaptured = ({ chatbot, onUpdate, isPaidUser = false }) => {
   const [emailAlertsEnabled, setEmailAlertsEnabled] = useState(false);
   const [savingEmailAlert, setSavingEmailAlert] = useState(false);
   const [showUpgradeMessage, setShowUpgradeMessage] = useState(false);
+  const [userPlan, setUserPlan] = useState(null);
+  const [loadingPlan, setLoadingPlan] = useState(true);
 
-  const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false; 
+  // Use the same paid-plan permission as the White Label Branding feature.
+  const isPaidUser = Boolean(userPlan?.limits?.custom_branding);
+
+  const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false;
+
+  useEffect(() => {
+    const fetchUserPlan = async () => {
+      try {
+        const response = await plansAPI.getUsageStats();
+        setUserPlan(response.data.plan);
+      } catch (err) {
+        console.error('Error fetching user plan:', err);
+      } finally {
+        setLoadingPlan(false);
+      }
+    };
+
+    fetchUserPlan();
+  }, []);
 
   const handleToggleLeadCapture = async (checked) => {
     if (!chatbot?.id || togglingCapture) return;
@@ -265,7 +285,7 @@ const LeadCaptured = ({ chatbot, onUpdate, isPaidUser = false }) => {
             <Switch
               checked={leadCaptureEnabled}
               onCheckedChange={handleToggleLeadCapture}
-              disabled={togglingCapture}
+              disabled={togglingCapture || loadingPlan}
               data-testid="lead-capture-toggle"
             />
           </div>
