@@ -20,7 +20,7 @@ const formatDateTime = (iso) => {
   } 
 }; 
 
-const LeadCaptured = ({ chatbot, onUpdate, isPaidUser = false }) => { 
+const LeadCaptured = ({ chatbot, onUpdate }) => { 
   const { toast } = useToast(); 
   const [leads, setLeads] = useState([]); 
   const [loading, setLoading] = useState(true); 
@@ -34,42 +34,31 @@ const LeadCaptured = ({ chatbot, onUpdate, isPaidUser = false }) => {
   const [emailAlertAddress, setEmailAlertAddress] = useState('');
   const [emailAlertsEnabled, setEmailAlertsEnabled] = useState(false);
   const [savingEmailAlert, setSavingEmailAlert] = useState(false);
-  const [showUpgradeMessage, setShowUpgradeMessage] = useState(false);
 
   const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false; 
 
-  const handleToggleLeadCapture = async (checked) => {
-    if (!chatbot?.id || togglingCapture) return;
-
-    // Free users cannot enable Lead Capture.
-    // Keep the switch OFF and show only the inline upgrade message.
-    if (checked && !isPaidUser) {
-      setShowUpgradeMessage(true);
-      return;
-    }
-
-    setShowUpgradeMessage(false);
-
-    try {
-      setTogglingCapture(true);
-      await chatbotAPI.update(chatbot.id, { lead_capture_enabled: checked });
-      toast({
-        title: checked ? 'Lead Capture Enabled' : 'Lead Capture Disabled',
-        description: checked
-          ? 'Visitors will see the lead form before chatting.'
-          : 'Visitors will chat directly without submitting details.'
-      });
-      if (onUpdate) await onUpdate();
-    } catch (err) {
-      console.error('Error updating lead capture setting:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to update lead capture setting',
-        variant: 'destructive'
-      });
-    } finally {
-      setTogglingCapture(false);
-    }
+  const handleToggleLeadCapture = async (checked) => { 
+    if (!chatbot?.id || togglingCapture) return; 
+    try { 
+      setTogglingCapture(true); 
+      await chatbotAPI.update(chatbot.id, { lead_capture_enabled: checked }); 
+      toast({ 
+        title: checked ? 'Lead Capture Enabled' : 'Lead Capture Disabled', 
+        description: checked 
+          ? 'Visitors will see the lead form before chatting.' 
+          : 'Visitors will chat directly without submitting details.' 
+      }); 
+      if (onUpdate) await onUpdate(); 
+    } catch (err) { 
+      console.error('Error updating lead capture setting:', err); 
+      toast({ 
+        title: 'Error', 
+        description: 'Failed to update lead capture setting', 
+        variant: 'destructive' 
+      }); 
+    } finally { 
+      setTogglingCapture(false); 
+    } 
   }; 
 
   const handleSaveEmailAlert = async () => {
@@ -243,12 +232,6 @@ const LeadCaptured = ({ chatbot, onUpdate, isPaidUser = false }) => {
             <p className="text-sm text-gray-600 mt-1 max-w-md">
               Require visitors to provide their details before starting a conversation with the AI.
             </p>
-
-            {showUpgradeMessage && !isPaidUser && (
-              <p className="mt-2 text-sm text-purple-600">
-                Please upgrade to use the Lead Capture feature.
-              </p>
-            )}
           </div>
 
           <div className="flex items-center gap-4">
