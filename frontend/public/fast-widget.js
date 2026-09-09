@@ -1102,7 +1102,7 @@
       position: fixed;
       z-index: 999998;
 
-      width: 250px;
+      width: 230px;
       max-width: calc(100vw - 120px);
 
       background: #ffffff;
