@@ -486,95 +486,92 @@ const LandingPage = () => {
 
       {/* How It Works Section */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 bg-gradient-to-br from-purple-50 via-pink-50 to-orange-50 relative overflow-hidden" ref={howItWorksRef}>
-        {/* Background decoration */}
-        <div className="absolute inset-0 opacity-30">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-          <div className="absolute bottom-20 right-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+        {/* Subtle background accents — static for a calmer premium feel */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300/20 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-20 right-10 w-72 h-72 bg-pink-300/20 rounded-full blur-3xl"></div>
         </div>
 
         <div className="max-w-[1600px] mx-auto relative z-10 w-full">
           {/* Header */}
-          <div className={`text-center mb-16 `}>
-            <span className="px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-sm font-medium inline-flex items-center gap-2 mb-4">
+          <div className="text-center mb-14">
+            <span className="px-4 py-2 rounded-full bg-white/70 border border-purple-100 text-purple-700 text-sm font-medium inline-flex items-center gap-2 mb-5 shadow-sm">
               <Clock className="w-4 h-4" />
               Launch in Minutes
             </span>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-purple-900 via-pink-900 to-orange-900 bg-clip-text text-transparent">
+
+            <h2 className="font-instrument-serif text-5xl sm:text-6xl md:text-7xl font-normal leading-none tracking-tight mb-5 text-gray-900">
               How It Works
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+
+            <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
               Four simple steps to transform your customer support with AI
             </p>
           </div>
 
-          {/* Steps with Premium Glassmorphism and Scroll Animation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
+          {/* Steps — restrained animation, premium styling */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
             {howItWorksSteps.map((step, index) => (
               <div 
                 key={index}
-                className={`relative group transform-3d transition-all duration-800 ${
-                  howItWorksVisible 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-20'
-                }`}
-                style={{ 
-                  transitionDelay: howItWorksVisible ? `${index * 150}ms` : '0ms'
+                className={`relative ${
+                  howItWorksVisible
+                    ? 'opacity-100 translate-y-0'
+                    : 'opacity-0 translate-y-3'
+                } transition-[opacity,transform] duration-500`}
+                style={{
+                  transitionDelay: howItWorksVisible ? `${index * 60}ms` : '0ms'
                 }}
               >
-                {/* Connecting Arrow with glow (hidden on last item and mobile) */}
+                {/* Simple connector */}
                 {index < howItWorksSteps.length - 1 && (
-                  <div className="hidden lg:block absolute top-16 -right-4 z-10">
-                    <div className="relative">
-                      <div className="absolute inset-0 blur-md bg-purple-500/50 rounded-full"></div>
-                      <ArrowRight className="relative w-8 h-8 text-purple-400 group-hover:text-purple-600 transition-colors animate-bounce-subtle" />
-                    </div>
+                  <div className="hidden lg:flex absolute top-[72px] -right-5 z-20 items-center pointer-events-none">
+                    <div className="w-8 h-px bg-purple-200"></div>
+                    <ArrowRight className="w-4 h-4 -ml-1 text-purple-400" />
                   </div>
                 )}
 
-                {/* Card with Advanced Glassmorphism */}
-                <div className="relative glass-strong rounded-2xl p-6 shadow-xl hover:shadow-2xl transition-all duration-500 hover:translate-y-[-8px] hover-3d overflow-hidden group">
-                  {/* Animated gradient background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-xy"></div>
-                  
-                  {/* Glowing border effect */}
-                  <div className="absolute -inset-[1px] bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-2xl opacity-20 group-hover:opacity-40 blur-sm transition-opacity duration-500 animate-gradient-x"></div>
-                  
-                  {/* Step Number with 3D effect */}
-                  <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-2xl transform group-hover:scale-110 group-hover:rotate-12 transition-all duration-500 z-10 animate-gradient-xy">
-                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent"></div>
-                    <span className="relative z-10">{step.step}</span>
+                {/* Premium card */}
+                <div className="relative h-full min-h-[205px] rounded-[24px] border border-white/90 bg-white/75 backdrop-blur-xl p-6 sm:p-7 shadow-[0_10px_30px_rgba(58,39,88,0.08)] transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_16px_36px_rgba(58,39,88,0.12)] overflow-hidden">
+
+                  {/* Quiet accent */}
+                  <div className={`absolute -top-16 -right-16 w-36 h-36 rounded-full bg-gradient-to-br ${step.gradient} opacity-[0.06] blur-2xl pointer-events-none`}></div>
+
+                  {/* Step number */}
+                  <div className="absolute -top-3 -left-3 w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center text-white text-sm font-semibold shadow-md border-4 border-white">
+                    {step.step}
                   </div>
 
-                  {/* Icon with enhanced animation */}
-                  <div className={`relative w-16 h-16 bg-gradient-to-br ${step.gradient} rounded-xl flex items-center justify-center text-white mb-4 mt-2 transform group-hover:scale-125 group-hover:rotate-12 transition-all duration-500 shadow-xl z-10 animate-glow-pulse`}>
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/40 to-transparent"></div>
-                    <div className="relative z-10 transform group-hover:scale-110 transition-transform">{step.icon}</div>
+                  {/* Icon */}
+                  <div className={`relative w-14 h-14 bg-gradient-to-br ${step.gradient} rounded-[16px] flex items-center justify-center text-white mb-6 mt-1 shadow-md`}>
+                    <div className="absolute inset-[1px] rounded-[15px] bg-gradient-to-br from-white/30 to-transparent"></div>
+                    <div className="relative z-10">{step.icon}</div>
                   </div>
 
                   {/* Content */}
-                  <h3 className="relative text-xl font-bold mb-2 text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300 z-10">
+                  <h3 className="relative z-10 font-instrument-serif font-normal text-[26px] leading-none tracking-[-0.01em] mb-3 text-gray-900">
                     {step.title}
                   </h3>
-                  <p className="relative text-gray-600 leading-relaxed text-sm z-10">
+
+                  <p className="relative z-10 text-[13px] leading-[1.65] text-gray-500 max-w-[290px]">
                     {step.description}
                   </p>
-                  
-                  {/* Floating particles in card */}
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-purple-400 rounded-full opacity-50 group-hover:opacity-100 animate-bounce-rotate"></div>
-                  <div className="absolute bottom-4 left-4 w-1.5 h-1.5 bg-pink-400 rounded-full opacity-50 group-hover:opacity-100 animate-bounce-rotate animation-delay-1000"></div>
+
+                  {/* Minimal bottom accent */}
+                  <div className="absolute bottom-5 left-6 w-8 h-px bg-gradient-to-r from-purple-300 to-pink-300 opacity-60"></div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Bottom CTA */}
-          <div className="text-center mt-12 animate-fade-in-up">
+          {/* CTA — no entrance animation */}
+          <div className="text-center mt-12">
             <Button 
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg rounded-xl shadow-xl transform hover:scale-105 transition-all duration-300 group"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-[transform,box-shadow,background] duration-200"
               onClick={() => navigate('/signup')}
             >
               Start Building Now
-              <Rocket className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              <Rocket className="ml-2 w-5 h-5" />
             </Button>
           </div>
         </div>
