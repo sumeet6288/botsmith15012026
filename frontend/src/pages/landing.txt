@@ -5,6 +5,7 @@ import { MessageSquare, Zap, BarChart3, Globe, Shield, Sparkles, ChevronRight, M
 import Footer from '../components/Footer';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import BotSmithLogo from '../components/BotSmithLogo';
+import heroClouds from '../assets/herocloud.png';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -156,18 +157,7 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50 overflow-hidden relative">
-      {/* Simplified Static background - No animations for performance */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
-        {/* Static gradient blobs - no animation */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20"></div>
-        <div className="absolute -bottom-32 left-1/3 w-96 h-96 bg-yellow-300 rounded-full mix-blend-multiply filter blur-3xl opacity-15"></div>
-        
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_80%)]"></div>
-      </div>
-
+    <div className="min-h-screen bg-white overflow-hidden relative">
       {/* Navigation with Glassmorphism - Highest z-index */}
       <nav className="fixed top-0 left-0 right-0 glass-strong backdrop-blur-xl border-b border-white/30 z-[100] shadow-lg shadow-purple-500/10">
         <div className="max-w-[95%] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
@@ -239,9 +229,19 @@ const LandingPage = () => {
         )}
       </nav>
 
-      {/* Hero Section */}
-      <section className="pt-32 sm:pt-40 pb-12 sm:pb-20 px-4 sm:px-8 relative z-10">
-        <div className="max-w-[95%] mx-auto grid md:grid-cols-2 gap-8 sm:gap-16 items-center">
+      {/* Hero Section - Pink/Lavender Cloud Background */}
+      <section
+        className="relative z-10 min-h-[760px] pt-32 sm:pt-40 pb-16 sm:pb-24 px-4 sm:px-8 overflow-hidden"
+      >
+        <img
+          src={heroClouds}
+          alt=""
+          fetchPriority="high"
+          decoding="async"
+          className="absolute inset-0 w-full h-full object-cover object-center -z-10 animate-hero-cloud-fade"
+        />
+        <div className="absolute inset-0 bg-white/10 pointer-events-none"></div>
+        <div className="relative max-w-[95%] mx-auto grid md:grid-cols-2 gap-8 sm:gap-16 items-center">
           <div className="space-y-6 sm:space-y-8">
             <div className="inline-block">
               <span className="px-3 sm:px-4 py-2 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm font-medium inline-flex items-center gap-2">
@@ -278,7 +278,7 @@ const LandingPage = () => {
             {/* Card preview with animations */}
             <div 
               onClick={() => navigate('/signup')}
-              className="relative w-full h-[500px] rounded-3xl bg-gradient-to-br from-pink-400 via-purple-400 to-orange-400 p-8 flex items-center justify-center transform hover:scale-105 transition-transform duration-500 shadow-2xl cursor-pointer animate-float"
+              className="relative w-full h-[500px] rounded-3xl bg-white/20 backdrop-blur-sm border border-white/40 p-8 flex items-center justify-center transform hover:scale-105 transition-transform duration-500 shadow-2xl cursor-pointer animate-float"
             >
               {/* Shine effect overlay */}
               <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-40 pointer-events-none"></div>
@@ -377,6 +377,28 @@ const LandingPage = () => {
           </div>
         </div>
       </section>
+
+      <style>{`
+        @keyframes hero-cloud-fade {
+          from {
+            opacity: 0.05;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        .animate-hero-cloud-fade {
+          animation: hero-cloud-fade 4.5s ease-out forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .animate-hero-cloud-fade {
+            animation: none;
+            opacity: 1;
+          }
+        }
+      `}</style>
 
       {/* Agency Value Proposition */}
       <section className="py-12 border-y border-gray-200 bg-white/50 backdrop-blur-sm relative z-10">
