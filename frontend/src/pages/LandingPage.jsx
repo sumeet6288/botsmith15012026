@@ -427,34 +427,45 @@ const LandingPage = () => {
             </p>
           </div>
 
-          {/* Feature Cards - Simplified */}
+          {/* Feature Cards - Premium Editorial */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className="group relative transition-all duration-300"
+                className="group relative transition-all duration-500"
               >
-                {/* Card */}
-                <div className="relative h-full glass-card rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all duration-300 group-hover:translate-y-[-4px]">
+                {/* Ambient glow */}
+                <div className={`absolute -inset-1 bg-gradient-to-br ${feature.gradient} rounded-[26px] opacity-0 blur-xl group-hover:opacity-20 transition-opacity duration-500`}></div>
+
+                {/* Premium Card */}
+                <div className="relative h-full min-h-[210px] overflow-hidden rounded-[24px] border border-white/80 bg-white/75 backdrop-blur-xl p-7 shadow-[0_12px_35px_rgba(31,38,135,0.10)] transition-all duration-500 group-hover:-translate-y-2 group-hover:shadow-[0_22px_50px_rgba(31,38,135,0.16)]">
+
+                  {/* Soft gradient wash */}
+                  <div className={`absolute -top-20 -right-20 h-44 w-44 rounded-full bg-gradient-to-br ${feature.gradient} opacity-[0.07] blur-2xl transition-all duration-500 group-hover:opacity-[0.14] group-hover:scale-125`}></div>
+
+                  {/* Decorative corner line */}
+                  <div className={`absolute top-0 left-8 right-8 h-px bg-gradient-to-r ${feature.gradient} opacity-30 group-hover:opacity-70 transition-opacity duration-500`}></div>
+
                   {/* Icon */}
-                  <div className={`relative w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center text-white mb-4 transition-transform duration-300 group-hover:scale-105 shadow-lg`}>
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/30 to-transparent"></div>
+                  <div className={`relative z-10 mb-7 w-14 h-14 bg-gradient-to-br ${feature.gradient} rounded-[17px] flex items-center justify-center text-white shadow-lg shadow-purple-500/10 transition-all duration-500 group-hover:scale-110 group-hover:-rotate-2`}>
+                    <div className="absolute inset-[1px] rounded-[16px] bg-gradient-to-br from-white/35 via-transparent to-black/10"></div>
+                    <div className="absolute inset-0 rounded-[17px] ring-1 ring-white/40"></div>
                     <div className="relative z-10">{feature.icon}</div>
                   </div>
 
                   {/* Title */}
-                  <h3 className="relative text-xl font-bold mb-2 text-gray-900 transition-colors duration-300 z-10">
+                  <h3 className="relative z-10 mb-2 font-instrument-serif font-normal text-[28px] leading-none tracking-[-0.02em] text-gray-900 transition-transform duration-500 group-hover:translate-x-0.5">
                     {feature.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="relative text-gray-600 leading-relaxed z-10">
+                  <p className="relative z-10 max-w-[320px] text-[15px] leading-6 text-gray-500">
                     {feature.description}
                   </p>
-                  
+
                   {/* Hover indicator */}
-                  <div className="absolute bottom-4 right-4 w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <ChevronRight className="w-4 h-4 text-white" />
+                  <div className="absolute bottom-6 right-6 flex h-9 w-9 items-center justify-center rounded-full border border-purple-100 bg-white/80 text-purple-600 opacity-60 shadow-sm transition-all duration-500 group-hover:translate-x-1 group-hover:opacity-100 group-hover:scale-110">
+                    <ChevronRight className="w-4 h-4" />
                   </div>
                 </div>
               </div>

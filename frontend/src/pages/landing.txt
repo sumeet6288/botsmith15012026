@@ -249,10 +249,8 @@ const LandingPage = () => {
                𝐴𝐼-𝑃𝑜𝑤𝑒𝑟𝑒𝑑 𝑆𝑡𝑢𝑑𝑒𝑛𝑡 𝑆𝑢𝑝𝑝𝑜𝑟𝑡 𝑃𝑙𝑎𝑡𝑓𝑜𝑟𝑚 𝐹𝑜𝑟 𝑈𝑛𝑖𝑣𝑒𝑟𝑠𝑖𝑡𝑖𝑒𝑠 𝑎𝑛𝑑 𝐶𝑜𝑙𝑙𝑒𝑔𝑒𝑠
               </span>
             </div>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight animate-slide-in-left">
-              <span className="bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent animate-gradient">
-                 𝘈𝘐 𝘵𝘩𝘢𝘵 𝘨𝘶𝘪𝘥𝘦𝘴,<br />𝘴𝘶𝘱𝘱𝘰𝘳𝘵𝘴, 𝘢𝘯𝘥 𝘦𝘮𝘱𝘰𝘸𝘦𝘳𝘴<br />𝘦𝘷𝘦𝘳𝘺 𝘴𝘵𝘶𝘥𝘦𝘯𝘵
-              </span>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl leading-tight animate-slide-in-left font-instrument-serif font-normal text-gray-900">
+              AI that guides,<br />supports, and empowers<br />every student
             </h1>
             <p className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed">
               𝐵𝑜𝑡𝑆𝑚𝑖𝑡ℎ ℎ𝑒𝑙𝑝𝑠 𝑢𝑛𝑖𝑣𝑒𝑟𝑠𝑖𝑡𝑖𝑒𝑠 𝑑𝑒𝑝𝑙𝑜𝑦 𝐴𝐼 𝑎𝑠𝑠𝑖𝑠𝑡𝑎𝑛𝑡𝑠 𝑡ℎ𝑎𝑡 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑒 𝑎𝑑𝑚𝑖𝑠𝑠𝑖𝑜𝑛𝑠, 𝑎𝑛𝑠𝑤𝑒𝑟 𝑠𝑡𝑢𝑑𝑒𝑛𝑡 𝑞𝑢𝑒𝑠𝑡𝑖𝑜𝑛𝑠, 𝑎𝑛𝑑 𝑝𝑟𝑜𝑣𝑖𝑑𝑒 24/7 𝑐𝑎𝑚𝑝𝑢𝑠 𝑠𝑢𝑝𝑝𝑜𝑟𝑡.
@@ -379,6 +377,13 @@ const LandingPage = () => {
       </section>
 
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
+
+        .font-instrument-serif {
+          font-family: "Instrument Serif", serif;
+          font-weight: 400;
+        }
+
         @keyframes hero-cloud-fade {
           from {
             opacity: 0.05;
