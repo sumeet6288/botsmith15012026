@@ -67,6 +67,111 @@ const LandingPage = () => {
     window.scrollTo(0, 0);
   }, []);
 
+  // Reference-style feature card motion using scroll position.
+  // This intentionally uses the same scale/rotation/origin model as the shared reference,
+  // but calculates the view progress in JS so it works even when CSS view timelines are unavailable.
+  useEffect(() => {
+    const cards = Array.from(document.querySelectorAll(".feature-card-animation"));
+    if (!cards.length) return;
+
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
+
+    let frame = 0;
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+
+    const updateCards = () => {
+      frame = 0;
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+
+      cards.forEach((card, index) => {
+        const rect = card.getBoundingClientRect();
+        let side = 1;
+        let amp = 1;
+        let origin = "0 100%";
+
+        if (viewportWidth >= 1024) {
+          const column = index % 3;
+          if (column === 0) {
+            side = -1;
+            amp = 2;
+            origin = "50vw 100%";
+          } else if (column === 1) {
+            side = 1;
+            amp = 1;
+            origin = "0 100%";
+          } else {
+            side = 1;
+            amp = 2;
+            origin = "-50vw 100%";
+          }
+        } else if (viewportWidth >= 640) {
+          const column = index % 2;
+          if (column === 0) {
+            side = -1;
+            amp = 1;
+            origin = "25vw 100%";
+          } else {
+            side = 1;
+            amp = 1;
+            origin = "-25vw 100%";
+          }
+        }
+
+        // Same visual idea as: animation-range: cover 0% contain 15%.
+        const range = Math.max(rect.height * 0.15, 1);
+        const progress = clamp((viewportHeight - rect.bottom) / range, 0, 1);
+        const angle = side * (5 * amp) * (1 - progress);
+        const scale = 0.85 + (0.15 * progress);
+
+        card.style.transformOrigin = origin;
+        card.style.transform = `scale(${scale}) rotate(${angle}deg)`;
+      });
+    };
+
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateCards);
+    };
+
+    updateCards();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+
+    return () => {
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Modular card motion: each card enters as its own visual module.
+  // The animation is applied to wrappers so existing hover transforms remain untouched.
+  useEffect(() => {
+    const modules = Array.from(document.querySelectorAll('[data-modular-card]'));
+    if (!modules.length) return;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) {
+      modules.forEach((module) => module.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        } else {
+          entry.target.classList.remove('is-visible');
+        }
+      });
+    }, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+
+    modules.forEach((module) => observer.observe(module));
+    return () => observer.disconnect();
+  }, []);
+
   const features = [
     {
       icon: <MessageSquare className="w-6 h-6" />,
@@ -442,7 +547,91 @@ const LandingPage = () => {
             opacity: 1;
           }
         }
-      `}</style>
+      
+
+        /* =========================================================
+           MODULAR CARD MOTION
+           Each card is treated as an independent module.
+           No shared generic slide/fade animation.
+           ========================================================= */
+
+        @keyframes modular-assemble {
+          0% { opacity: 0; transform: translate3d(-18px, 28px, 0) scale(0.94); clip-path: inset(12% 0 0 0); }
+          55% { opacity: 1; transform: translate3d(3px, -3px, 0) scale(1.01); clip-path: inset(0); }
+          100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); clip-path: inset(0); }
+        }
+
+        @keyframes modular-fold {
+          0% { opacity: 0; transform: perspective(900px) rotateX(-9deg) translateY(30px); transform-origin: 50% 100%; }
+          65% { opacity: 1; transform: perspective(900px) rotateX(2deg) translateY(-2px); }
+          100% { opacity: 1; transform: perspective(900px) rotateX(0) translateY(0); }
+        }
+
+        @keyframes modular-stack {
+          0% { opacity: 0; transform: translate3d(26px, 18px, 0) scale(0.92); }
+          45% { opacity: 1; transform: translate3d(-4px, -3px, 0) scale(1.015); }
+          100% { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+        }
+
+        @keyframes modular-slot {
+          0% { opacity: 0; transform: translate3d(-34px, 0, 0) scaleX(0.96); clip-path: inset(0 12% 0 0); }
+          60% { opacity: 1; transform: translate3d(3px, 0, 0) scaleX(1.01); clip-path: inset(0); }
+          100% { opacity: 1; transform: translate3d(0, 0, 0) scaleX(1); clip-path: inset(0); }
+        }
+
+        @keyframes modular-orbit {
+          0% { opacity: 0; transform: translate3d(18px, 24px, 0) rotate(2.5deg) scale(0.94); transform-origin: 85% 85%; }
+          55% { opacity: 1; transform: translate3d(-2px, -2px, 0) rotate(-0.6deg) scale(1.01); }
+          100% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0) scale(1); }
+        }
+
+        [data-modular-card] {
+          opacity: 0;
+          will-change: transform, opacity, clip-path;
+        }
+
+        [data-modular-card].is-visible {
+          opacity: 1;
+        }
+
+        [data-modular-card].modular-assemble.is-visible {
+          animation: modular-assemble 760ms cubic-bezier(.22,.8,.25,1) both;
+        }
+
+        [data-modular-card].modular-fold.is-visible {
+          animation: modular-fold 820ms cubic-bezier(.2,.78,.25,1) both;
+        }
+
+        [data-modular-card].modular-stack.is-visible {
+          animation: modular-stack 720ms cubic-bezier(.22,.82,.25,1) both;
+        }
+
+        [data-modular-card].modular-slot.is-visible {
+          animation: modular-slot 760ms cubic-bezier(.2,.8,.25,1) both;
+        }
+
+        [data-modular-card].modular-orbit.is-visible {
+          animation: modular-orbit 840ms cubic-bezier(.2,.78,.25,1) both;
+        }
+
+        @media (max-width: 639px) {
+          [data-modular-card].is-visible {
+            animation-duration: 620ms;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          [data-modular-card],
+          [data-modular-card].is-visible {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+            clip-path: none !important;
+          }
+        }
+
+            `}
+</style>
 
       {/* Agency Value Proposition */}
       <section className="py-12 border-y border-gray-200 bg-white/50 backdrop-blur-sm relative z-10">
@@ -471,7 +660,7 @@ const LandingPage = () => {
             {features.map((feature, index) => (
               <div 
                 key={index} 
-                className="group relative transition-all duration-500"
+                className="feature-card-animation group relative"
               >
                 {/* Ambient glow */}
                 <div className={`absolute -inset-1 bg-gradient-to-br ${feature.gradient} rounded-[26px] opacity-0 blur-xl group-hover:opacity-20 transition-opacity duration-500`}></div>
@@ -553,14 +742,8 @@ const LandingPage = () => {
             {howItWorksSteps.map((step, index) => (
               <div 
                 key={index}
-                className={`relative ${
-                  howItWorksVisible
-                    ? 'opacity-100 translate-y-0'
-                    : 'opacity-0 translate-y-3'
-                } transition-[opacity,transform] duration-500`}
-                style={{
-                  transitionDelay: howItWorksVisible ? `${index * 60}ms` : '0ms'
-                }}
+                data-modular-card
+                className={`relative ${['modular-assemble', 'modular-fold', 'modular-stack', 'modular-slot'][index]}`}
               >
                 {/* Simple connector */}
                 {index < howItWorksSteps.length - 1 && (
@@ -642,8 +825,12 @@ const LandingPage = () => {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {useCases.map((useCase, index) => (
-              <article
+              <div
                 key={index}
+                data-modular-card
+                className={`h-full ${['modular-slot', 'modular-assemble', 'modular-orbit', 'modular-fold'][index]}`}
+              >
+              <article
                 className="group relative min-h-[330px] overflow-hidden rounded-[22px] border border-gray-200/80 bg-[#fbfbfa] p-6 sm:p-7 shadow-[0_8px_24px_rgba(20,18,28,0.045)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_16px_36px_rgba(20,18,28,0.09)]"
               >
                 <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 border-l border-b border-gray-200/70 rounded-bl-[22px]"></div>
@@ -678,6 +865,7 @@ const LandingPage = () => {
                   </div>
                 </div>
               </article>
+              </div>
             ))}
           </div>
         </div>
@@ -721,6 +909,10 @@ const LandingPage = () => {
               const featured = index === 1;
 
               return (
+                <div
+                  data-modular-card
+                  className={`h-full ${['modular-assemble', 'modular-orbit', 'modular-fold'][index]}`}
+                >
                 <article
                   key={index}
                   className={`group relative min-h-[320px] rounded-[22px] border p-6 sm:p-7 flex flex-col justify-between overflow-hidden transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 ${
@@ -794,6 +986,7 @@ const LandingPage = () => {
                     </span>
                   </div>
                 </article>
+                </div>
               );
             })}
           </div>

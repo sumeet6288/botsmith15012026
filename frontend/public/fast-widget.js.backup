@@ -2180,6 +2180,14 @@ function botsmithInitLeadCapture() {
     }
 
 
+    #botsmith-lead-phone.invalid-phone {
+
+      border-color: #dc2626 !important;
+
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.16) !important;
+    }
+
+
     @media (max-width: 480px) {
 
       #botsmith-lead-form-wrapper {
@@ -2398,6 +2406,12 @@ function botsmithInitLeadCapture() {
 
       </div>
 
+      <div id="botsmith-lead-phone-error" style="display: none; margin-top: 8px; font-size: 11px; color: #dc2626;">
+
+        Please enter a valid 10-digit phone number.
+
+      </div>
+
 
 
       <!-- NOTE -->
@@ -2461,6 +2475,62 @@ function botsmithInitLeadCapture() {
     );
 
 
+  const leadPhoneError =
+    document.getElementById(
+      'botsmith-lead-phone-error'
+    );
+
+
+  function isValidLeadPhone(value) {
+
+    const trimmed = value.trim();
+
+    if (!trimmed) return false;
+
+    if (!/^\+?91?[\s-]*[0-9\s-]+$/.test(trimmed)) return false;
+
+    const normalized = trimmed
+      .replace(/^\+91[\s-]*/, '')
+      .replace(/[\s-]/g, '');
+
+    if (!/^\d{10}$/.test(normalized)) return false;
+
+    if (!/^[6-9]/.test(normalized)) return false;
+
+    if (/^(\d)\1{9}$/.test(normalized)) return false;
+
+    if (normalized === '1234567890' || normalized === '0123456789') return false;
+
+    return true;
+  }
+
+
+  function clearPhoneValidationError() {
+
+    leadPhoneInput.classList.remove('invalid-phone');
+
+    leadPhoneError.style.display = 'none';
+  }
+
+
+  function showPhoneValidationError() {
+
+    leadPhoneInput.classList.add('invalid-phone');
+
+    leadPhoneError.style.display = 'block';
+
+    leadPhoneInput.focus();
+  }
+
+
+  leadPhoneInput.addEventListener('input', () => {
+
+    if (isValidLeadPhone(leadPhoneInput.value)) {
+      clearPhoneValidationError();
+    }
+  });
+
+
 
   /* =========================
      9. HANDLE SUBMISSION
@@ -2484,16 +2554,26 @@ function botsmithInitLeadCapture() {
 
       /* VALIDATION */
 
-      if (
-        !leadName ||
-        !leadPhone
-      ) {
+      if (!leadName) {
 
-        leadError.style.display =
-          'block';
+        leadError.textContent =
+          'Please enter your name and phone number.';
+
+        leadError.style.display = 'block';
 
         return;
       }
+
+      if (!isValidLeadPhone(leadPhone)) {
+
+        leadError.style.display = 'none';
+
+        showPhoneValidationError();
+
+        return;
+      }
+
+      clearPhoneValidationError();
 
 
 

@@ -2,10 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { MessageSquare, Zap, BarChart3, Globe, Shield, Sparkles, ChevronRight, Menu, X, Star, ArrowRight, Check, Upload, Brain, Palette, Rocket, ShoppingCart, GraduationCap, Heart, Briefcase, Users, TrendingUp, Clock, Award } from 'lucide-react';
-import Footer from '../components/Footer';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import BotSmithLogo from '../components/BotSmithLogo';
 import heroClouds from '../assets/herocloud.png';
+
+
+
+const FooterColumnDark = ({ title, links }) => (
+  <div>
+    <h3 className="mb-5 text-sm font-semibold text-white">
+      {title}
+    </h3>
+
+    <div className="space-y-3">
+      {links.map((link) => (
+        <span
+          key={link}
+          className="block text-[13px] text-white/45 transition-colors duration-200 hover:text-white/85"
+        >
+          {link}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+const FooterColumn = ({ title, links }) => (
+  <div>
+    <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+      {title}
+    </h3>
+
+    <div className="space-y-3">
+      {links.map((link) => (
+        <span
+          key={link}
+          className="block text-[13px] text-gray-600 transition-colors duration-200 hover:text-purple-600"
+        >
+          {link}
+        </span>
+      ))}
+    </div>
+  </div>
+);
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -577,202 +616,384 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Use Cases Section */}
+      {/* Use Cases Section — Premium Modular */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10 bg-white" ref={useCasesRef}>
-        <div className="max-w-[1600px] mx-auto w-full">
-          {/* Header */}
-          <div className={`text-center mb-16 `}>
-            <span className="px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium inline-flex items-center gap-2 mb-4">
-              <Award className="w-4 h-4" />
-              𝐵𝑢𝑖𝑙𝑑 𝑓𝑜𝑟 𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-              𝐵𝑢𝑖𝑙𝑡 𝑓𝑜𝑟 𝐸𝑣𝑒𝑟𝑦 𝐷𝑒𝑝𝑎𝑟𝑡𝑚𝑒𝑛𝑡
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              𝐸𝑚𝑝𝑜𝑤𝑒𝑟𝑖𝑛𝑔 𝑖𝑛𝑠𝑡𝑖𝑡𝑢𝑡𝑖𝑜𝑛𝑠 𝑡𝑜 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑒 𝑠𝑢𝑝𝑝𝑜𝑟𝑡, 𝑒𝑛𝑔𝑎𝑔𝑒 𝑠𝑡𝑢𝑑𝑒𝑛𝑡𝑠, 𝑎𝑛𝑑 𝑖𝑚𝑝𝑟𝑜𝑣𝑒 𝑒𝑣𝑒𝑟𝑦 𝑐𝑎𝑚𝑝𝑢𝑠 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒.
-            </p>
+        <div className="max-w-[1320px] mx-auto w-full">
+          <div className="mb-12 sm:mb-14">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <div className="max-w-3xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                  <Award className="w-3.5 h-3.5" />
+                  Build for Education
+                </span>
+                <h2 className="mt-5 font-instrument-serif font-normal text-5xl sm:text-6xl md:text-7xl leading-[0.92] tracking-[-0.035em] text-gray-950">
+                  Built for Every Department
+                </h2>
+                <p className="mt-5 max-w-2xl text-base sm:text-lg leading-7 text-gray-500">
+                  Empowering institutions to automate support, engage students, and improve every campus experience.
+                </p>
+              </div>
+              <div className="hidden lg:block pb-1 text-right">
+                <div className="font-instrument-serif text-4xl leading-none text-gray-200">04</div>
+                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">Departments</div>
+              </div>
+            </div>
           </div>
 
-          {/* Use Case Cards with Glassmorphism and Scroll Animation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {useCases.map((useCase, index) => (
-              <div 
+              <article
                 key={index}
-                className={`group relative transform-3d transition-all duration-800 ${
-                  useCasesVisible 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-20'
-                }`}
-                style={{ 
-                  transitionDelay: useCasesVisible ? `${index * 100}ms` : '0ms'
-                }}
+                className="group relative min-h-[330px] overflow-hidden rounded-[22px] border border-gray-200/80 bg-[#fbfbfa] p-6 sm:p-7 shadow-[0_8px_24px_rgba(20,18,28,0.045)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_16px_36px_rgba(20,18,28,0.09)]"
               >
-                {/* Animated Glow Effect */}
-                <div className="absolute -inset-px bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500 animate-gradient-x"></div>
-                
-                {/* Card with Premium Glassmorphism */}
-                <div className="relative h-full glass-card rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 group-hover:translate-y-[-8px] hover-3d overflow-hidden">
-                  {/* Animated gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-xy"></div>
-                  
-                  {/* Icon with 3D effect and glow */}
-                  <div className={`relative w-16 h-16 bg-gradient-to-br ${useCase.gradient} rounded-2xl flex items-center justify-center text-white mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl animate-glow-pulse z-10`}>
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/30 to-transparent"></div>
-                    <div className="relative z-10 transform group-hover:scale-110 transition-transform">{useCase.icon}</div>
+                <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 border-l border-b border-gray-200/70 rounded-bl-[22px]"></div>
+                <div className="pointer-events-none absolute right-5 top-5 h-1.5 w-1.5 rounded-full bg-purple-300/70"></div>
+
+                <div className="relative flex h-full flex-col">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] font-medium tracking-[0.16em] text-gray-400">0{index + 1}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400">Department</span>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="relative text-xl font-bold mb-2 text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300 z-10">
+                  <div className={`mt-8 mb-7 flex h-12 w-12 items-center justify-center rounded-[14px] bg-gradient-to-br ${useCase.gradient} text-white shadow-[0_8px_18px_rgba(80,60,120,0.12)] transition-transform duration-200 group-hover:-translate-y-0.5`}>
+                    {useCase.icon}
+                  </div>
+
+                  <h3 className="font-instrument-serif font-normal text-[29px] leading-[0.98] tracking-[-0.02em] text-gray-950">
                     {useCase.title}
                   </h3>
 
-                  {/* Description */}
-                  <p className="relative text-gray-600 leading-relaxed text-sm mb-4 z-10">
+                  <p className="mt-3 text-[13px] leading-[1.7] text-gray-500">
                     {useCase.description}
                   </p>
 
-                  {/* Stats Badge with glassmorphism */}
-                  <div className="relative inline-flex items-center gap-2 px-3 py-1 glass rounded-full text-xs font-semibold text-purple-700 z-10 group-hover:scale-105 transition-transform">
-                    <TrendingUp className="w-3 h-3 animate-bounce-subtle" />
-                    {useCase.stats}
+                  <div className="mt-auto pt-6">
+                    <div className="border-t border-gray-200 pt-4 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-purple-600">
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        {useCase.stats}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-gray-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-gray-500" />
+                    </div>
                   </div>
-                  
-                  {/* Decorative element */}
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-purple-500/10 to-transparent rounded-tl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 bg-white relative z-10" ref={testimonialsRef}>
-        <div className="max-w-[1600px] mx-auto w-full">
-          {/* Header */}
-          <div className={`text-center mb-16 `}>
-            <span className="px-4 py-2 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium inline-flex items-center gap-2 mb-4">
-              <Star className="w-4 h-4 fill-yellow-700" />
-              Loved by Teams Worldwide
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-              What Our Customers Say
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Join thousands of happy customers who transformed their support with BotSmith
-            </p>
+      <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 bg-[#f5f5f3] relative z-10" ref={testimonialsRef}>
+        <div className="max-w-[1320px] mx-auto w-full rounded-[32px] bg-white border border-gray-200/80 px-6 py-12 sm:px-10 sm:py-14 lg:px-16 shadow-[0_18px_60px_rgba(25,20,35,0.07)]">
+
+          {/* Editorial header */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 mb-5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-50 border border-yellow-100">
+                  <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                </span>
+                Loved by Teams Worldwide
+              </span>
+
+              <h2 className="font-instrument-serif text-5xl sm:text-6xl md:text-7xl font-normal leading-[0.95] tracking-tight text-gray-950 mb-5">
+                What Our Customers Say
+              </h2>
+
+              <p className="text-base sm:text-lg text-gray-500 leading-7 max-w-xl">
+                Join thousands of happy customers who transformed their support with BotSmith
+              </p>
+            </div>
+
+            {/* Visual-only review affordance — no new behavior added */}
+            <button
+              type="button"
+              className="self-start lg:self-end shrink-0 px-5 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-800 shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-gray-300 hover:shadow-md"
+            >
+              Leave a review
+            </button>
           </div>
 
-          {/* Testimonial Cards with Glassmorphism and Scroll Animation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div 
-                key={index}
-                className={`group relative transform-3d transition-all duration-800 ${
-                  testimonialsVisible 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-20'
-                }`}
-                style={{ 
-                  transitionDelay: testimonialsVisible ? `${index * 150}ms` : '0ms'
-                }}
-              >
-                {/* Animated glow border */}
-                <div className="absolute -inset-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-sm transition-all duration-500 animate-gradient-x"></div>
-                
-                {/* Card with Premium Glassmorphism */}
-                <div className="relative h-full glass-strong rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:translate-y-[-8px] hover-3d overflow-hidden">
-                  {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-xy"></div>
-                  
-                  {/* Quote Mark with glow */}
-                  <div className="absolute top-6 right-6 text-6xl text-purple-300 font-serif opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">"</div>
-                  
-                  {/* Stars with animation */}
-                  <div className="relative flex gap-1 mb-4 z-10">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className="w-5 h-5 fill-yellow-400 text-yellow-400 animate-bounce-subtle" 
-                        style={{ animationDelay: `${i * 100}ms` }}
-                      />
-                    ))}
+          {/* Modular testimonial cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {testimonials.map((testimonial, index) => {
+              const featured = index === 1;
+
+              return (
+                <article
+                  key={index}
+                  className={`group relative min-h-[320px] rounded-[22px] border p-6 sm:p-7 flex flex-col justify-between overflow-hidden transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 ${
+                    featured
+                      ? 'bg-[#171717] border-[#171717] text-white shadow-[0_16px_36px_rgba(0,0,0,0.16)] hover:shadow-[0_20px_42px_rgba(0,0,0,0.20)]'
+                      : 'bg-[#fafafa] border-gray-100 text-gray-900 shadow-[0_8px_24px_rgba(25,20,35,0.04)] hover:border-gray-200 hover:shadow-[0_14px_32px_rgba(25,20,35,0.08)]'
+                  }`}
+                >
+                  <div>
+                    {/* Author */}
+                    <div className="flex items-center gap-3 mb-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm flex-shrink-0 ${
+                        featured
+                          ? 'bg-white/10 border border-white/10'
+                          : 'bg-white border border-gray-200'
+                      }`}>
+                        <span>{testimonial.avatar}</span>
+                      </div>
+
+                      <div className="min-w-0">
+                        <h4 className={`text-sm font-semibold ${featured ? 'text-white' : 'text-gray-900'}`}>
+                          {testimonial.name}
+                        </h4>
+                        <p className={`text-xs mt-0.5 truncate ${featured ? 'text-white/55' : 'text-gray-500'}`}>
+                          {testimonial.role}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Rating */}
+                    <div className="flex gap-1 mb-6">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Quote */}
+                    <h3 className={`font-instrument-serif text-[28px] sm:text-[30px] font-normal leading-[1.05] tracking-tight mb-5 ${
+                      featured ? 'text-white' : 'text-gray-950'
+                    }`}>
+                      {index === 0
+                        ? 'Finally know where money goes!'
+                        : index === 1
+                          ? 'Replaced three tools at once.'
+                          : 'Spending habits changed instantly.'}
+                    </h3>
+
+                    <p className={`text-sm leading-6 max-w-[320px] ${
+                      featured ? 'text-white/60' : 'text-gray-500'
+                    }`}>
+                      {testimonial.text}
+                    </p>
                   </div>
 
-                  {/* Testimonial Text */}
-                  <p className="relative text-gray-700 leading-relaxed mb-6 z-10 italic font-medium">
-                    {testimonial.text}
-                  </p>
-
-                  {/* Author with glassmorphism */}
-                  <div className="relative flex items-center gap-4 pt-4 border-t border-purple-200/50 z-10">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-2xl shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 animate-glow-pulse">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent"></div>
-                      <span className="relative z-10">{testimonial.avatar}</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{testimonial.name}</h4>
-                      <p className="text-sm text-gray-600">{testimonial.role}</p>
-                      <p className="text-xs text-purple-600 font-semibold">{testimonial.company}</p>
-                    </div>
+                  {/* Company */}
+                  <div className={`pt-5 mt-8 border-t flex items-center justify-between ${
+                    featured ? 'border-white/10' : 'border-gray-200'
+                  }`}>
+                    <span className={`text-[11px] font-medium ${
+                      featured ? 'text-white/45' : 'text-gray-400'
+                    }`}>
+                      {testimonial.company}
+                    </span>
+                    <span className={`font-instrument-serif text-2xl leading-none ${
+                      featured ? 'text-white/20' : 'text-gray-200'
+                    }`}>
+                      “
+                    </span>
                   </div>
-                  
-                  {/* Decorative particles */}
-                  <div className="absolute top-1/4 left-4 w-2 h-2 bg-purple-400 rounded-full opacity-50 group-hover:opacity-100 animate-float-rotate"></div>
-                  <div className="absolute bottom-1/3 right-6 w-1.5 h-1.5 bg-pink-400 rounded-full opacity-50 group-hover:opacity-100 animate-float-rotate animation-delay-1000"></div>
-                </div>
-              </div>
-            ))}
+                </article>
+              );
+            })}
           </div>
 
-          {/* Bottom Stats with Scroll Animation */}
-          <div className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center transition-all duration-800 ${
-            testimonialsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          }`}
-          style={{ transitionDelay: testimonialsVisible ? '500ms' : '0ms' }}
-          >
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-2">150+</div>
-              <div className="text-gray-600 font-medium">Happy Customers</div>
+          {/* Modular proof rail */}
+          <div className="mt-12 border-y border-gray-100 grid grid-cols-2 md:grid-cols-4">
+            <div className="py-7 px-4 text-center md:border-r border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">150+</div>
+              <div className="text-xs sm:text-sm text-gray-500">Happy Customers</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text mb-2">500K+</div>
-              <div className="text-gray-600 font-medium">Conversations/Day</div>
+            <div className="py-7 px-4 text-center border-l md:border-l-0 md:border-r border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">500K+</div>
+              <div className="text-xs sm:text-sm text-gray-500">Conversations/Day</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text mb-2">98%</div>
-              <div className="text-gray-600 font-medium">Uptime</div>
+            <div className="py-7 px-4 text-center md:border-r border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">98%</div>
+              <div className="text-xs sm:text-sm text-gray-500">Uptime</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text mb-2">4.9/5</div>
-              <div className="text-gray-600 font-medium">Customer Rating</div>
+            <div className="py-7 px-4 text-center border-l md:border-l-0 border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">4.9/5</div>
+              <div className="text-xs sm:text-sm text-gray-500">Customer Rating</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-8 bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+      <section className="py-24 px-4 sm:px-8 bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+        {/* Static ambient light — no continuous animation */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 left-[18%] w-96 h-96 bg-purple-500/15 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 right-[15%] w-96 h-96 bg-pink-500/15 rounded-full blur-3xl"></div>
         </div>
-        <div className="max-w-[80%] mx-auto text-center relative z-10 animate-fade-in-up">
-          <h2 className="text-5xl font-bold mb-6">Take your customer service to the next level.</h2>
-          <p className="text-xl text-purple-200 mb-8">Let AI agents create seamless experiences that keep clients coming back</p>
-          <Button 
-            className="bg-white hover:bg-gray-100 text-purple-900 px-8 py-6 text-lg rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => navigate('/signup')}
-          >
-            Get Started Free
-            <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+
+        <div className="max-w-[1180px] mx-auto relative z-10">
+          {/* Modular CTA panel */}
+          <div className="relative rounded-[28px] border border-white/15 bg-white/[0.06] backdrop-blur-sm px-7 py-9 sm:px-10 sm:py-11 lg:px-12 lg:py-12 shadow-[0_24px_70px_rgba(0,0,0,0.16)]">
+            {/* Fine editorial accent */}
+            <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-9 lg:gap-14">
+              {/* CTA copy */}
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-purple-100 mb-5">
+                  Ready when you are
+                </div>
+
+                <h2 className="font-instrument-serif font-normal text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-white">
+                  Take your customer service to the next level.
+                </h2>
+
+                <p className="mt-5 text-base sm:text-lg text-purple-200/90 leading-relaxed max-w-2xl">
+                  Let AI agents create seamless experiences that keep clients coming back
+                </p>
+              </div>
+
+              {/* CTA action module */}
+              <div className="shrink-0 lg:w-[245px]">
+                <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
+                  <Button 
+                    className="w-full bg-white hover:bg-gray-100 text-purple-900 px-8 py-6 text-lg rounded-xl shadow-xl transition-[transform,box-shadow,background] duration-200 group"
+                    onClick={() => navigate('/signup')}
+                  >
+                    Get Started Free
+                    <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-200" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer variant="landing" />
+      {/* Premium Modular Footer */}
+      <section className="relative overflow-hidden bg-[#242326] px-3 py-3 sm:px-5 sm:py-5">
+        <footer className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#151517] text-white">
+
+          {/* Subtle modular grid */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)
+              `,
+              backgroundSize: '120px 120px'
+            }}
+          ></div>
+
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(147,51,234,0.12),transparent_38%)]"></div>
+
+          {/* CTA module */}
+          <div className="relative border-b border-white/[0.08] px-6 py-16 text-center sm:px-10 sm:py-20 lg:py-24">
+            <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 py-1.5 text-[11px] font-medium text-white/75">
+              <Zap className="h-3.5 w-3.5" />
+              Unlock the power of AI
+            </div>
+
+            <h2 className="mx-auto max-w-4xl font-instrument-serif text-5xl font-normal leading-[0.94] tracking-[-0.035em] text-white sm:text-6xl md:text-7xl lg:text-[78px]">
+              Ready to turn complexity
+              <br />
+              into <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-orange-300 bg-clip-text text-transparent">clarity?</span>
+            </h2>
+
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button
+                className="h-11 rounded-xl bg-white px-7 text-sm font-semibold text-gray-950 shadow-[0_8px_30px_rgba(255,255,255,0.12)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(255,255,255,0.18)]"
+                onClick={() => navigate('/signup')}
+              >
+                Start Now
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl border-white/30 bg-transparent px-7 text-sm font-medium text-white hover:bg-white/[0.06] hover:text-white"
+                onClick={() => navigate('/enterprise')}
+              >
+                Book a Demo
+              </Button>
+            </div>
+          </div>
+
+          {/* Main footer modules */}
+          <div className="relative grid grid-cols-1 gap-12 px-6 py-12 sm:px-10 md:grid-cols-2 lg:grid-cols-[1.65fr_1fr_1fr_1fr] lg:px-14 lg:py-14">
+
+            {/* Brand / contact module */}
+            <div className="lg:pr-14">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-white p-1.5">
+                  <BotSmithLogo size="sm" showGlow={false} animate={false} />
+                </div>
+                <span className="font-instrument-serif text-[34px] leading-none tracking-[-0.035em] text-white">
+                  BotSmith
+                </span>
+              </div>
+
+              <p className="mt-5 max-w-[330px] text-sm leading-6 text-white/50">
+                AI assistants that help colleges and universities guide,
+                support, and engage every student.
+              </p>
+
+              <div className="mt-7 space-y-2 text-xs text-white/45">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white/40"></span>
+                  Built for modern education
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white/40"></span>
+                  Deploy in minutes, not weeks
+                </div>
+              </div>
+
+              <div className="mt-9 flex gap-2">
+                {['in', '𝕏', '◎', '▶'].map((item) => (
+                  <span
+                    key={item}
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-white/[0.1] bg-white/[0.03] text-[11px] text-white/45 transition-colors duration-200 hover:border-white/20 hover:text-white"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <FooterColumnDark
+              title="Product"
+              links={['AI Agents', 'AI Actions', 'Analytics', 'Integrations', 'Security']}
+            />
+
+            <FooterColumnDark
+              title="Resources"
+              links={['Customers', 'Blog', 'Pricing', 'Documentation', 'Contact']}
+            />
+
+            <FooterColumnDark
+              title="Company"
+              links={['About', 'Careers', 'Enterprise', 'Privacy', 'Terms']}
+            />
+          </div>
+
+          {/* Bottom rail */}
+          <div className="relative flex flex-col gap-3 border-t border-white/[0.08] px-6 py-5 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-14">
+            <span>© 2026 BotSmith. All rights reserved.</span>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              <span>Terms of Service</span>
+              <span>Privacy Policy</span>
+              <span>Cookie Policy</span>
+            </div>
+          </div>
+
+          {/* Oversized editorial wordmark */}
+          <div className="pointer-events-none relative overflow-hidden px-5 pt-5 sm:px-10">
+            <div className="font-instrument-serif text-[22vw] font-normal leading-[0.7] tracking-[-0.07em] text-white/[0.035] select-none sm:text-[19vw] lg:text-[17vw]">
+              BOTSMITH
+            </div>
+          </div>
+        </footer>
+      </section>
     </div>
   );
 };
