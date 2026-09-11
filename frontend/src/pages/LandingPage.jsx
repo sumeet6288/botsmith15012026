@@ -2,10 +2,49 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { MessageSquare, Zap, BarChart3, Globe, Shield, Sparkles, ChevronRight, Menu, X, Star, ArrowRight, Check, Upload, Brain, Palette, Rocket, ShoppingCart, GraduationCap, Heart, Briefcase, Users, TrendingUp, Clock, Award } from 'lucide-react';
-import Footer from '../components/Footer';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import BotSmithLogo from '../components/BotSmithLogo';
 import heroClouds from '../assets/herocloud.png';
+
+
+
+const FooterColumnDark = ({ title, links }) => (
+  <div>
+    <h3 className="mb-5 text-sm font-semibold text-white">
+      {title}
+    </h3>
+
+    <div className="space-y-3">
+      {links.map((link) => (
+        <span
+          key={link}
+          className="block text-[13px] text-white/45 transition-colors duration-200 hover:text-white/85"
+        >
+          {link}
+        </span>
+      ))}
+    </div>
+  </div>
+);
+
+const FooterColumn = ({ title, links }) => (
+  <div>
+    <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+      {title}
+    </h3>
+
+    <div className="space-y-3">
+      {links.map((link) => (
+        <span
+          key={link}
+          className="block text-[13px] text-gray-600 transition-colors duration-200 hover:text-purple-600"
+        >
+          {link}
+        </span>
+      ))}
+    </div>
+  </div>
+);
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -831,8 +870,133 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer variant="landing" />
+      {/* Premium Modular Footer */}
+      <section className="relative overflow-hidden bg-[#242326] px-3 py-3 sm:px-5 sm:py-5">
+        <footer className="relative mx-auto max-w-[1380px] overflow-hidden rounded-[28px] border border-white/[0.08] bg-[#151517] text-white">
+
+          {/* Subtle modular grid */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-60"
+            style={{
+              backgroundImage: `
+                linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)
+              `,
+              backgroundSize: '120px 120px'
+            }}
+          ></div>
+
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(147,51,234,0.12),transparent_38%)]"></div>
+
+          {/* CTA module */}
+          <div className="relative border-b border-white/[0.08] px-6 py-16 text-center sm:px-10 sm:py-20 lg:py-24">
+            <div className="mx-auto mb-7 inline-flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 py-1.5 text-[11px] font-medium text-white/75">
+              <Zap className="h-3.5 w-3.5" />
+              Unlock the power of AI
+            </div>
+
+            <h2 className="mx-auto max-w-4xl font-instrument-serif text-5xl font-normal leading-[0.94] tracking-[-0.035em] text-white sm:text-6xl md:text-7xl lg:text-[78px]">
+              Ready to turn complexity
+              <br />
+              into <span className="bg-gradient-to-r from-fuchsia-400 via-purple-400 to-orange-300 bg-clip-text text-transparent">clarity?</span>
+            </h2>
+
+            <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Button
+                className="h-11 rounded-xl bg-white px-7 text-sm font-semibold text-gray-950 shadow-[0_8px_30px_rgba(255,255,255,0.12)] transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_35px_rgba(255,255,255,0.18)]"
+                onClick={() => navigate('/signup')}
+              >
+                Start Now
+                <ChevronRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-11 rounded-xl border-white/30 bg-transparent px-7 text-sm font-medium text-white hover:bg-white/[0.06] hover:text-white"
+                onClick={() => navigate('/enterprise')}
+              >
+                Book a Demo
+              </Button>
+            </div>
+          </div>
+
+          {/* Main footer modules */}
+          <div className="relative grid grid-cols-1 gap-12 px-6 py-12 sm:px-10 md:grid-cols-2 lg:grid-cols-[1.65fr_1fr_1fr_1fr] lg:px-14 lg:py-14">
+
+            {/* Brand / contact module */}
+            <div className="lg:pr-14">
+              <div className="flex items-center gap-3">
+                <div className="rounded-xl bg-white p-1.5">
+                  <BotSmithLogo size="sm" showGlow={false} animate={false} />
+                </div>
+                <span className="font-instrument-serif text-[34px] leading-none tracking-[-0.035em] text-white">
+                  BotSmith
+                </span>
+              </div>
+
+              <p className="mt-5 max-w-[330px] text-sm leading-6 text-white/50">
+                AI assistants that help colleges and universities guide,
+                support, and engage every student.
+              </p>
+
+              <div className="mt-7 space-y-2 text-xs text-white/45">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white/40"></span>
+                  Built for modern education
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-white/40"></span>
+                  Deploy in minutes, not weeks
+                </div>
+              </div>
+
+              <div className="mt-9 flex gap-2">
+                {['in', '𝕏', '◎', '▶'].map((item) => (
+                  <span
+                    key={item}
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-white/[0.1] bg-white/[0.03] text-[11px] text-white/45 transition-colors duration-200 hover:border-white/20 hover:text-white"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <FooterColumnDark
+              title="Product"
+              links={['AI Agents', 'AI Actions', 'Analytics', 'Integrations', 'Security']}
+            />
+
+            <FooterColumnDark
+              title="Resources"
+              links={['Customers', 'Blog', 'Pricing', 'Documentation', 'Contact']}
+            />
+
+            <FooterColumnDark
+              title="Company"
+              links={['About', 'Careers', 'Enterprise', 'Privacy', 'Terms']}
+            />
+          </div>
+
+          {/* Bottom rail */}
+          <div className="relative flex flex-col gap-3 border-t border-white/[0.08] px-6 py-5 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-14">
+            <span>© 2026 BotSmith. All rights reserved.</span>
+
+            <div className="flex flex-wrap gap-x-6 gap-y-2">
+              <span>Terms of Service</span>
+              <span>Privacy Policy</span>
+              <span>Cookie Policy</span>
+            </div>
+          </div>
+
+          {/* Oversized editorial wordmark */}
+          <div className="pointer-events-none relative overflow-hidden px-5 pt-5 sm:px-10">
+            <div className="font-instrument-serif text-[22vw] font-normal leading-[0.7] tracking-[-0.07em] text-white/[0.035] select-none sm:text-[19vw] lg:text-[17vw]">
+              BOTSMITH
+            </div>
+          </div>
+        </footer>
+      </section>
     </div>
   );
 };
