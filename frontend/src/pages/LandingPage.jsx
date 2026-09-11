@@ -1035,7 +1035,7 @@ const LandingPage = () => {
                 </div>
 
                 <h2 className="font-instrument-serif font-normal text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-white">
-                  Take your customer service to the next level.
+                  Automate admissions, enquiries, and student support.
                 </h2>
 
                 <p className="mt-5 text-base sm:text-lg text-purple-200/90 leading-relaxed max-w-2xl">
