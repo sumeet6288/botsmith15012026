@@ -616,71 +616,68 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Use Cases Section */}
+      {/* Use Cases Section — Premium Modular */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10 bg-white" ref={useCasesRef}>
-        <div className="max-w-[1600px] mx-auto w-full">
-          {/* Header */}
-          <div className={`text-center mb-16 `}>
-            <span className="px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-medium inline-flex items-center gap-2 mb-4">
-              <Award className="w-4 h-4" />
-              𝐵𝑢𝑖𝑙𝑑 𝑓𝑜𝑟 𝐸𝑑𝑢𝑐𝑎𝑡𝑖𝑜𝑛
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-              𝐵𝑢𝑖𝑙𝑡 𝑓𝑜𝑟 𝐸𝑣𝑒𝑟𝑦 𝐷𝑒𝑝𝑎𝑟𝑡𝑚𝑒𝑛𝑡
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              𝐸𝑚𝑝𝑜𝑤𝑒𝑟𝑖𝑛𝑔 𝑖𝑛𝑠𝑡𝑖𝑡𝑢𝑡𝑖𝑜𝑛𝑠 𝑡𝑜 𝑎𝑢𝑡𝑜𝑚𝑎𝑡𝑒 𝑠𝑢𝑝𝑝𝑜𝑟𝑡, 𝑒𝑛𝑔𝑎𝑔𝑒 𝑠𝑡𝑢𝑑𝑒𝑛𝑡𝑠, 𝑎𝑛𝑑 𝑖𝑚𝑝𝑟𝑜𝑣𝑒 𝑒𝑣𝑒𝑟𝑦 𝑐𝑎𝑚𝑝𝑢𝑠 𝑒𝑥𝑝𝑒𝑟𝑖𝑒𝑛𝑐𝑒.
-            </p>
+        <div className="max-w-[1320px] mx-auto w-full">
+          <div className="mb-12 sm:mb-14">
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+              <div className="max-w-3xl">
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-emerald-700">
+                  <Award className="w-3.5 h-3.5" />
+                  Build for Education
+                </span>
+                <h2 className="mt-5 font-instrument-serif font-normal text-5xl sm:text-6xl md:text-7xl leading-[0.92] tracking-[-0.035em] text-gray-950">
+                  Built for Every Department
+                </h2>
+                <p className="mt-5 max-w-2xl text-base sm:text-lg leading-7 text-gray-500">
+                  Empowering institutions to automate support, engage students, and improve every campus experience.
+                </p>
+              </div>
+              <div className="hidden lg:block pb-1 text-right">
+                <div className="font-instrument-serif text-4xl leading-none text-gray-200">04</div>
+                <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-gray-400">Departments</div>
+              </div>
+            </div>
           </div>
 
-          {/* Use Case Cards with Glassmorphism and Scroll Animation */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             {useCases.map((useCase, index) => (
-              <div 
+              <article
                 key={index}
-                className={`group relative transform-3d transition-all duration-800 ${
-                  useCasesVisible 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-20'
-                }`}
-                style={{ 
-                  transitionDelay: useCasesVisible ? `${index * 100}ms` : '0ms'
-                }}
+                className="group relative min-h-[330px] overflow-hidden rounded-[22px] border border-gray-200/80 bg-[#fbfbfa] p-6 sm:p-7 shadow-[0_8px_24px_rgba(20,18,28,0.045)] transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 hover:border-gray-300 hover:shadow-[0_16px_36px_rgba(20,18,28,0.09)]"
               >
-                {/* Animated Glow Effect */}
-                <div className="absolute -inset-px bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-lg transition-opacity duration-500 animate-gradient-x"></div>
-                
-                {/* Card with Premium Glassmorphism */}
-                <div className="relative h-full glass-card rounded-2xl p-6 shadow-lg hover:shadow-2xl transition-all duration-500 group-hover:translate-y-[-8px] hover-3d overflow-hidden">
-                  {/* Animated gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-xy"></div>
-                  
-                  {/* Icon with 3D effect and glow */}
-                  <div className={`relative w-16 h-16 bg-gradient-to-br ${useCase.gradient} rounded-2xl flex items-center justify-center text-white mb-4 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 shadow-xl animate-glow-pulse z-10`}>
-                    <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/30 to-transparent"></div>
-                    <div className="relative z-10 transform group-hover:scale-110 transition-transform">{useCase.icon}</div>
+                <div className="pointer-events-none absolute right-0 top-0 h-20 w-20 border-l border-b border-gray-200/70 rounded-bl-[22px]"></div>
+                <div className="pointer-events-none absolute right-5 top-5 h-1.5 w-1.5 rounded-full bg-purple-300/70"></div>
+
+                <div className="relative flex h-full flex-col">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] font-medium tracking-[0.16em] text-gray-400">0{index + 1}</span>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-gray-400">Department</span>
                   </div>
 
-                  {/* Title */}
-                  <h3 className="relative text-xl font-bold mb-2 text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300 z-10">
+                  <div className={`mt-8 mb-7 flex h-12 w-12 items-center justify-center rounded-[14px] bg-gradient-to-br ${useCase.gradient} text-white shadow-[0_8px_18px_rgba(80,60,120,0.12)] transition-transform duration-200 group-hover:-translate-y-0.5`}>
+                    {useCase.icon}
+                  </div>
+
+                  <h3 className="font-instrument-serif font-normal text-[29px] leading-[0.98] tracking-[-0.02em] text-gray-950">
                     {useCase.title}
                   </h3>
 
-                  {/* Description */}
-                  <p className="relative text-gray-600 leading-relaxed text-sm mb-4 z-10">
+                  <p className="mt-3 text-[13px] leading-[1.7] text-gray-500">
                     {useCase.description}
                   </p>
 
-                  {/* Stats Badge with glassmorphism */}
-                  <div className="relative inline-flex items-center gap-2 px-3 py-1 glass rounded-full text-xs font-semibold text-purple-700 z-10 group-hover:scale-105 transition-transform">
-                    <TrendingUp className="w-3 h-3 animate-bounce-subtle" />
-                    {useCase.stats}
+                  <div className="mt-auto pt-6">
+                    <div className="border-t border-gray-200 pt-4 flex items-center justify-between gap-3">
+                      <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-purple-600">
+                        <TrendingUp className="h-3.5 w-3.5" />
+                        {useCase.stats}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-gray-300 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-gray-500" />
+                    </div>
                   </div>
-                  
-                  {/* Decorative element */}
-                  <div className="absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-tl from-purple-500/10 to-transparent rounded-tl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                 </div>
-              </div>
+              </article>
             ))}
           </div>
         </div>
