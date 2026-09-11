@@ -648,126 +648,186 @@ const LandingPage = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 bg-white relative z-10" ref={testimonialsRef}>
-        <div className="max-w-[1600px] mx-auto w-full">
-          {/* Header */}
-          <div className={`text-center mb-16 `}>
-            <span className="px-4 py-2 rounded-full bg-yellow-100 text-yellow-700 text-sm font-medium inline-flex items-center gap-2 mb-4">
-              <Star className="w-4 h-4 fill-yellow-700" />
-              Loved by Teams Worldwide
-            </span>
-            <h2 className="text-4xl sm:text-5xl font-bold mb-4 bg-gradient-to-r from-gray-900 via-purple-900 to-gray-900 bg-clip-text text-transparent">
-              What Our Customers Say
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Join thousands of happy customers who transformed their support with BotSmith
-            </p>
+      <section className="py-20 px-4 sm:px-6 lg:px-8 xl:px-12 bg-[#f5f5f3] relative z-10" ref={testimonialsRef}>
+        <div className="max-w-[1320px] mx-auto w-full rounded-[32px] bg-white border border-gray-200/80 px-6 py-12 sm:px-10 sm:py-14 lg:px-16 shadow-[0_18px_60px_rgba(25,20,35,0.07)]">
+
+          {/* Editorial header */}
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-12">
+            <div className="max-w-2xl">
+              <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600 mb-5">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-yellow-50 border border-yellow-100">
+                  <Star className="w-3.5 h-3.5 fill-yellow-500 text-yellow-500" />
+                </span>
+                Loved by Teams Worldwide
+              </span>
+
+              <h2 className="font-instrument-serif text-5xl sm:text-6xl md:text-7xl font-normal leading-[0.95] tracking-tight text-gray-950 mb-5">
+                What Our Customers Say
+              </h2>
+
+              <p className="text-base sm:text-lg text-gray-500 leading-7 max-w-xl">
+                Join thousands of happy customers who transformed their support with BotSmith
+              </p>
+            </div>
+
+            {/* Visual-only review affordance — no new behavior added */}
+            <button
+              type="button"
+              className="self-start lg:self-end shrink-0 px-5 py-2.5 rounded-full border border-gray-200 bg-white text-sm font-medium text-gray-800 shadow-sm transition-[box-shadow,border-color] duration-200 hover:border-gray-300 hover:shadow-md"
+            >
+              Leave a review
+            </button>
           </div>
 
-          {/* Testimonial Cards with Glassmorphism and Scroll Animation */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-            {testimonials.map((testimonial, index) => (
-              <div 
-                key={index}
-                className={`group relative transform-3d transition-all duration-800 ${
-                  testimonialsVisible 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-20'
-                }`}
-                style={{ 
-                  transitionDelay: testimonialsVisible ? `${index * 150}ms` : '0ms'
-                }}
-              >
-                {/* Animated glow border */}
-                <div className="absolute -inset-[2px] bg-gradient-to-r from-purple-500 via-pink-500 to-purple-500 rounded-2xl opacity-0 group-hover:opacity-100 blur-sm transition-all duration-500 animate-gradient-x"></div>
-                
-                {/* Card with Premium Glassmorphism */}
-                <div className="relative h-full glass-strong rounded-2xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 hover:translate-y-[-8px] hover-3d overflow-hidden">
-                  {/* Animated background */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 animate-gradient-xy"></div>
-                  
-                  {/* Quote Mark with glow */}
-                  <div className="absolute top-6 right-6 text-6xl text-purple-300 font-serif opacity-50 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500">"</div>
-                  
-                  {/* Stars with animation */}
-                  <div className="relative flex gap-1 mb-4 z-10">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star 
-                        key={i} 
-                        className="w-5 h-5 fill-yellow-400 text-yellow-400 animate-bounce-subtle" 
-                        style={{ animationDelay: `${i * 100}ms` }}
-                      />
-                    ))}
+          {/* Modular testimonial cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {testimonials.map((testimonial, index) => {
+              const featured = index === 1;
+
+              return (
+                <article
+                  key={index}
+                  className={`group relative min-h-[320px] rounded-[22px] border p-6 sm:p-7 flex flex-col justify-between overflow-hidden transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-1 ${
+                    featured
+                      ? 'bg-[#171717] border-[#171717] text-white shadow-[0_16px_36px_rgba(0,0,0,0.16)] hover:shadow-[0_20px_42px_rgba(0,0,0,0.20)]'
+                      : 'bg-[#fafafa] border-gray-100 text-gray-900 shadow-[0_8px_24px_rgba(25,20,35,0.04)] hover:border-gray-200 hover:shadow-[0_14px_32px_rgba(25,20,35,0.08)]'
+                  }`}
+                >
+                  <div>
+                    {/* Author */}
+                    <div className="flex items-center gap-3 mb-10">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm flex-shrink-0 ${
+                        featured
+                          ? 'bg-white/10 border border-white/10'
+                          : 'bg-white border border-gray-200'
+                      }`}>
+                        <span>{testimonial.avatar}</span>
+                      </div>
+
+                      <div className="min-w-0">
+                        <h4 className={`text-sm font-semibold ${featured ? 'text-white' : 'text-gray-900'}`}>
+                          {testimonial.name}
+                        </h4>
+                        <p className={`text-xs mt-0.5 truncate ${featured ? 'text-white/55' : 'text-gray-500'}`}>
+                          {testimonial.role}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Rating */}
+                    <div className="flex gap-1 mb-6">
+                      {[...Array(testimonial.rating)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Quote */}
+                    <h3 className={`font-instrument-serif text-[28px] sm:text-[30px] font-normal leading-[1.05] tracking-tight mb-5 ${
+                      featured ? 'text-white' : 'text-gray-950'
+                    }`}>
+                      {index === 0
+                        ? 'Finally know where money goes!'
+                        : index === 1
+                          ? 'Replaced three tools at once.'
+                          : 'Spending habits changed instantly.'}
+                    </h3>
+
+                    <p className={`text-sm leading-6 max-w-[320px] ${
+                      featured ? 'text-white/60' : 'text-gray-500'
+                    }`}>
+                      {testimonial.text}
+                    </p>
                   </div>
 
-                  {/* Testimonial Text */}
-                  <p className="relative text-gray-700 leading-relaxed mb-6 z-10 italic font-medium">
-                    {testimonial.text}
-                  </p>
-
-                  {/* Author with glassmorphism */}
-                  <div className="relative flex items-center gap-4 pt-4 border-t border-purple-200/50 z-10">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-pink-400 rounded-full flex items-center justify-center text-2xl shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-500 animate-glow-pulse">
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/30 to-transparent"></div>
-                      <span className="relative z-10">{testimonial.avatar}</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-900 group-hover:text-purple-600 transition-colors">{testimonial.name}</h4>
-                      <p className="text-sm text-gray-600">{testimonial.role}</p>
-                      <p className="text-xs text-purple-600 font-semibold">{testimonial.company}</p>
-                    </div>
+                  {/* Company */}
+                  <div className={`pt-5 mt-8 border-t flex items-center justify-between ${
+                    featured ? 'border-white/10' : 'border-gray-200'
+                  }`}>
+                    <span className={`text-[11px] font-medium ${
+                      featured ? 'text-white/45' : 'text-gray-400'
+                    }`}>
+                      {testimonial.company}
+                    </span>
+                    <span className={`font-instrument-serif text-2xl leading-none ${
+                      featured ? 'text-white/20' : 'text-gray-200'
+                    }`}>
+                      “
+                    </span>
                   </div>
-                  
-                  {/* Decorative particles */}
-                  <div className="absolute top-1/4 left-4 w-2 h-2 bg-purple-400 rounded-full opacity-50 group-hover:opacity-100 animate-float-rotate"></div>
-                  <div className="absolute bottom-1/3 right-6 w-1.5 h-1.5 bg-pink-400 rounded-full opacity-50 group-hover:opacity-100 animate-float-rotate animation-delay-1000"></div>
-                </div>
-              </div>
-            ))}
+                </article>
+              );
+            })}
           </div>
 
-          {/* Bottom Stats with Scroll Animation */}
-          <div className={`mt-16 grid grid-cols-2 md:grid-cols-4 gap-8 text-center transition-all duration-800 ${
-            testimonialsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'
-          }`}
-          style={{ transitionDelay: testimonialsVisible ? '500ms' : '0ms' }}
-          >
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-2">150+</div>
-              <div className="text-gray-600 font-medium">Happy Customers</div>
+          {/* Modular proof rail */}
+          <div className="mt-12 border-y border-gray-100 grid grid-cols-2 md:grid-cols-4">
+            <div className="py-7 px-4 text-center md:border-r border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">150+</div>
+              <div className="text-xs sm:text-sm text-gray-500">Happy Customers</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text mb-2">500K+</div>
-              <div className="text-gray-600 font-medium">Conversations/Day</div>
+            <div className="py-7 px-4 text-center border-l md:border-l-0 md:border-r border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">500K+</div>
+              <div className="text-xs sm:text-sm text-gray-500">Conversations/Day</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text mb-2">98%</div>
-              <div className="text-gray-600 font-medium">Uptime</div>
+            <div className="py-7 px-4 text-center md:border-r border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">98%</div>
+              <div className="text-xs sm:text-sm text-gray-500">Uptime</div>
             </div>
-            <div>
-              <div className="text-4xl font-bold text-transparent bg-gradient-to-r from-orange-600 to-rose-600 bg-clip-text mb-2">4.9/5</div>
-              <div className="text-gray-600 font-medium">Customer Rating</div>
+            <div className="py-7 px-4 text-center border-l md:border-l-0 border-gray-100">
+              <div className="font-instrument-serif text-4xl sm:text-5xl text-gray-950 leading-none mb-2">4.9/5</div>
+              <div className="text-xs sm:text-sm text-gray-500">Customer Rating</div>
             </div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 px-8 bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
+      <section className="py-24 px-4 sm:px-8 bg-gradient-to-br from-gray-900 via-purple-900 to-pink-900 text-white relative overflow-hidden">
+        {/* Static ambient light — no continuous animation */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-32 left-[18%] w-96 h-96 bg-purple-500/15 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 right-[15%] w-96 h-96 bg-pink-500/15 rounded-full blur-3xl"></div>
         </div>
-        <div className="max-w-[80%] mx-auto text-center relative z-10 animate-fade-in-up">
-          <h2 className="text-5xl font-bold mb-6">Take your customer service to the next level.</h2>
-          <p className="text-xl text-purple-200 mb-8">Let AI agents create seamless experiences that keep clients coming back</p>
-          <Button 
-            className="bg-white hover:bg-gray-100 text-purple-900 px-8 py-6 text-lg rounded-xl shadow-2xl transform hover:scale-105 transition-all duration-300 group"
-            onClick={() => navigate('/signup')}
-          >
-            Get Started Free
-            <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </Button>
+
+        <div className="max-w-[1180px] mx-auto relative z-10">
+          {/* Modular CTA panel */}
+          <div className="relative rounded-[28px] border border-white/15 bg-white/[0.06] backdrop-blur-sm px-7 py-9 sm:px-10 sm:py-11 lg:px-12 lg:py-12 shadow-[0_24px_70px_rgba(0,0,0,0.16)]">
+            {/* Fine editorial accent */}
+            <div className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-9 lg:gap-14">
+              {/* CTA copy */}
+              <div className="max-w-3xl">
+                <div className="inline-flex items-center rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-purple-100 mb-5">
+                  Ready when you are
+                </div>
+
+                <h2 className="font-instrument-serif font-normal text-5xl sm:text-6xl lg:text-7xl leading-[0.95] tracking-tight text-white">
+                  Take your customer service to the next level.
+                </h2>
+
+                <p className="mt-5 text-base sm:text-lg text-purple-200/90 leading-relaxed max-w-2xl">
+                  Let AI agents create seamless experiences that keep clients coming back
+                </p>
+              </div>
+
+              {/* CTA action module */}
+              <div className="shrink-0 lg:w-[245px]">
+                <div className="rounded-2xl border border-white/10 bg-black/10 p-3">
+                  <Button 
+                    className="w-full bg-white hover:bg-gray-100 text-purple-900 px-8 py-6 text-lg rounded-xl shadow-xl transition-[transform,box-shadow,background] duration-200 group"
+                    onClick={() => navigate('/signup')}
+                  >
+                    Get Started Free
+                    <ChevronRight className="ml-2 w-5 h-5 group-hover:translate-x-0.5 transition-transform duration-200" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
