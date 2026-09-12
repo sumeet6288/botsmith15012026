@@ -2487,21 +2487,11 @@ function botsmithInitLeadCapture() {
 
     if (!trimmed) return false;
 
-    if (!/^\+?91?[\s-]*[0-9\s-]+$/.test(trimmed)) return false;
+    // Remove common phone-number formatting characters
+    const normalized = trimmed.replace(/[\s\-().]/g, '');
 
-    const normalized = trimmed
-      .replace(/^\+91[\s-]*/, '')
-      .replace(/[\s-]/g, '');
-
-    if (!/^\d{10}$/.test(normalized)) return false;
-
-    if (!/^[6-9]/.test(normalized)) return false;
-
-    if (/^(\d)\1{9}$/.test(normalized)) return false;
-
-    if (normalized === '1234567890' || normalized === '0123456789') return false;
-
-    return true;
+    // Only requirement: exactly 10 digits
+    return /^\d{10}$/.test(normalized);
   }
 
 
