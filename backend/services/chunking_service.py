@@ -204,3 +204,4 @@ class ChunkingService:
             "chunk_size_config": self.chunk_size,
             "overlap_config": self.chunk_overlap
         }
+        
