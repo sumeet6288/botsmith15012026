@@ -60,14 +60,36 @@
       }
     }
   
-  // Get configuration from script tag
+  // Get configuration from BotSmith loader
+  const embedConfig = window.__BOTSMITH_EMBED_CONFIG__ || {};
   const script = document.currentScript;
+
   const config = {
-    chatbotId: script?.getAttribute('chatbot-id') || window.botsmithConfig?.chatbotId,
-    domain: script?.getAttribute('domain') || window.botsmithConfig?.domain || window.location.origin,
-    position: script?.getAttribute('position') || 'bottom-right',
-    theme: script?.getAttribute('theme') || 'purple',
-    apiUrl: script?.getAttribute('api-url') || (script?.getAttribute('domain') || window.location.origin) + '/api'
+    chatbotId:
+      embedConfig.chatbotId ||
+      script?.getAttribute('chatbot-id') ||
+      window.botsmithConfig?.chatbotId,
+
+    domain:
+      embedConfig.domain ||
+      script?.getAttribute('domain') ||
+      window.botsmithConfig?.domain ||
+      'https://botsmith.pro',
+
+    position:
+      embedConfig.position ||
+      script?.getAttribute('position') ||
+      'bottom-right',
+
+    theme:
+      embedConfig.theme ||
+      script?.getAttribute('theme') ||
+      'purple',
+
+    apiUrl:
+      embedConfig.apiUrl ||
+      script?.getAttribute('api-url') ||
+      'https://botsmith.pro/api'
   };
   
   if (!config.chatbotId) {

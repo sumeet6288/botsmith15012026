@@ -736,18 +736,10 @@ const ChatbotBuilder = () => {
                         </div>
                         <p className="text-sm text-gray-600 mb-3">Add a floating chat bubble to your website. Works on all pages and devices.</p>
                         <Textarea
-                          value={`<!-- BotSmith Widget Script -->
-<script>
-  window.botsmithConfig = {
-    chatbotId: "${chatbot.id}",
-    domain: "${window.location.origin}"
-  };
-</script>
-<script
-  src="${window.location.origin}/fast-widget.js"
-  chatbot-id="${chatbot.id}"
-  domain="${window.location.origin}"
-  defer>
+                          value={`<script
+  src="${window.location.origin}/embed.js"
+  data-botsmith-id="${chatbot.id}"
+  async>
 </script>`}
                           readOnly
                           rows={8}
@@ -756,18 +748,10 @@ const ChatbotBuilder = () => {
                         <Button 
                           className="mt-2 w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg shadow-blue-500/30 transform hover:scale-105 transition-all duration-300" 
                           onClick={async () => {
-                            const widgetScript = `<!-- BotSmith Widget Script -->
-<script>
-  window.botsmithConfig = {
-    chatbotId: "${chatbot.id}",
-    domain: "${window.location.origin}"
-  };
-</script>
-<script
-  src="${window.location.origin}/fast-widget.js"
-  chatbot-id="${chatbot.id}"
-  domain="${window.location.origin}"
-  defer>
+                            const widgetScript = `<script
+  src="${window.location.origin}/embed.js"
+  data-botsmith-id="${chatbot.id}"
+  async>
 </script>`;
                             try {
                               // Try modern clipboard API first
@@ -800,7 +784,7 @@ const ChatbotBuilder = () => {
                         </Button>
                         <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                           <p className="text-xs text-blue-800">
-                            <strong>💡 Tip:</strong> Paste this code before the closing &lt;/body&gt; tag in your HTML. The chat bubble will appear in the bottom-right corner.
+                            <strong>💡 Tip:</strong> Paste this code anywhere in your website's HTML. BotSmith will automatically load the chat widget.
                           </p>
                         </div>
                       </div>
