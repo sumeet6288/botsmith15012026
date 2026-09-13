@@ -436,100 +436,130 @@ const ChatbotBuilder = () => {
             <main className="flex-1 min-w-0 w-full">
 
           {/* Sources Tab */}
-          <TabsContent value="sources" className="animate-fade-in-up">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
+          <TabsContent value="sources">
+            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between gap-4">
                 <div>
-                  <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Training Sources</h2>
-                  <p className="text-gray-600 text-sm mt-1">Add data to train your agent</p>
+                  <h2 className="text-xl font-semibold text-gray-900">Training Sources</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Add data to train your agent
+                  </p>
                 </div>
-                <Button 
+
+                <Button
                   onClick={() => setIsAddSourceModalOpen(true)}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 group"
+                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-none"
                 >
-                  <Plus className="w-4 h-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
+                  <Plus className="w-4 h-4 mr-2" />
                   Add Source
                 </Button>
               </div>
 
-              {sources.length === 0 ? (
-                <div className="text-center py-16 animate-fade-in">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform duration-300">
-                    <FileText className="w-10 h-10 text-purple-600" />
-                  </div>
-                  <h3 className="text-xl font-semibold mb-2 text-gray-900">No sources yet</h3>
-                  <p className="text-gray-600 mb-6">Add files, websites, or text to train your chatbot</p>
-                  <Button 
-                    onClick={() => setIsAddSourceModalOpen(true)}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add First Source
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {sources.map((source, index) => (
-                    <div 
-                      key={source.id} 
-                      className="group flex items-center justify-between p-5 border-2 border-purple-200/50 rounded-xl hover:border-purple-400 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 bg-gradient-to-r from-white to-purple-50/30 transform hover:-translate-y-1 animate-fade-in-up"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`p-3 rounded-xl shadow-lg transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 ${
-                          source.type === 'file' ? 'bg-gradient-to-br from-blue-500 to-cyan-600 shadow-blue-500/30' :
-                          source.type === 'website' ? 'bg-gradient-to-br from-green-500 to-emerald-600 shadow-green-500/30' :
-                          'bg-gradient-to-br from-purple-500 to-pink-600 shadow-purple-500/30'
-                        }`}>
-                          {source.type === 'file' && <FileText className="w-5 h-5 text-white" />}
-                          {source.type === 'website' && <Globe className="w-5 h-5 text-white" />}
-                          {source.type === 'text' && <FileText className="w-5 h-5 text-white" />}
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-gray-900 group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-purple-600 group-hover:to-pink-600 group-hover:bg-clip-text transition-all duration-300">{source.name}</p>
-                          <div className="flex items-center gap-3 text-sm text-gray-600">
-                            {source.size && <span>{source.size}</span>}
-                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                              source.status === 'processed' || source.status === 'completed' ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-sm shadow-green-500/30' :
-                              source.status === 'processing' ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white shadow-sm shadow-yellow-500/30' :
-                              'bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm shadow-red-500/30'
-                            }`}>
-                              {source.status}
-                            </span>
-                            {source.added_at && <span>Added {new Date(source.added_at).toLocaleDateString()}</span>}
-                          </div>
-                          {/* Processing Progress Bar */}
-                          {source.status === 'processing' && (
-                            <div className="mt-2 space-y-1">
-                              <div className="flex justify-between text-xs text-gray-500">
-                                <span>Processing source...</span>
-                                <span className="font-semibold text-orange-600">
-                                  {source.progress || 50}%
-                                </span>
-                              </div>
-                              <Progress 
-                                value={source.progress || 50} 
-                                className="h-2 bg-orange-100"
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSourceToDelete(source);
-                          setIsDeleteModalOpen(true);
-                        }}
-                        className="hover:bg-red-50 hover:text-red-600 transition-colors group"
-                      >
-                        <Trash2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                      </Button>
+              {/* Source List */}
+              <div className="p-6">
+                {sources.length === 0 ? (
+                  <div className="border border-dashed border-gray-300 rounded-xl py-14 px-6 text-center">
+                    <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-gray-100 flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-gray-500" />
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    <h3 className="text-base font-semibold text-gray-900 mb-1">
+                      No sources yet
+                    </h3>
+                    <p className="text-sm text-gray-500 mb-5">
+                      Add files, websites, or text to train your chatbot
+                    </p>
+
+                    <Button
+                      onClick={() => setIsAddSourceModalOpen(true)}
+                      variant="outline"
+                      className="border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg shadow-none"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Add First Source
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {sources.map((source) => (
+                      <div
+                        key={source.id}
+                        className="flex items-center justify-between gap-4 p-4 border border-gray-200 rounded-lg bg-white hover:border-gray-300 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
+                            {source.type === 'website' ? (
+                              <Globe className="w-5 h-5 text-gray-600" />
+                            ) : (
+                              <FileText className="w-5 h-5 text-gray-600" />
+                            )}
+                          </div>
+
+                          <div className="min-w-0">
+                            <p className="font-medium text-gray-900 truncate">
+                              {source.name}
+                            </p>
+
+                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-gray-500">
+                              {source.size && <span>{source.size}</span>}
+
+                              <span
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
+                                  source.status === 'processed' || source.status === 'completed'
+                                    ? 'bg-emerald-50 text-emerald-700'
+                                    : source.status === 'processing'
+                                    ? 'bg-amber-50 text-amber-700'
+                                    : 'bg-red-50 text-red-700'
+                                }`}
+                              >
+                                {source.status}
+                              </span>
+
+                              {source.added_at && (
+                                <span>
+                                  Added {new Date(source.added_at).toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Processing Progress */}
+                            {source.status === 'processing' && (
+                              <div className="mt-3 w-full max-w-md space-y-1.5">
+                                <div className="flex items-center justify-between text-xs text-gray-500">
+                                  <span>Processing source...</span>
+                                  <span className="font-medium text-gray-700">
+                                    {source.progress || 50}%
+                                  </span>
+                                </div>
+
+                                <Progress
+                                  value={source.progress || 50}
+                                  className="h-1.5 bg-gray-100"
+                                />
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            setSourceToDelete(source);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          aria-label={`Delete ${source.name}`}
+                          title="Delete source"
+                          className="flex-shrink-0 text-gray-500 hover:bg-red-50 hover:text-red-600 rounded-lg"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </TabsContent>
 
@@ -1168,6 +1198,12 @@ const ChatbotBuilder = () => {
           </div>
         </Tabs>
       </div>
+
+
+      {/* Footer */}
+      <footer className="border-t border-gray-200 bg-white py-3 text-center text-xs text-gray-500">
+        BotSmith • Your knowledge. Your AI.
+      </footer>
 
       {/* Modals */}
       <AddSourceModal
