@@ -384,7 +384,7 @@ const ChatbotBuilder = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           {/* Left Sidebar Navigation */}
           <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <aside className={`w-full ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72'} lg:flex-shrink-0 transition-all duration-300 ease-in-out`}>
+            <aside className={`w-full ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72'} lg:flex-shrink-0 lg:-ml-6 transition-all duration-300 ease-in-out`}>
               <div className={`flex mb-2 ${isSidebarCollapsed ? 'lg:justify-center' : 'justify-end'}`}>
                 <button
                   type="button"
