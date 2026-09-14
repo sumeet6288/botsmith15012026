@@ -231,7 +231,7 @@ const ChatbotBuilder = () => {
       console.error('Error deleting chatbot:', error);
       toast({
         title: 'Error',
-        description: 'Failed to delete chatbot',
+        description: 'Failed to delete agent',
         variant: 'destructive'
       });
     }
@@ -663,7 +663,7 @@ const ChatbotBuilder = () => {
                     onClick={handleDeleteChatbot}
                     className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/30 transform hover:scale-105 transition-all duration-300"
                   >
-                    Delete Chatbot
+                    Delete Agent
                   </Button>
                 </div>
               </div>
