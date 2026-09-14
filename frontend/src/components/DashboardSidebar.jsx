@@ -13,7 +13,12 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
     { icon: BarChart3, label: 'Analytics', path: '/analytics' },
     { icon: CreditCard, label: 'Subscription', path: '/subscription' },
     { icon: Settings, label: 'Settings', path: '/account-settings' },
-    { icon: BookOpen, label: 'Documentation', path: '/resources/documentation' },
+    {
+      icon: BookOpen,
+      label: 'Documentation',
+      path: 'https://document.botsmith.pro/introduction',
+      external: true,
+    },
   ];
 
   const isActive = (path) => location.pathname === path;
@@ -21,7 +26,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
   const daysRemaining = usageStats?.subscription?.days_remaining || 0;
   const planName = usageStats?.plan?.name || 'Free';
   const expiresAt = usageStats?.subscription?.expires_at;
-  
+
   // Format expiry date
   const formatExpiryDate = (dateString) => {
     if (!dateString) return null;
@@ -57,7 +62,13 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => {
+                if (item.external) {
+                  window.open(item.path, '_blank', 'noopener,noreferrer');
+                } else {
+                  navigate(item.path);
+                }
+              }}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
                 active
                   ? 'bg-purple-50 border-l-4 border-purple-600'
@@ -87,7 +98,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
           <p className="text-base font-bold text-gray-900 mb-2" style={{ fontFamily: 'Inter, sans-serif' }}>
             {planName}
           </p>
-          
+
           {/* For Paid Plans - Show Expiry Details */}
           {expiresAt && planName !== 'Free' && (
             <div className="text-xs text-gray-600 space-y-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -95,7 +106,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
               <p className="text-purple-600 font-semibold">{daysRemaining} days remaining</p>
             </div>
           )}
-          
+
           {/* For Free Plan - Show Usage Details */}
           {planName === 'Free' && (
             <div className="text-xs text-gray-600 space-y-1" style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -119,7 +130,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
             </div>
           )}
         </div>
-        
+
         {/* Upgrade Button - Show for Free users */}
         {planName === 'Free' && (
           <Button
