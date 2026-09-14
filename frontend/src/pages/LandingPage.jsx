@@ -8,7 +8,7 @@ import heroClouds from '../assets/herocloud.png';
 
 
 
-const FooterColumnDark = ({ title, links }) => (
+const FooterColumnDark = ({ title, links, onLinkClick }) => (
   <div>
     <h3 className="mb-5 text-sm font-semibold text-white">
       {title}
@@ -18,7 +18,10 @@ const FooterColumnDark = ({ title, links }) => (
       {links.map((link) => (
         <span
           key={link}
-          className="block text-[13px] text-white/45 transition-colors duration-200 hover:text-white/85"
+          onClick={() => onLinkClick?.(link)}
+          className={`block text-[13px] text-white/45 transition-colors duration-200 hover:text-white/85 ${
+            onLinkClick ? 'cursor-pointer' : ''
+          }`}
         >
           {link}
         </span>
@@ -1160,6 +1163,11 @@ const LandingPage = () => {
             <FooterColumnDark
               title="Resources"
               links={['Customers', 'Blog', 'Pricing', 'Documentation', 'Contact']}
+              onLinkClick={(link) => {
+                if (link === 'Documentation') {
+                  window.open('https://document.botsmith.pro/introduction', '_blank', 'noopener,noreferrer');
+                }
+              }}
             />
 
             <FooterColumnDark
