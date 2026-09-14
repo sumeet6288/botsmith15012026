@@ -387,7 +387,7 @@
   header.style.cssText = `
     background: linear-gradient(135deg, ${currentTheme.primary} 0%, ${currentTheme.secondary} 60%, ${currentTheme.accent || currentTheme.secondary} 100%);
     color: white; 
-    padding: 24px; 
+    padding: 12px 18px;
     display: flex; 
     align-items: center; 
     justify-content: space-between;
