@@ -8,6 +8,8 @@ from models import (
 )
 from services.chat_service import ChatService
 from services.rag_service import RAGService
+from services.agent_service import AgentService
+from services.lead_service import LeadService
 from services.plan_service import plan_service
 from services.notification_service import NotificationService
 from services.cache_service import cache_service
@@ -34,16 +36,24 @@ router = APIRouter(prefix="/chat", tags=["chat"])
 db_instance = None
 chat_service = None
 rag_service = None
+agent_service = None
+lead_service = None
 notification_service = None
 usage_service = None
 
 
 def init_router(db: AsyncIOMotorDatabase):
     """Initialize router with database instance"""
-    global db_instance, chat_service, rag_service, notification_service, usage_service
+    global db_instance, chat_service, rag_service, agent_service, lead_service, notification_service, usage_service
     db_instance = db
     chat_service = ChatService()
     rag_service = RAGService()
+    lead_service = LeadService()
+    agent_service = AgentService(
+        chat_service=chat_service,
+        rag_service=rag_service,
+        lead_service=lead_service,
+    )
     notification_service = NotificationService(db)
     usage_service = UsageService()
 
@@ -137,7 +147,9 @@ async def send_message(chat_request: ChatRequest):
         else:
             conversation = Conversation(**conversation)
         
-        # OPTIMIZATION 2: Parallel save user message and RAG retrieval
+        # AGENTIC AI V1:
+        # Save the user message while the agent decides whether it needs
+        # knowledge-base context and/or lead capture.
         user_message = Message(
             conversation_id=conversation.id,
             chatbot_id=chat_request.chatbot_id,
@@ -145,42 +157,36 @@ async def send_message(chat_request: ChatRequest):
             content=chat_request.message,
             source="dashboard"
         )
-        
+
         save_message_task = db_instance.messages.insert_one(user_message.model_dump())
-        rag_task = rag_service.retrieve_relevant_context(
-            query=chat_request.message,
+
+        agent_task = agent_service.run(
+            message=chat_request.message,
+            session_id=chat_request.session_id,
             chatbot_id=chat_request.chatbot_id,
-            top_k=2,  # Reduced from 3 to 2 to save 10-20% tokens per message
-            min_similarity=0.5  # Increased from 0.7 for better balance
+            owner_user_id=chatbot.get("user_id"),
+            conversation_id=conversation.id,
+            system_message=chatbot.get("instructions", DEFAULT_SYSTEM_MESSAGE),
+            model=chatbot.get("model", "gpt-4o-mini"),
+            provider=chatbot.get("provider", "openai"),
+            user_name=chat_request.user_name,
+            user_email=chat_request.user_email,
         )
-        
-        # Wait for both operations
-        _, rag_result = await asyncio.gather(save_message_task, rag_task)
-        
-        context = rag_result.get("context") if rag_result.get("has_context") else None
-        citation_footer = rag_result.get("citation_footer")
-        
-        logger.info(f"RAG retrieved {rag_result.get('num_sources', 0)} sources in parallel")
-        
-        # Generate AI response with RAG context
-        try:
-            ai_response, citations = await chat_service.generate_response(
-                message=chat_request.message,
-                session_id=chat_request.session_id,
-                system_message=chatbot.get("instructions", DEFAULT_SYSTEM_MESSAGE),
-                model=chatbot.get("model", "gpt-4o-mini"),
-                provider=chatbot.get("provider", "openai"),
-                context=context,
-                citation_footer=citation_footer
-            )
-            
-            # Citations removed - users don't need to see source references
-            # The AI still uses the knowledge base context, but citations are hidden
-                
-        except Exception as e:
-            logger.error(f"AI response error: {str(e)}")
-            ai_response = "I'm sorry, I'm having trouble processing your request right now. Please try again later."
-        
+
+        _, agent_result = await asyncio.gather(save_message_task, agent_task)
+
+        ai_response = agent_result.get(
+            "response",
+            "I'm sorry, I'm having trouble processing your request right now. Please try again later."
+        )
+
+        logger.info(
+            "Agent completed: intent=%s, knowledge=%s, lead_captured=%s",
+            agent_result.get("intent"),
+            agent_result.get("used_knowledge"),
+            agent_result.get("lead_captured"),
+        )
+
         # OPTIMIZATION 3: Parallel save assistant message and update stats
         assistant_message = Message(
             conversation_id=conversation.id,
