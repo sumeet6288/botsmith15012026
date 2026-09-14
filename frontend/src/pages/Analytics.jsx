@@ -139,7 +139,7 @@ const Analytics = () => {
               Analytics Overview
             </h1>
             <p className="mt-3 text-sm sm:text-base text-gray-500 max-w-xl">
-              A clear view of chatbot activity, engagement, and performance.
+              A clear view of agent activity, engagement, and performance.
             </p>
           </div>
 

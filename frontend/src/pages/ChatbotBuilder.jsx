@@ -224,7 +224,7 @@ const ChatbotBuilder = () => {
       await chatbotAPI.delete(id);
       toast({
         title: 'Success',
-        description: 'Chatbot deleted successfully'
+        description: 'agent deleted successfully'
       });
       navigate('/dashboard');
     } catch (error) {
