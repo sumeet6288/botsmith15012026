@@ -49,7 +49,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'whatsapp',
       name: 'WhatsApp',
-      description: 'Connect your chatbot to WhatsApp Business API',
+      description: 'Connect your agent to WhatsApp Business API',
       icon: <Phone className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -61,7 +61,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'slack',
       name: 'Slack',
-      description: 'Deploy chatbot to your Slack workspace',
+      description: 'Deploy agent to your Slack workspace',
       icon: <Send className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -73,7 +73,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'telegram',
       name: 'Telegram',
-      description: 'Create a Telegram bot for your chatbot',
+      description: 'Create a Telegram bot for your agent',
       icon: <Send className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -84,7 +84,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'discord',
       name: 'Discord',
-      description: 'Add chatbot to your Discord server',
+      description: 'Add agent to your Discord server',
       icon: <MessageCircle className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -96,7 +96,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'msteams',
       name: 'Microsoft Teams',
-      description: 'Deploy chatbot to Microsoft Teams',
+      description: 'Deploy agent to Microsoft Teams',
       icon: <MessageCircle className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -129,7 +129,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'instagram',
       name: 'Instagram',
-      description: 'Connect your chatbot to Instagram Direct Messages',
+      description: 'Connect your agent to Instagram Direct Messages',
       icon: <MessageCircle className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -141,7 +141,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'zapier',
       name: 'Zapier',
-      description: 'Connect your chatbot to Zapier for workflow automation',
+      description: 'Connect your agent to Zapier for workflow automation',
       icon: <Zap className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -152,7 +152,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'twilio',
       name: 'Twilio SMS',
-      description: 'Connect your chatbot to SMS via Twilio',
+      description: 'Connect your agent to SMS via Twilio',
       icon: <Phone className="w-6 h-6" />,
       accent: 'purple',
       fields: [
@@ -701,7 +701,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
             Platform Integrations
           </h2>
           <p className="mt-1.5 text-xs text-gray-500">
-            Connect your chatbot to platforms and channels.
+            Connect your agent to platforms and channels.
           </p>
         </div>
 
@@ -1114,7 +1114,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
                         </code>
                       </div>
                       <p className="mt-2 text-xs text-gray-500">
-                        Get chatbot configuration and settings
+                        Get agent configuration and settings
                       </p>
                     </div>
                   </div>

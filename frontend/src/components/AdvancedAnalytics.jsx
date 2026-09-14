@@ -215,7 +215,7 @@ const AdvancedAnalytics = ({ chatbotId }) => {
             Advanced Analytics
           </h3>
           <p className="mt-1.5 text-sm text-gray-500">
-            A clear view of chatbot activity, engagement, and performance.
+            A clear view of agent activity, engagement, and performance.
           </p>
         </div>
 
@@ -633,7 +633,7 @@ const AdvancedAnalytics = ({ chatbotId }) => {
               </ResponsiveContainer>
 
               <p className="mt-2 text-center text-sm text-gray-500">
-                Track how your chatbot's response speed changes over time.
+                Track how your agent's response speed changes over time.
               </p>
             </>
           )}

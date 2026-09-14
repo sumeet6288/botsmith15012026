@@ -94,7 +94,7 @@ const ChatPreviewModal = ({ isOpen, onClose, chatbot }) => {
         <DialogHeader>
           <DialogTitle>Chat Preview - {chatbot?.name}</DialogTitle>
           <DialogDescription>
-            Test your chatbot by sending messages and reviewing responses
+            Test your agent by sending messages and reviewing responses
           </DialogDescription>
         </DialogHeader>
 

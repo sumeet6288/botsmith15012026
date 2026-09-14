@@ -295,7 +295,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
             Lead Captured 
           </h2> 
           <p className="text-gray-600"> 
-            Leads submitted through your chatbot's lead form 
+            Leads submitted through your agent's lead form 
           </p> 
         </div> 
 
@@ -411,7 +411,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
           </div> 
           <h3 className="text-lg font-semibold text-gray-900 mb-1">No leads captured yet</h3> 
           <p className="text-sm text-gray-600 max-w-md"> 
-            Leads submitted through your chatbot's lead form will appear here. 
+            Leads submitted through your agent's lead form will appear here. 
           </p> 
         </div> 
       ) : ( 
