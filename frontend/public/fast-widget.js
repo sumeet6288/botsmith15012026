@@ -395,7 +395,7 @@
     flex-direction: column; 
     overflow: hidden; 
     animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: none;
   `;
 
   // Header with gradient and better design
@@ -824,7 +824,7 @@
           background: white; border-radius: 24px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.18), 0 10px 30px rgba(0, 0, 0, 0.1);
           display: ${chatWindow.style.display || 'none'}; flex-direction: column; overflow: hidden; 
           animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-          border: 1px solid rgba(255, 255, 255, 0.8);
+          border: none;
         `;
       }
       
