@@ -220,6 +220,22 @@
       51%, 100% { opacity: 0; }
     }
 
+    @keyframes botsmithMicPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(17, 24, 39, 0.35);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(17, 24, 39, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(17, 24, 39, 0);
+      }
+    }
+
+    .botsmith-mic-listening {
+      animation: botsmithMicPulse 1.4s ease-out infinite !important;
+    }
+
     .botsmith-streaming-cursor {
       display: inline-block;
       width: 2px;
@@ -1044,27 +1060,65 @@
     recognition.continuous = false;
     recognition.interimResults = false;
 
+    const micDefaultIcon = micButton.innerHTML;
+    const micListeningIcon = `
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+        <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    `;
+
+    let isMicListening = false;
+    let micCancelled = false;
+
+    function setMicListeningState(listening) {
+      isMicListening = listening;
+
+      if (listening) {
+        micButton.innerHTML = micListeningIcon;
+        micButton.style.background = '#111827';
+        micButton.style.color = 'white';
+        micButton.title = 'Stop listening';
+        micButton.setAttribute('aria-label', 'Stop listening');
+        micButton.classList.add('botsmith-mic-listening');
+      } else {
+        micButton.innerHTML = micDefaultIcon;
+        micButton.style.background = '#e5e7eb';
+        micButton.style.color = '#6b7280';
+        micButton.title = 'Start dictation';
+        micButton.setAttribute('aria-label', 'Start dictation');
+        micButton.classList.remove('botsmith-mic-listening');
+      }
+    }
+
     micButton.addEventListener('click', () => {
-      recognition.start();
-      micButton.style.background = '#111827';
-      micButton.style.color = 'white';
-      micButton.title = 'Listening...';
+      if (isMicListening) {
+        micCancelled = true;
+        try { recognition.abort(); } catch (e) {}
+        setMicListeningState(false);
+        return;
+      }
+
+      micCancelled = false;
+      try {
+        recognition.start();
+        setMicListeningState(true);
+      } catch (error) {
+        setMicListeningState(false);
+      }
     });
 
     recognition.onresult = (event) => {
-      messageInput.value = event.results[0][0].transcript;
+      if (!micCancelled) {
+        messageInput.value = event.results[0][0].transcript;
+      }
     };
 
     recognition.onend = () => {
-      micButton.style.background = '#e5e7eb';
-      micButton.style.color = '#6b7280';
-      micButton.title = 'Start dictation';
+      setMicListeningState(false);
     };
 
     recognition.onerror = () => {
-      micButton.style.background = '#e5e7eb';
-      micButton.style.color = '#6b7280';
-      micButton.title = 'Start dictation';
+      setMicListeningState(false);
     };
   } else {
     micButton.style.display = 'none';
