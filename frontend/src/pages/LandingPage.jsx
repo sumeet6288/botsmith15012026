@@ -1164,7 +1164,9 @@ const LandingPage = () => {
               title="Resources"
               links={['Customers', 'Blog', 'Pricing', 'Documentation', 'Contact']}
               onLinkClick={(link) => {
-                if (link === 'Documentation') {
+                if (link === 'Pricing') {
+                  navigate('/pricing');
+                } else if (link === 'Documentation') {
                   window.open('https://document.botsmith.pro/introduction', '_blank', 'noopener,noreferrer');
                 }
               }}
@@ -1172,7 +1174,7 @@ const LandingPage = () => {
 
             <FooterColumnDark
               title="Company"
-              links={['About', 'Careers', 'Enterprise', 'Privacy', 'Terms']}
+              links={['About', 'Careers']}
             />
           </div>
 
@@ -1181,9 +1183,27 @@ const LandingPage = () => {
             <span>© 2026 BotSmith. All rights reserved.</span>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2">
-              <span>Terms of Service</span>
-              <span>Privacy Policy</span>
-              <span>Cookie Policy</span>
+              <button
+                type="button"
+                onClick={() => navigate('/terms-of-service')}
+                className="transition-colors duration-200 hover:text-white/70"
+              >
+                Terms of Service
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/privacy-policy')}
+                className="transition-colors duration-200 hover:text-white/70"
+              >
+                Privacy Policy
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/cookie-policy')}
+                className="transition-colors duration-200 hover:text-white/70"
+              >
+                Cookie Policy
+              </button>
             </div>
           </div>
 
