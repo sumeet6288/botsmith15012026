@@ -305,6 +305,15 @@ const Blog = () => {
         {/* Desktop fixed sidebar */}
         <aside className="sticky top-0 hidden h-screen w-[300px] shrink-0 border-r border-zinc-200 bg-white px-6 pt-10 lg:block">
           <div className="sticky top-10">
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-950"
+            >
+              Home
+              <ChevronRight className="h-4 w-4" />
+            </button>
+
             <div className="relative">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-[21px] w-[21px] -translate-y-1/2 text-zinc-600" />
               <input
