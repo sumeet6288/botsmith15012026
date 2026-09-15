@@ -134,6 +134,7 @@ function AuthRouteDetector() {
     const authRoutes = ['/signin', '/signup'];
     const isAuthRoute = authRoutes.includes(location.pathname);
     const isMainDashboard = location.pathname === '/dashboard';
+    const isBlogRoute = location.pathname.startsWith('/blog');
     
     // Get the root element
     const rootElement = document.getElementById('root');
@@ -151,6 +152,13 @@ function AuthRouteDetector() {
         rootElement.classList.add('dashboard-route');
       } else {
         rootElement.classList.remove('dashboard-route');
+      }
+
+      // Handle blog route class (remove zoom 0.8 effect ONLY from /blog)
+      if (isBlogRoute) {
+        rootElement.classList.add('blog-route');
+      } else {
+        rootElement.classList.remove('blog-route');
       }
     }
   }, [location.pathname]);

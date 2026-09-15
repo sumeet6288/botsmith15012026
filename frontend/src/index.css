@@ -1298,3 +1298,8 @@ input:focus, textarea:focus, select:focus {
 #root.dashboard-route {
   zoom: 1;
 }
+
+/* Remove global zoom effect ONLY from Blog pages */
+#root.blog-route {
+  zoom: 1;
+}
