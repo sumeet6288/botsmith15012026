@@ -26,6 +26,7 @@ import PublicChat from './pages/PublicChat';
 import Pricing from './pages/Pricing';
 import Enterprise from './pages/Enterprise';
 import Resources from './pages/Resources';
+import Blog from './pages/Blog';
 import Documentation from './pages/resources/Documentation';
 import GettingStarted from './pages/resources/GettingStarted';
 import UserGuides from './pages/resources/UserGuides';
@@ -180,6 +181,7 @@ function AppContent() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/enterprise" element={<Enterprise />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/blog/*" element={<Blog />} />
             <Route path="/resources/documentation" element={<Documentation />} />
             <Route path="/resources/getting-started" element={<GettingStarted />} />
             <Route path="/resources/user-guides" element={<UserGuides />} />
