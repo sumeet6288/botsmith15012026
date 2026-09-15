@@ -1166,6 +1166,8 @@ const LandingPage = () => {
               onLinkClick={(link) => {
                 if (link === 'Pricing') {
                   navigate('/pricing');
+                } else if (link === 'Blog') {
+                  navigate('/blog');
                 } else if (link === 'Documentation') {
                   window.open('https://document.botsmith.pro/introduction', '_blank', 'noopener,noreferrer');
                 }
