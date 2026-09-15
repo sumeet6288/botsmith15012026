@@ -113,10 +113,16 @@ const webpackConfig = {
       webpackConfig.resolve.symlinks = false;
 
       // Allow Markdown blog posts to be imported as raw text
-      webpackConfig.module.rules.push({
-        test: /\.md$/,
-        type: 'asset/source',
-      });
+      const oneOfRule = webpackConfig.module.rules.find(
+        (rule) => Array.isArray(rule.oneOf)
+      );
+
+      if (oneOfRule) {
+        oneOfRule.oneOf.unshift({
+          test: /\.md$/,
+          type: 'asset/source',
+        });
+      }
 
       return webpackConfig;
     },
