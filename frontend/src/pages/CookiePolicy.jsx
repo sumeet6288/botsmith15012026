@@ -31,7 +31,7 @@ const CookiePolicy = () => {
               Cookie Policy
             </h1>
           </div>
-          <p className="text-gray-500 text-sm">Last updated: December 29, 2024</p>
+          <p className="text-gray-500 text-sm">Last updated: August 1, 2026</p>
           <p className="text-gray-600 mt-4 max-w-3xl leading-7">
             This Cookie Policy explains how BotSmith uses cookies and similar technologies
             when you visit our website or use our services.
