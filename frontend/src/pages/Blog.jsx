@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from 'react';
 import { Search, ArrowUpRight, ChevronRight, ArrowLeft } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 /*
   BotSmith Blog
 
   Publishing model:
   - Blog.jsx contains the layout and blog UI only.
-  - Individual article content lives in /src/content/blog/*.md
+  - Individual article content lives in /src/blog/*.md
   - Each Markdown file should expose frontmatter like:
 
     ---
@@ -24,150 +26,77 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
     <Route path="/blog/*" element={<Blog />} />
 
-  The article renderer below expects your Markdown loader to provide
-  `body` as HTML/React-rendered content. If you use MDX, replace the
-  `dangerouslySetInnerHTML` section with the MDX component renderer.
+  Markdown is loaded as raw text by the CRACO Webpack configuration
+  and rendered in the browser with react-markdown.
 */
 
 // -----------------------------------------------------------------------------
-// Temporary article metadata
+// Markdown blog content
 // -----------------------------------------------------------------------------
-// Replace this import with your Markdown loader once the content directory
-// is connected. Keeping the metadata here temporarily makes the page usable
-// before the Markdown build is wired up.
-//
-// Example future import:
-// import { blogPosts } from '../content/blog';
-const blogPosts = [
-  {
-    id: 'ai-student-support',
-    title: 'How AI Assistants Are Changing Student Support',
-    slug: 'how-ai-assistants-are-changing-student-support',
-    category: 'AI for Education',
-    date: 'Sep 16, 2026',
-    excerpt:
-      'A practical look at how colleges can use AI to answer questions, guide students, and reduce repetitive support work.',
-    featured: true,
-    coverImage: '',
-    body: [
-      'Students do not think in departments. They think in questions: How do I apply? What does this course cost? When does the semester begin?',
-      'AI assistants can give students a faster path to approved institutional information while allowing staff to focus on conversations that genuinely require a human.',
-      'A strong education-focused AI assistant should be grounded in institutional knowledge and make it easy for a student to move from a question to the next useful action.',
-    ],
-  },
-  {
-    id: 'ai-admissions',
-    title: 'Turn More Website Visitors Into Qualified Student Enquiries',
-    slug: 'turn-more-website-visitors-into-qualified-student-enquiries',
-    category: 'Admissions',
-    date: 'Sep 12, 2026',
-    excerpt:
-      'How an always-on AI assistant can answer admission questions and capture high-intent enquiries at the right moment.',
-    featured: true,
-    coverImage: '',
-    body: [
-      'Most prospective students arrive with a specific question. If they cannot get an answer quickly, they may leave the website and continue their search somewhere else.',
-      'An AI assistant can answer questions about programs, eligibility, application steps, fees, deadlines, and other approved information.',
-      'When a visitor shows genuine admission intent, the assistant can guide them toward the right next step and capture the enquiry for follow-up.',
-    ],
-  },
-  {
-    id: 'chatbots-to-agents',
-    title: 'From Chatbots to AI Agents: What Actually Changes?',
-    slug: 'from-chatbots-to-ai-agents-what-actually-changes',
-    category: 'Product',
-    date: 'Sep 08, 2026',
-    excerpt:
-      'The difference between a simple chatbot and an agent that can decide when to search knowledge and when to take action.',
-    featured: false,
-    coverImage: '',
-    body: [
-      'A traditional chatbot generally follows a narrow conversational pattern. An AI agent adds a decision layer.',
-      'For education, that can mean deciding whether a student question needs institutional knowledge or can be answered directly.',
-      'The useful first version of an agent should remain focused: a small number of reliable tools and predictable behavior are more valuable than unnecessary autonomy.',
-    ],
-  },
-  {
-    id: 'student-help-desk',
-    title: 'Building a 24/7 Student Help Desk Without a Night Shift',
-    slug: 'building-a-24-7-student-help-desk-without-a-night-shift',
-    category: 'Student Support',
-    date: 'Sep 03, 2026',
-    excerpt:
-      'A simple framework for handling repetitive student questions while keeping human staff focused on complex cases.',
-    featured: false,
-    coverImage: '',
-    body: [
-      'Student support teams repeatedly answer the same operational questions about office hours, applications, courses, deadlines, and campus services.',
-      'A 24/7 AI help desk can handle repetitive questions whenever students need help, including evenings and weekends.',
-      'The goal is not to replace staff. It is to remove repetitive work from the queue so staff can focus on exceptions and cases requiring judgment.',
-    ],
-  },
-  {
-    id: 'education-use-cases',
-    title: '5 High-Impact AI Use Cases for Colleges and Universities',
-    slug: '5-high-impact-ai-use-cases-for-colleges-and-universities',
-    category: 'Use Cases',
-    date: 'Aug 28, 2026',
-    excerpt:
-      'Admissions, campus information, course discovery, student support, and lead capture are five strong starting points.',
-    featured: false,
-    coverImage: '',
-    body: [
-      'Not every AI project has the same immediate value. Institutions should start with a use case where questions are frequent, information is available, and the outcome can be measured.',
-      'Admissions assistance, student support, course discovery, campus information, and lead capture are practical starting points.',
-      'Once one workflow is reliable, additional use cases can be added without making the initial deployment unnecessarily complex.',
-    ],
-  },
-  {
-    id: 'ai-search-college-websites',
-    title: 'Why AI Search Is Becoming the New College Website Experience',
-    slug: 'why-ai-search-is-becoming-the-new-college-website-experience',
-    category: 'Insights',
-    date: 'Aug 22, 2026',
-    excerpt:
-      'Students increasingly expect direct answers instead of digging through menus, PDFs, and dozens of pages.',
-    featured: false,
-    coverImage: '',
-    body: [
-      'College websites contain a huge amount of information, but finding the right page can still be frustrating.',
-      'AI search changes the interaction model from finding a page to asking a question and receiving a direct answer based on institutional information.',
-      'The critical requirement is trustworthy source material. An AI search experience is only as useful as the knowledge it is allowed to use.',
-    ],
-  },
-  {
-    id: 'college-ai-knowledge-base',
-    title: 'What to Put in Your College AI Knowledge Base',
-    slug: 'what-to-put-in-your-college-ai-knowledge-base',
-    category: 'Product',
-    date: 'Aug 16, 2026',
-    excerpt:
-      'The documents, webpages, policies, and FAQs that give an institutional AI assistant useful context.',
-    featured: false,
-    coverImage: '',
-    body: [
-      'A useful college AI assistant needs more than a generic prompt. It needs access to the information students actually ask about.',
-      'Good starting material includes admissions pages, program information, fee details, academic calendars, FAQs, policies, and approved institutional documents.',
-      'The knowledge base should also be maintained. Outdated deadlines and old policies can create confident but incorrect answers.',
-    ],
-  },
-  {
-    id: 'why-botsmith-education',
-    title: 'Why We Are Building BotSmith for Education',
-    slug: 'why-we-are-building-botsmith-for-education',
-    category: 'Company',
-    date: 'Aug 10, 2026',
-    excerpt:
-      'Our thinking behind building AI assistants around the real information needs of students and institutions.',
-    featured: false,
-    coverImage: '',
-    body: [
-      'Education has an enormous amount of information, but students often struggle to access it at the exact moment they need it.',
-      'BotSmith is being built around useful AI assistants that help answer real questions, guide users toward information, and support institutions.',
-      'The long-term opportunity is bigger than a chat widget. It is about making institutional information easier to interact with.',
-    ],
-  },
-];
+// Every .md file inside src/content/blog becomes a blog post automatically.
+// Add a new Markdown file and redeploy — Blog.jsx does not need to be edited.
+const blogFiles = require.context('../content/blog', false, /\.md$/);
+
+const parseMarkdownPost = (source) => {
+  const match = source.match(/^---\\s*([\\s\\S]*?)\\s*---\\s*([\\s\\S]*)$/);
+
+  if (!match) {
+    return {
+      data: {},
+      content: source,
+    };
+  }
+
+  const frontmatter = {};
+
+  match[1].split('\\n').forEach((line) => {
+    const separatorIndex = line.indexOf(':');
+
+    if (separatorIndex === -1) return;
+
+    const key = line.slice(0, separatorIndex).trim();
+    let value = line.slice(separatorIndex + 1).trim();
+
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    } else if (value === 'true') {
+      value = true;
+    } else if (value === 'false') {
+      value = false;
+    }
+
+    frontmatter[key] = value;
+  });
+
+  return {
+    data: frontmatter,
+    content: match[2],
+  };
+};
+
+const blogPosts = blogFiles.keys().map((file) => {
+  const source = blogFiles(file);
+  const parsed = parseMarkdownPost(source);
+
+  const fallbackSlug = file
+    .replace('./', '')
+    .replace(/\.md$/, '');
+
+  return {
+    id: parsed.data.slug || fallbackSlug,
+    title: parsed.data.title || 'Untitled article',
+    slug: parsed.data.slug || fallbackSlug,
+    category: parsed.data.category || 'Insights',
+    date: parsed.data.date || '',
+    excerpt: parsed.data.excerpt || '',
+    featured: parsed.data.featured === true,
+    coverImage: parsed.data.coverImage || '',
+    body: parsed.content,
+  };
+});
 
 const categories = [
   'Latest',
@@ -352,11 +281,10 @@ const Blog = () => {
                   {selectedPost.excerpt}
                 </p>
 
-                <div className="mt-8 space-y-7 text-[18px] leading-8 text-zinc-600">
-                  {Array.isArray(selectedPost.body) &&
-                    selectedPost.body.map((paragraph, index) => (
-                      <p key={index}>{paragraph}</p>
-                    ))}
+                <div className="mt-8 text-[18px] leading-8 text-zinc-600 [&_h1]:mb-6 [&_h1]:mt-10 [&_h1]:text-4xl [&_h1]:font-semibold [&_h1]:leading-tight [&_h2]:mb-4 [&_h2]:mt-10 [&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h3]:mb-3 [&_h3]:mt-8 [&_h3]:text-2xl [&_h3]:font-semibold [&_p]:mb-7 [&_ul]:mb-7 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:mb-7 [&_ol]:list-decimal [&_ol]:pl-6 [&_li]:mb-2 [&_blockquote]:my-8 [&_blockquote]:border-l-2 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-5 [&_blockquote]:italic [&_a]:underline [&_a]:underline-offset-4">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {selectedPost.body}
+                  </ReactMarkdown>
                 </div>
               </div>
             </article>

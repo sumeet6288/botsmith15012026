@@ -40,7 +40,7 @@ const webpackConfig = {
       if (process.env.NODE_ENV === 'production' || process.env.GENERATE_SOURCEMAP === 'false') {
         // Disable all source maps
         webpackConfig.devtool = false;
-        
+
         // Configure TerserPlugin for maximum minification
         const TerserPlugin = require('terser-webpack-plugin');
         webpackConfig.optimization = {
@@ -111,6 +111,12 @@ const webpackConfig = {
       // Fix core-js-pure module resolution issue
       webpackConfig.resolve = webpackConfig.resolve || {};
       webpackConfig.resolve.symlinks = false;
+
+      // Allow Markdown blog posts to be imported as raw text
+      webpackConfig.module.rules.push({
+        test: /\.md$/,
+        type: 'asset/source',
+      });
 
       return webpackConfig;
     },
