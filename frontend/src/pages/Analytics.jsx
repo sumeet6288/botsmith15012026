@@ -201,7 +201,7 @@ const Analytics = () => {
               {analytics?.activeChats || 0}
               <span className="text-lg text-gray-400 font-normal"> / {analytics?.totalChatbots || 0}</span>
             </p>
-            <p className="mt-1 text-sm text-gray-500">Active Chatbots</p>
+            <p className="mt-1 text-sm text-gray-500">Active agents</p>
           </div>
 
           <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-[0_6px_24px_rgba(31,24,45,0.05)]">
