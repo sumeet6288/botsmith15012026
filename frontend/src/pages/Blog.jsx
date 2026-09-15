@@ -227,7 +227,7 @@ const Blog = () => {
     return (
       <div className="min-h-screen bg-white text-[#09090b]">
         <div className="mx-auto flex max-w-[1500px]">
-          <aside className="sticky top-0 hidden h-screen w-[300px] shrink-0 border-r border-zinc-200 bg-white px-6 pt-10 lg:block">
+          <aside className="sticky top-0 hidden h-screen w-[220px] shrink-0 border-r border-zinc-200 bg-white px-6 pt-10 lg:block">
             <button
               type="button"
               onClick={closePost}
@@ -248,7 +248,7 @@ const Blog = () => {
           </aside>
 
           <main className="min-w-0 flex-1 lg:h-screen lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
-            <article className="mx-auto max-w-[980px] px-6 pb-24 pt-10 sm:px-10 lg:px-16 lg:pt-16">
+            <article className="mx-auto max-w-[980px] px-6 pb-24 pt-10 sm:px-8 lg:px-10 lg:pt-16">
               <button
                 type="button"
                 onClick={closePost}
@@ -303,7 +303,7 @@ const Blog = () => {
 
       <div className="mx-auto flex max-w-[1500px]">
         {/* Desktop fixed sidebar */}
-        <aside className="sticky top-0 hidden h-screen w-[300px] shrink-0 border-r border-zinc-200 bg-white px-6 pt-10 lg:block">
+        <aside className="sticky top-0 hidden h-screen w-[220px] shrink-0 border-r border-zinc-200 bg-white px-6 pt-10 lg:block">
           <div className="sticky top-10">
             <button
               type="button"
@@ -392,7 +392,7 @@ const Blog = () => {
 
         {/* Independently scrollable right side */}
         <main className="min-w-0 flex-1 lg:h-screen lg:overflow-y-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
-          <div className="mx-auto max-w-[1120px] px-6 pb-24 pt-24 sm:px-10 lg:px-16 lg:pt-16">
+          <div className="mx-auto max-w-[1120px] px-6 pb-24 pt-24 sm:px-8 lg:px-10 lg:pt-16">
             <header className="mb-14">
               <h1 className="text-6xl font-semibold tracking-[-0.055em] sm:text-7xl">
                 Blog
