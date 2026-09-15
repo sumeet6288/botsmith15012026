@@ -533,13 +533,13 @@ Input:
     user_id: "user123"
     resource_type: "chatbots"
     User has: custom_limits.max_chatbots = 10
-    Plan has: max_chatbots = 5
+    Plan has: max_chatbots = 1
 
 Output:
     LimitResolutionResult(
         resource_type="chatbots",
         effective_limit=10,
-        plan_limit=5,
+        plan_limit=1,
         custom_limit_applied=True,
         custom_limit_source="custom_limits_dict",
         custom_limit_value=10,

@@ -1,11 +1,50 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts';
 import { TrendingUp, MessageSquare, Star, Clock, RefreshCw } from 'lucide-react';
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_BACKEND_URL || ''
+  baseURL: process.env.REACT_APP_BACKEND_URL || '',
 });
+
+const CARD_CLASS =
+  'bg-white border border-gray-200 rounded-xl shadow-none';
+
+const CHART_GRID = {
+  strokeDasharray: '0',
+  stroke: '#EEF0F3',
+};
+
+const AXIS_STYLE = {
+  stroke: '#9CA3AF',
+  fontSize: 11,
+};
+
+const TOOLTIP_STYLE = {
+  backgroundColor: '#FFFFFF',
+  border: '1px solid #E5E7EB',
+  borderRadius: '8px',
+  fontSize: '13px',
+  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.06)',
+};
+
+const PURPLE = '#7C3AED';
+const BAR_GRAY = '#A1A1AA';
+const MUTED_GRAY = '#E5E7EB';
 
 const AdvancedAnalytics = ({ chatbotId }) => {
   const [loading, setLoading] = useState(false);
@@ -21,14 +60,14 @@ const AdvancedAnalytics = ({ chatbotId }) => {
     setLoading(true);
     try {
       const [trends, questions, sat, perf, responseTrend, hourly] = await Promise.all([
-        api.get(`/api/analytics/trends/${chatbotId}?period=${period}`).then(r => r.data),
-        api.get(`/api/analytics/top-questions/${chatbotId}`).then(r => r.data),
-        api.get(`/api/analytics/satisfaction/${chatbotId}`).then(r => r.data),
-        api.get(`/api/analytics/performance/${chatbotId}`).then(r => r.data),
-        api.get(`/api/analytics/response-time-trend/${chatbotId}?period=${period}`).then(r => r.data),
-        api.get(`/api/analytics/hourly-activity/${chatbotId}`).then(r => r.data),
+        api.get(`/api/analytics/trends/${chatbotId}?period=${period}`).then((r) => r.data),
+        api.get(`/api/analytics/top-questions/${chatbotId}`).then((r) => r.data),
+        api.get(`/api/analytics/satisfaction/${chatbotId}`).then((r) => r.data),
+        api.get(`/api/analytics/performance/${chatbotId}`).then((r) => r.data),
+        api.get(`/api/analytics/response-time-trend/${chatbotId}?period=${period}`).then((r) => r.data),
+        api.get(`/api/analytics/hourly-activity/${chatbotId}`).then((r) => r.data),
       ]);
-      
+
       setTrendData(trends);
       setTopQuestions(questions);
       setSatisfaction(sat);
@@ -46,415 +85,622 @@ const AdvancedAnalytics = ({ chatbotId }) => {
     loadAnalytics();
   }, [chatbotId, period]);
 
-  const COLORS = ['#7c3aed', '#a78bfa', '#c4b5fd', '#ddd6fe', '#ede9fe'];
+  const satisfactionPieData = satisfaction
+    ? [
+        { name: '5 Stars', value: satisfaction.rating_distribution[5] },
+        { name: '4 Stars', value: satisfaction.rating_distribution[4] },
+        { name: '3 Stars', value: satisfaction.rating_distribution[3] },
+        { name: '2 Stars', value: satisfaction.rating_distribution[2] },
+        { name: '1 Star', value: satisfaction.rating_distribution[1] },
+      ].filter((item) => item.value > 0)
+    : [];
 
-  const satisfactionPieData = satisfaction ? [
-    { name: '5 Stars', value: satisfaction.rating_distribution[5] },
-    { name: '4 Stars', value: satisfaction.rating_distribution[4] },
-    { name: '3 Stars', value: satisfaction.rating_distribution[3] },
-    { name: '2 Stars', value: satisfaction.rating_distribution[2] },
-    { name: '1 Star', value: satisfaction.rating_distribution[1] },
-  ].filter(item => item.value > 0) : [];
+  const satisfactionColors = [
+    '#7C3AED',
+    '#A78BFA',
+    '#C4B5FD',
+    '#E5E7EB',
+    '#D1D5DB',
+  ];
+
+  const hasTrendData =
+    trendData &&
+    !(trendData.total_messages === 0 && trendData.total_conversations === 0);
+
+  const hasPerformanceData =
+    performance && performance.total_responses > 0;
+
+  const hasResponseTrend =
+    responseTimeTrend &&
+    responseTimeTrend.data &&
+    responseTimeTrend.data.length > 0 &&
+    responseTimeTrend.data.some((d) => d.avg_response_time > 0);
+
+  const hasHourlyData =
+    hourlyActivity &&
+    hourlyActivity.hourly_data &&
+    hourlyActivity.total_messages > 0;
+
+  const MetricCard = ({ label, value, detail, icon: Icon, iconClass = 'text-gray-500' }) => (
+    <div className={`${CARD_CLASS} p-5 sm:p-6 min-h-[132px]`}>
+      <div className="flex items-start justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-sm font-medium uppercase tracking-[0.12em] text-gray-500">
+            {label}
+          </p>
+          <p className="mt-3 text-[28px] leading-none font-semibold tracking-tight text-gray-950">
+            {value}
+          </p>
+          {detail && (
+            <p className="mt-2 text-sm text-gray-500">
+              {detail}
+            </p>
+          )}
+        </div>
+        {Icon && (
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+            <Icon className={`h-4 w-4 ${iconClass}`} strokeWidth={1.8} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const SectionCard = ({ title, eyebrow, children, className = '' }) => (
+    <div className={`${CARD_CLASS} overflow-hidden ${className}`}>
+      <div className="flex items-center justify-between border-b border-gray-100 px-5 py-4 sm:px-6">
+        <div>
+          {eyebrow && (
+            <p className="mb-1 text-[11px] font-medium uppercase tracking-[0.12em] text-gray-400">
+              {eyebrow}
+            </p>
+          )}
+          <h4 className="text-[15px] font-semibold tracking-tight text-gray-950">
+            {title}
+          </h4>
+        </div>
+      </div>
+      <div className="p-5 sm:p-6">
+        {children}
+      </div>
+    </div>
+  );
+
+  const EmptyState = ({ icon: Icon, title, description }) => (
+    <div className="flex min-h-[250px] flex-col items-center justify-center text-center">
+      <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+        <Icon className="h-5 w-5 text-gray-400" strokeWidth={1.7} />
+      </div>
+      <p className="text-sm font-medium text-gray-800">{title}</p>
+      <p className="mt-1.5 max-w-sm text-sm leading-5 text-gray-500">{description}</p>
+    </div>
+  );
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
+      <div className="space-y-5">
+        <div className="flex items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-2.5 w-28 rounded bg-gray-200" />
+            <div className="h-8 w-56 rounded bg-gray-200" />
+            <div className="h-3 w-72 rounded bg-gray-100" />
+          </div>
+          <div className="h-9 w-52 rounded-lg bg-gray-100" />
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className={`${CARD_CLASS} h-[132px] animate-pulse bg-white`}>
+              <div className="p-6">
+                <div className="h-2.5 w-24 rounded bg-gray-200" />
+                <div className="mt-5 h-7 w-16 rounded bg-gray-200" />
+                <div className="mt-3 h-2.5 w-28 rounded bg-gray-100" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header with Period Selector */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h3 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Advanced Analytics
-        </h3>
-        <div className="flex space-x-2 w-full sm:w-auto">
-          <select
-            value={period}
-            onChange={(e) => setPeriod(e.target.value)}
-            className="flex-1 sm:flex-none px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 text-sm"
-          >
-            <option value="7days">Last 7 Days</option>
-            <option value="30days">Last 30 Days</option>
-            <option value="90days">Last 90 Days</option>
-          </select>
+    <div className="space-y-5 bg-[#F8F9FB] text-gray-950">
+      {/* Header */}
+      <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <p className="text-sm font-medium uppercase tracking-[0.16em] text-purple-600">
+            Workspace Analytics
+          </p>
+          <h3 className="mt-1.5 text-[30px] font-semibold leading-tight tracking-[-0.025em] text-gray-950">
+            Advanced Analytics
+          </h3>
+          <p className="mt-1.5 text-sm text-gray-500">
+            A clear view of agent activity, engagement, and performance.
+          </p>
+        </div>
+
+        <div className="flex w-full items-center gap-2 sm:w-auto">
+          <div className="flex flex-1 items-center rounded-lg border border-gray-200 bg-white p-0.5 sm:flex-none">
+            {[
+              ['7days', '7 Days'],
+              ['30days', '30 Days'],
+              ['90days', '90 Days'],
+            ].map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => setPeriod(value)}
+                className={`flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors sm:flex-none ${
+                  period === value
+                    ? 'bg-gray-950 text-white'
+                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+
           <button
+            type="button"
             onClick={loadAnalytics}
-            className="p-2 bg-purple-100 text-purple-600 rounded-lg hover:bg-purple-200 transition-colors"
+            aria-label="Refresh analytics"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition-colors hover:bg-gray-50 hover:text-gray-900"
           >
-            <RefreshCw className="w-5 h-5" />
+            <RefreshCw className="h-4 w-4" strokeWidth={1.8} />
           </button>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-xs sm:text-sm mb-1">Avg Daily Messages</p>
-              <p className="text-2xl sm:text-3xl font-bold">{trendData?.avg_daily_messages?.toFixed(1) || 0}</p>
-            </div>
-            <TrendingUp className="w-6 h-6 sm:w-8 sm:h-8 text-purple-200" />
-          </div>
-        </div>
+      {/* Summary Metrics */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Avg Daily Messages"
+          value={trendData?.avg_daily_messages?.toFixed(1) || 0}
+          detail="Across selected period"
+          icon={TrendingUp}
+          iconClass="text-purple-600"
+        />
 
-        <div className="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-pink-100 text-xs sm:text-sm mb-1">Total Conversations</p>
-              <p className="text-2xl sm:text-3xl font-bold">{trendData?.total_conversations || 0}</p>
-            </div>
-            <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-pink-200" />
-          </div>
-        </div>
+        <MetricCard
+          label="Total Conversations"
+          value={trendData?.total_conversations || 0}
+          detail="Conversations in selected period"
+          icon={MessageSquare}
+          iconClass="text-gray-500"
+        />
 
-        <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-indigo-100 text-xs sm:text-sm mb-1">Satisfaction Rate</p>
-              <p className="text-2xl sm:text-3xl font-bold">{satisfaction?.satisfaction_percentage?.toFixed(1) || 0}%</p>
-            </div>
-            <Star className="w-6 h-6 sm:w-8 sm:h-8 text-indigo-200" />
-          </div>
-        </div>
+        <MetricCard
+          label="Satisfaction Rate"
+          value={`${satisfaction?.satisfaction_percentage?.toFixed(1) || 0}%`}
+          detail="Based on user feedback"
+          icon={Star}
+          iconClass="text-gray-500"
+        />
 
-        <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-xs sm:text-sm mb-1">Avg Response Time</p>
-              <p className="text-2xl sm:text-3xl font-bold">{(performance?.avg_response_time_ms / 1000)?.toFixed(1) || 0}s</p>
-            </div>
-            <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-blue-200" />
-          </div>
-        </div>
+        <MetricCard
+          label="Avg Response Time"
+          value={`${(performance?.avg_response_time_ms / 1000)?.toFixed(1) || 0}s`}
+          detail="Average assistant response"
+          icon={Clock}
+          iconClass="text-gray-500"
+        />
       </div>
 
-      {/* Message Trends Chart */}
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-        <h4 className="text-base sm:text-lg font-semibold mb-4">Message Volume Trends</h4>
-        {!trendData || trendData.total_messages === 0 && trendData.total_conversations === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[250px] sm:h-[300px] bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-            <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-purple-300" />
-            <p className="text-base sm:text-lg font-semibold text-gray-700">No message data available yet</p>
-            <p className="text-xs sm:text-sm mt-2 text-center px-4 text-gray-500">
-              Start chatting with your bot to see message trends appear here
-            </p>
-          </div>
+      {/* Main Trend */}
+      <SectionCard title="Message Volume Trends" eyebrow="Trend">
+        {!hasTrendData ? (
+          <EmptyState
+            icon={MessageSquare}
+            title="No message data available yet"
+            description="Start chatting with your bot to see message trends appear here."
+          />
         ) : (
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={trendData.data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-              <XAxis dataKey="date" stroke="#888" fontSize={10} tick={{ fontSize: 10 }} />
-              <YAxis stroke="#888" fontSize={10} tick={{ fontSize: 10 }} allowDecimals={false} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  fontSize: '12px'
+          <ResponsiveContainer width="100%" height={270}>
+            <LineChart data={trendData.data} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+              <CartesianGrid {...CHART_GRID} vertical={false} />
+              <XAxis
+                dataKey="date"
+                {...AXIS_STYLE}
+                tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                tickLine={false}
+                axisLine={false}
+              />
+              <YAxis
+                {...AXIS_STYLE}
+                tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                tickLine={false}
+                axisLine={false}
+                allowDecimals={false}
+              />
+              <Tooltip contentStyle={TOOLTIP_STYLE} />
+              <Legend
+                wrapperStyle={{
+                  fontSize: '12px',
+                  paddingTop: '8px',
+                  color: '#6B7280',
                 }}
               />
-              <Legend wrapperStyle={{ fontSize: '12px' }} />
-              <Line 
-                type="monotone" 
-                dataKey="conversations" 
-                stroke="#7c3aed" 
+              <Line
+                type="monotone"
+                dataKey="conversations"
+                stroke={PURPLE}
                 strokeWidth={2}
                 name="Conversations"
-                dot={{ fill: '#7c3aed' }}
+                dot={false}
+                activeDot={{ r: 4, fill: PURPLE }}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="messages" 
-                stroke="#ec4899" 
-                strokeWidth={2}
+              <Line
+                type="monotone"
+                dataKey="messages"
+                stroke={BAR_GRAY}
+                strokeWidth={1.8}
                 name="Messages"
-                dot={{ fill: '#ec4899' }}
+                dot={false}
+                activeDot={{ r: 4, fill: BAR_GRAY }}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="dashboard" 
-                stroke="#3b82f6" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="dashboard"
+                stroke="#D4D4D8"
+                strokeWidth={1.4}
                 name="Dashboard"
-                dot={{ fill: '#3b82f6', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="widget" 
-                stroke="#10b981" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="widget"
+                stroke="#B8BBC2"
+                strokeWidth={1.4}
                 name="Widget"
-                dot={{ fill: '#10b981', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="telegram" 
-                stroke="#0088cc" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="telegram"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="Telegram"
-                dot={{ fill: '#0088cc', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="slack" 
-                stroke="#611f69" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="slack"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="Slack"
-                dot={{ fill: '#611f69', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="discord" 
-                stroke="#5865F2" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="discord"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="Discord"
-                dot={{ fill: '#5865F2', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="whatsapp" 
-                stroke="#25D366" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="whatsapp"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="WhatsApp"
-                dot={{ fill: '#25D366', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="instagram" 
-                stroke="#E4405F" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="instagram"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="Instagram"
-                dot={{ fill: '#E4405F', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="messenger" 
-                stroke="#0084FF" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="messenger"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="Messenger"
-                dot={{ fill: '#0084FF', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
-              <Line 
-                type="monotone" 
-                dataKey="msteams" 
-                stroke="#6264A7" 
-                strokeWidth={1.5}
+              <Line
+                type="monotone"
+                dataKey="msteams"
+                stroke="#A1A1AA"
+                strokeWidth={1.3}
                 name="MS Teams"
-                dot={{ fill: '#6264A7', r: 3 }}
+                dot={false}
+                isAnimationActive={false}
               />
             </LineChart>
           </ResponsiveContainer>
         )}
-      </div>
+      </SectionCard>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Top Questions Chart */}
-        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-          <h4 className="text-base sm:text-lg font-semibold mb-4">Top Asked Questions</h4>
+      {/* Questions + Satisfaction */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <SectionCard title="Top Asked Questions" eyebrow="Engagement">
           {!topQuestions || topQuestions.top_questions.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[250px] bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-              <MessageSquare className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-blue-300" />
-              <p className="text-base sm:text-lg font-semibold text-gray-700">No questions yet</p>
-              <p className="text-xs sm:text-sm mt-2 text-center px-4 text-gray-500">
-                Questions will appear as users interact with your chatbot
-              </p>
-            </div>
+            <EmptyState
+              icon={MessageSquare}
+              title="No questions yet"
+              description="Questions will appear as users interact with your chatbot."
+            />
           ) : (
-            <ResponsiveContainer width="100%" height={250}>
-              <BarChart data={topQuestions.top_questions.slice(0, 5)}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="question" stroke="#888" fontSize={9} angle={-15} textAnchor="end" height={80} tick={{ fontSize: 9 }} />
-                <YAxis stroke="#888" fontSize={10} tick={{ fontSize: 10 }} allowDecimals={false} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: 'white', 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    fontSize: '12px'
-                  }}
+            <ResponsiveContainer width="100%" height={270}>
+              <BarChart
+                data={topQuestions.top_questions.slice(0, 5)}
+                margin={{ top: 8, right: 8, left: -16, bottom: 24 }}
+              >
+                <CartesianGrid {...CHART_GRID} vertical={false} />
+                <XAxis
+                  dataKey="question"
+                  {...AXIS_STYLE}
+                  tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                  angle={-15}
+                  textAnchor="end"
+                  height={70}
+                  tickLine={false}
+                  axisLine={false}
                 />
-                <Bar dataKey="count" fill="#7c3aed" radius={[8, 8, 0, 0]} />
+                <YAxis
+                  {...AXIS_STYLE}
+                  tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                  tickLine={false}
+                  axisLine={false}
+                  allowDecimals={false}
+                />
+                <Tooltip contentStyle={TOOLTIP_STYLE} />
+                <Bar
+                  dataKey="count"
+                  fill={PURPLE}
+                  radius={[3, 3, 0, 0]}
+                  isAnimationActive={false}
+                />
               </BarChart>
             </ResponsiveContainer>
           )}
-        </div>
+        </SectionCard>
 
-        {/* Satisfaction Distribution Chart */}
-        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-          <h4 className="text-base sm:text-lg font-semibold mb-4">Satisfaction Distribution</h4>
+        <SectionCard title="Satisfaction Distribution" eyebrow="Feedback">
           {!satisfaction || satisfactionPieData.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[250px] bg-gradient-to-br from-yellow-50 to-orange-50 rounded-lg">
-              <Star className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-yellow-300" />
-              <p className="text-base sm:text-lg font-semibold text-gray-700">No ratings yet</p>
-              <p className="text-xs sm:text-sm mt-2 text-center px-4 text-gray-500">
-                User satisfaction ratings will be displayed here
-              </p>
-            </div>
+            <EmptyState
+              icon={Star}
+              title="No ratings yet"
+              description="User satisfaction ratings will be displayed here."
+            />
           ) : (
             <>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={220}>
                 <PieChart>
                   <Pie
                     data={satisfactionPieData}
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
+                    label={({ name, percent }) =>
+                      `${name}: ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={76}
+                    innerRadius={44}
                     dataKey="value"
-                    style={{ fontSize: '11px' }}
+                    isAnimationActive={false}
+                    paddingAngle={1}
                   >
                     {satisfactionPieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={satisfactionColors[index % satisfactionColors.length]}
+                        stroke="#FFFFFF"
+                        strokeWidth={2}
+                      />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ fontSize: '12px' }} />
+                  <Tooltip contentStyle={TOOLTIP_STYLE} />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="mt-4 text-center">
-                <p className="text-xs sm:text-sm text-gray-600">
-                  Average Rating: <span className="font-bold text-purple-600">{satisfaction.average_rating.toFixed(1)}/5.0</span>
+
+              <div className="mt-2 border-t border-gray-100 pt-4 text-center">
+                <p className="text-sm text-gray-600">
+                  Average Rating:{' '}
+                  <span className="font-semibold text-gray-950">
+                    {satisfaction.average_rating.toFixed(1)}/5.0
+                  </span>
                 </p>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="mt-1 text-sm text-gray-500">
                   Based on {satisfaction.total_ratings} ratings
                 </p>
               </div>
             </>
           )}
-        </div>
+        </SectionCard>
       </div>
 
       {/* Performance Metrics */}
-      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-        <h4 className="text-base sm:text-lg font-semibold mb-4">Performance Metrics</h4>
-        {!performance || performance.total_responses === 0 ? (
-          <div className="flex flex-col items-center justify-center h-[150px] bg-gradient-to-br from-pink-50 to-rose-50 rounded-lg">
-            <Clock className="w-12 h-12 mb-3 text-pink-300" />
-            <p className="text-base font-semibold text-gray-700">No performance data yet</p>
-            <p className="text-xs mt-1 text-gray-500">Metrics will appear after first responses</p>
-          </div>
+      <SectionCard title="Performance Metrics" eyebrow="Response Performance">
+        {!hasPerformanceData ? (
+          <EmptyState
+            icon={Clock}
+            title="No performance data yet"
+            description="Metrics will appear after the first responses."
+          />
         ) : (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-              <div className="p-3 sm:p-4 bg-purple-50 rounded-lg">
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">Fastest Response</p>
-                <p className="text-xl sm:text-2xl font-bold text-purple-600">
+            <div className="grid grid-cols-1 divide-y divide-gray-100 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+              <div className="pb-4 sm:pb-0 sm:pr-6">
+                <p className="text-sm font-medium uppercase tracking-[0.1em] text-gray-500">
+                  Fastest Response
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">
                   {(performance.fastest_response_ms / 1000).toFixed(2)}s
                 </p>
               </div>
-              <div className="p-3 sm:p-4 bg-pink-50 rounded-lg">
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">Average Response</p>
-                <p className="text-xl sm:text-2xl font-bold text-pink-600">
+
+              <div className="py-4 sm:px-6 sm:py-0">
+                <p className="text-sm font-medium uppercase tracking-[0.1em] text-gray-500">
+                  Average Response
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">
                   {(performance.avg_response_time_ms / 1000).toFixed(2)}s
                 </p>
               </div>
-              <div className="p-3 sm:p-4 bg-indigo-50 rounded-lg">
-                <p className="text-xs sm:text-sm text-gray-600 mb-1">Slowest Response</p>
-                <p className="text-xl sm:text-2xl font-bold text-indigo-600">
+
+              <div className="pt-4 sm:pl-6 sm:pt-0">
+                <p className="text-sm font-medium uppercase tracking-[0.1em] text-gray-500">
+                  Slowest Response
+                </p>
+                <p className="mt-2 text-2xl font-semibold tracking-tight text-gray-950">
                   {(performance.slowest_response_ms / 1000).toFixed(2)}s
                 </p>
               </div>
             </div>
-            <p className="text-xs sm:text-sm text-gray-500 mt-4 text-center">
-              Total Responses: {performance.total_responses}
-            </p>
-          </>
-        )}
-      </div>
 
-      {/* New Graphs Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
-        {/* Response Time Trend Chart */}
-        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-          <h4 className="text-base sm:text-lg font-semibold mb-4">Response Time Trend</h4>
-          {!responseTimeTrend || !responseTimeTrend.data || responseTimeTrend.data.length === 0 || !responseTimeTrend.data.some(d => d.avg_response_time > 0) ? (
-            <div className="flex flex-col items-center justify-center h-[250px] bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg">
-              <Clock className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-indigo-300" />
-              <p className="text-base sm:text-lg font-semibold text-gray-700">No response time data yet</p>
-              <p className="text-xs sm:text-sm mt-2 text-center px-4 text-gray-500">
-                Response times will be tracked as conversations happen
+            <div className="mt-5 border-t border-gray-100 pt-4">
+              <p className="text-sm text-gray-500">
+                Total Responses:{' '}
+                <span className="font-medium text-gray-700">
+                  {performance.total_responses}
+                </span>
               </p>
             </div>
+          </>
+        )}
+      </SectionCard>
+
+      {/* Response Time + Hourly Activity */}
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+        <SectionCard title="Response Time Trend" eyebrow="Performance">
+          {!hasResponseTrend ? (
+            <EmptyState
+              icon={Clock}
+              title="No response time data yet"
+              description="Response times will be tracked as conversations happen."
+            />
           ) : (
             <>
               <ResponsiveContainer width="100%" height={250}>
-                <LineChart data={responseTimeTrend.data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="date" stroke="#888" fontSize={10} tick={{ fontSize: 10 }} />
-                  <YAxis stroke="#888" fontSize={10} tick={{ fontSize: 10 }} label={{ value: 'Seconds', angle: -90, position: 'insideLeft', fontSize: 10 }} allowDecimals={true} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '12px'
+                <LineChart
+                  data={responseTimeTrend.data}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+                >
+                  <CartesianGrid {...CHART_GRID} vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    {...AXIS_STYLE}
+                    tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    {...AXIS_STYLE}
+                    tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                    tickLine={false}
+                    axisLine={false}
+                    label={{
+                      value: 'Seconds',
+                      angle: -90,
+                      position: 'insideLeft',
+                      fontSize: 11,
+                      fill: '#9CA3AF',
                     }}
+                    allowDecimals
+                  />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
                     formatter={(value) => [`${value}s`, 'Avg Response Time']}
                   />
-                  <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Line 
-                    type="monotone" 
-                    dataKey="avg_response_time" 
-                    stroke="#3b82f6" 
+                  <Line
+                    type="monotone"
+                    dataKey="avg_response_time"
+                    stroke={PURPLE}
                     strokeWidth={2}
                     name="Avg Response Time (s)"
-                    dot={{ fill: '#3b82f6' }}
+                    dot={false}
+                    activeDot={{ r: 4, fill: PURPLE }}
+                    isAnimationActive={false}
                   />
                 </LineChart>
               </ResponsiveContainer>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                Track how your chatbot's response speed changes over time
+
+              <p className="mt-2 text-center text-sm text-gray-500">
+                Track how your agent's response speed changes over time.
               </p>
             </>
           )}
-        </div>
+        </SectionCard>
 
-        {/* Hourly Activity Chart */}
-        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm border border-gray-100">
-          <h4 className="text-base sm:text-lg font-semibold mb-4">Hourly Activity Distribution</h4>
-          {!hourlyActivity || !hourlyActivity.hourly_data || hourlyActivity.total_messages === 0 ? (
-            <div className="flex flex-col items-center justify-center h-[250px] bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-              <TrendingUp className="w-12 h-12 sm:w-16 sm:h-16 mb-4 text-green-300" />
-              <p className="text-base sm:text-lg font-semibold text-gray-700">No hourly activity data yet</p>
-              <p className="text-xs sm:text-sm mt-2 text-center px-4 text-gray-500">
-                Activity patterns will appear as messages are sent
-              </p>
-            </div>
+        <SectionCard title="Hourly Activity Distribution" eyebrow="Activity">
+          {!hasHourlyData ? (
+            <EmptyState
+              icon={TrendingUp}
+              title="No hourly activity data yet"
+              description="Activity patterns will appear as messages are sent."
+            />
           ) : (
             <>
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={hourlyActivity.hourly_data}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="hour" stroke="#888" fontSize={9} tick={{ fontSize: 9 }} />
-                  <YAxis stroke="#888" fontSize={10} tick={{ fontSize: 10 }} allowDecimals={false} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #e5e7eb',
-                      borderRadius: '8px',
-                      fontSize: '12px'
-                    }}
+                <BarChart
+                  data={hourlyActivity.hourly_data}
+                  margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
+                >
+                  <CartesianGrid {...CHART_GRID} vertical={false} />
+                  <XAxis
+                    dataKey="hour"
+                    {...AXIS_STYLE}
+                    tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    {...AXIS_STYLE}
+                    tick={{ fontSize: 11, fill: '#9CA3AF' }}
+                    tickLine={false}
+                    axisLine={false}
+                    allowDecimals={false}
+                  />
+                  <Tooltip
+                    contentStyle={TOOLTIP_STYLE}
                     formatter={(value) => [`${value}`, 'Messages']}
                   />
-                  <Bar dataKey="messages" fill="#10b981" radius={[8, 8, 0, 0]}>
+                  <Bar
+                    dataKey="messages"
+                    radius={[3, 3, 0, 0]}
+                    isAnimationActive={false}
+                  >
                     {hourlyActivity.hourly_data.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.messages > 0 ? '#10b981' : '#e5e7eb'} />
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={entry.messages > 0 ? PURPLE : MUTED_GRAY}
+                      />
                     ))}
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                Peak hour: <span className="font-semibold text-green-600">{hourlyActivity.peak_hour}:00</span> • Total messages: {hourlyActivity.total_messages}
-              </p>
+
+              <div className="mt-2 border-t border-gray-100 pt-3 text-center text-sm text-gray-500">
+                Peak hour:{' '}
+                <span className="font-medium text-gray-800">
+                  {hourlyActivity.peak_hour}:00
+                </span>
+                <span className="mx-1.5 text-gray-300">•</span>
+                Total messages:{' '}
+                <span className="font-medium text-gray-800">
+                  {hourlyActivity.total_messages}
+                </span>
+              </div>
             </>
           )}
-        </div>
+        </SectionCard>
       </div>
     </div>
   );

@@ -594,7 +594,7 @@ const AppearanceTab = ({ chatbot, onUpdate }) => {
           <div className="space-y-4">
             <div className="p-3 bg-purple-50 border border-purple-200 rounded-lg">
               <p className="text-xs text-purple-800">
-                ✨ Customize the "Powered by" text that appears at the bottom of your chatbot widget. Leave empty to hide it completely.
+                ✨ Customize the "Powered by" text that appears at the bottom of your agent widget. Leave empty to hide it completely.
               </p>
             </div>
             

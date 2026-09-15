@@ -16,7 +16,7 @@ const Resources = () => {
       icon: <BookOpen className="w-8 h-8" />,
       title: 'Documentation',
       description: 'Complete guides and API references for developers',
-      link: '/resources/documentation',
+      link: 'https://document.botsmith.pro/introduction',
       gradient: 'from-purple-500 to-indigo-600'
     },
     {
@@ -181,7 +181,14 @@ const Resources = () => {
                 key={index} 
                 className={`group bg-white/90 backdrop-blur-sm p-6 sm:p-8 rounded-2xl border-2 border-purple-200/50 hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/30 transition-all duration-500 transform hover:-translate-y-3 cursor-pointer animate-fade-in-up relative overflow-hidden ${isLoaded ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
                 style={{ animationDelay: `${index * 50}ms`, transitionDelay: `${600 + index * 50}ms` }}
-                onClick={() => resource.link !== '#' && navigate(resource.link)}
+                onClick={() => {
+                  if (resource.link === '#') return;
+                  if (resource.link.startsWith('http')) {
+                    window.open(resource.link, '_blank', 'noopener,noreferrer');
+                  } else {
+                    navigate(resource.link);
+                  }
+                }}
               >
                 {/* Gradient overlay on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${resource.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-500`}></div>

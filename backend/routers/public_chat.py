@@ -8,6 +8,8 @@ from models import (
 )
 from services.chat_service import ChatService
 from services.rag_service import RAGService
+from services.agent_service import AgentService
+from services.lead_service import LeadService
 from services.cache_service import cache_service
 from services.usage_service import UsageService, UsageLimitExceededError
 from services.subscription_checker import SubscriptionChecker
@@ -33,14 +35,24 @@ DEFAULT_SYSTEM_MESSAGE = """### Role
 router = APIRouter(prefix="/public", tags=["public-chat"])
 db_instance = None
 rag_service = None
+chat_service = None
+lead_service = None
+agent_service = None
 usage_service = None
 subscription_checker = None
 
 def init_router(db: AsyncIOMotorDatabase):
     """Initialize router with database instance"""
-    global db_instance, rag_service, usage_service, subscription_checker
+    global db_instance, rag_service, chat_service, lead_service, agent_service, usage_service, subscription_checker
     db_instance = db
     rag_service = RAGService()
+    chat_service = ChatService()
+    lead_service = LeadService()
+    agent_service = AgentService(
+        chat_service=chat_service,
+        rag_service=rag_service,
+        lead_service=lead_service,
+    )
     usage_service = UsageService()
     subscription_checker = SubscriptionChecker()
 
@@ -208,7 +220,9 @@ async def public_chat(chatbot_id: str, request: PublicChatRequest):
     
     conversation_id = conversation["id"]
     
-    # OPTIMIZATION: Parallel save user message and RAG retrieval
+    # AGENTIC AI V1:
+    # Save the user message while the agent decides whether it needs
+    # knowledge-base context and/or lead capture.
     user_message = {
         "id": str(__import__("uuid").uuid4()),
         "conversation_id": conversation_id,
@@ -219,41 +233,37 @@ async def public_chat(chatbot_id: str, request: PublicChatRequest):
         "created_at": datetime.now(timezone.utc),
         "timestamp": datetime.now(timezone.utc)  # Keep for backwards compatibility
     }
-    
+
     save_message_task = db_instance.messages.insert_one(user_message)
-    rag_task = rag_service.retrieve_relevant_context(
-        query=request.message,
+
+    agent_task = agent_service.run(
+        message=request.message,
+        session_id=request.session_id,
         chatbot_id=chatbot_id,
-        top_k=2,  # Reduced from 3 to 2 to save 10-20% tokens per message
-        min_similarity=0.5  # Adjusted for better balance
+        owner_user_id=user_id,
+        conversation_id=conversation_id,
+        system_message=chatbot.get("instructions", DEFAULT_SYSTEM_MESSAGE),
+        model=chatbot.get("model", "gpt-4o-mini"),
+        provider=chatbot.get("provider", "openai"),
+        user_name=request.user_name,
+        user_email=request.user_email,
     )
-    
-    # Wait for both operations
-    _, rag_result = await asyncio.gather(save_message_task, rag_task)
-    
-    context = rag_result.get("context") if rag_result.get("has_context") else None
-    citation_footer = rag_result.get("citation_footer")
-    
-    # Get AI response
-    chat_service = ChatService()
-    try:
-        ai_response, citations = await chat_service.generate_response(
-            message=request.message,
-            session_id=request.session_id,
-            system_message=chatbot.get("instructions", DEFAULT_SYSTEM_MESSAGE),
-            model=chatbot.get("model", "gpt-4o-mini"),
-            provider=chatbot.get("provider", "openai"),
-            context=context,
-            citation_footer=citation_footer
-        )
-        
-        # Citations removed - widget users don't need to see source references
-        # The AI still uses the knowledge base context, but citations are hidden
-            
-    except Exception as e:
-        logger.error(f"AI response error in public chat: {str(e)}")
-        ai_response = "I'm sorry, I'm having trouble processing your request right now. Please try again later."
-    
+
+    # Wait for message save and agent execution.
+    _, agent_result = await asyncio.gather(save_message_task, agent_task)
+
+    ai_response = agent_result.get(
+        "response",
+        "I'm sorry, I'm having trouble processing your request right now. Please try again later."
+    )
+
+    logger.info(
+        "Agent completed for public chat: intent=%s, knowledge=%s, lead_captured=%s",
+        agent_result.get("intent"),
+        agent_result.get("used_knowledge"),
+        agent_result.get("lead_captured"),
+    )
+
     # OPTIMIZATION: Parallel save AI message and update conversation
     ai_message = {
         "id": str(__import__("uuid").uuid4()),

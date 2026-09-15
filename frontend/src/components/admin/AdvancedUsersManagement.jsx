@@ -1007,8 +1007,8 @@ const AdvancedUsersManagement = ({ backendUrl }) => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 bg-gradient-to-r from-purple-50 to-pink-50"
                 >
                   <option value="free">🆓 Free Plan - 1 chatbot, 100 messages/month</option>
-                  <option value="starter">🚀 Starter Plan - 5 chatbots, 15,000 messages/month (₹7,999/mo)</option>
-                  <option value="professional">💼 Professional Plan - 25 chatbots, 1,25,000 messages/month (₹24,999/mo)</option>
+                  <option value="starter">🚀 Starter Plan - 1 chatbots, 15,000 messages/month (₹7,999/mo)</option>
+                  <option value="professional">💼 Professional Plan - 3 chatbots, 1,25,000 messages/month (₹24,999/mo)</option>
                   <option value="enterprise">🏢 Enterprise Plan - Unlimited everything (Custom pricing)</option>
                 </select>
                 <p className="text-xs text-gray-500 mt-1">

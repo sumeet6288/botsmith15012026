@@ -118,181 +118,216 @@ const Analytics = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative overflow-hidden animate-fade-in">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-1/4 right-1/3 w-96 h-96 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-4000"></div>
+    <div className="min-h-screen bg-[#f8f7fb] text-gray-900 relative overflow-hidden">
+      {/* Quiet page atmosphere — static, no decorative animation */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute -top-40 right-[8%] w-[520px] h-[520px] rounded-full bg-purple-200/20 blur-3xl"></div>
+        <div className="absolute top-[38%] -left-48 w-[460px] h-[460px] rounded-full bg-pink-200/15 blur-3xl"></div>
       </div>
 
       {/* Navigation */}
       <ResponsiveNav currentPage="analytics" user={user} onLogout={handleLogout} />
 
-      <div className="p-6 max-w-[95%] mx-auto relative z-10">
-        <div className="mb-8 animate-fade-in-up">
-          <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-gray-900 via-purple-900 to-pink-900 bg-clip-text text-transparent">Analytics Overview</h1>
-          <p className="text-gray-600">Track your chatbot performance and user engagement</p>
-        </div>
+      <main className="relative z-10 max-w-[1500px] mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
+        {/* Page header */}
+        <header className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-8">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-purple-600 mb-3">
+              Workspace analytics
+            </p>
+            <h1 className="font-instrument-serif text-5xl sm:text-6xl leading-none font-normal tracking-tight text-gray-950">
+              Analytics Overview
+            </h1>
+            <p className="mt-3 text-sm sm:text-base text-gray-500 max-w-xl">
+              A clear view of agent activity, engagement, and performance.
+            </p>
+          </div>
 
-        {/* Time Range Selector */}
-        <div className="flex justify-end mb-6 animate-fade-in">
-          <div className="bg-white/80 backdrop-blur-sm rounded-xl p-1 border-2 border-purple-200/50 shadow-lg">
+          {/* Time range */}
+          <div className="inline-flex self-start lg:self-auto items-center rounded-xl border border-gray-200 bg-white p-1 shadow-sm">
+            <Calendar className="w-4 h-4 text-gray-400 ml-2 mr-1" />
             {['7', '30', '90'].map((days) => (
               <button
                 key={days}
                 onClick={() => setTimeRange(days)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
                   timeRange === days
-                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg'
-                    : 'text-gray-600 hover:text-purple-600'
+                    ? 'bg-gray-950 text-white shadow-sm'
+                    : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50'
                 }`}
               >
                 {days} Days
               </button>
             ))}
           </div>
-        </div>
+        </header>
 
-        {/* Key Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border-2 border-purple-200/50 hover:border-purple-400 hover:shadow-2xl hover:shadow-purple-500/20 transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600 to-pink-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="relative z-10">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg shadow-purple-500/30 mb-3 inline-block transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <MessageSquare className="w-6 h-6 text-white" />
+        {/* Key metrics — modular KPI row */}
+        <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-[0_6px_24px_rgba(31,24,45,0.05)]">
+            <div className="flex items-center justify-between mb-7">
+              <div className="w-10 h-10 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-purple-600" />
               </div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{analytics?.totalConversations.toLocaleString() || 0}</p>
-              <p className="text-gray-600 text-sm mt-2 font-medium">Total Conversations</p>
+              <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Volume</span>
             </div>
+            <p className="text-3xl font-semibold tracking-tight text-gray-950">
+              {analytics?.totalConversations.toLocaleString() || 0}
+            </p>
+            <p className="mt-1 text-sm text-gray-500">Total Conversations</p>
           </div>
-          
-          <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border-2 border-blue-200/50 hover:border-blue-400 hover:shadow-2xl hover:shadow-blue-500/20 transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up animation-delay-300 overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-cyan-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="relative z-10">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl shadow-lg shadow-blue-500/30 mb-3 inline-block transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <Activity className="w-6 h-6 text-white" />
+
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-[0_6px_24px_rgba(31,24,45,0.05)]">
+            <div className="flex items-center justify-between mb-7">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center">
+                <Activity className="w-5 h-5 text-blue-600" />
               </div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">{analytics?.totalMessages?.toLocaleString() || 0}</p>
-              <p className="text-gray-600 text-sm mt-2 font-medium">Total Messages</p>
+              <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Engagement</span>
             </div>
+            <p className="text-3xl font-semibold tracking-tight text-gray-950">
+              {analytics?.totalMessages?.toLocaleString() || 0}
+            </p>
+            <p className="mt-1 text-sm text-gray-500">Total Messages</p>
           </div>
-          
-          <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border-2 border-green-200/50 hover:border-green-400 hover:shadow-2xl hover:shadow-green-500/20 transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up animation-delay-500 overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-emerald-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="relative z-10">
-              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl shadow-lg shadow-green-500/30 mb-3 inline-block transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <Bot className="w-6 h-6 text-white" />
+
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-[0_6px_24px_rgba(31,24,45,0.05)]">
+            <div className="flex items-center justify-between mb-7">
+              <div className="w-10 h-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-emerald-600" />
               </div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{analytics?.activeChats || 0} / {analytics?.totalChatbots || 0}</p>
-              <p className="text-gray-600 text-sm mt-2 font-medium">Active Chatbots</p>
+              <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Bots</span>
             </div>
+            <p className="text-3xl font-semibold tracking-tight text-gray-950">
+              {analytics?.activeChats || 0}
+              <span className="text-lg text-gray-400 font-normal"> / {analytics?.totalChatbots || 0}</span>
+            </p>
+            <p className="mt-1 text-sm text-gray-500">Active agents</p>
           </div>
-          
-          <div className="group bg-white/80 backdrop-blur-sm p-6 rounded-2xl border-2 border-orange-200/50 hover:border-orange-400 hover:shadow-2xl hover:shadow-orange-500/20 transition-all duration-500 transform hover:-translate-y-2 animate-fade-in-up animation-delay-700 overflow-hidden relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-red-600 opacity-0 group-hover:opacity-10 transition-opacity duration-500"></div>
-            <div className="relative z-10">
-              <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl shadow-lg shadow-orange-500/30 mb-3 inline-block transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                <Clock className="w-6 h-6 text-white" />
+
+          <div className="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-[0_6px_24px_rgba(31,24,45,0.05)]">
+            <div className="flex items-center justify-between mb-7">
+              <div className="w-10 h-10 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center">
+                <Clock className="w-5 h-5 text-orange-600" />
               </div>
-              <p className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">{analytics?.avgResponseTime || '0s'}</p>
-              <p className="text-gray-600 text-sm mt-2 font-medium">Avg Response Time</p>
+              <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">Speed</span>
             </div>
+            <p className="text-3xl font-semibold tracking-tight text-gray-950">
+              {analytics?.avgResponseTime || '0s'}
+            </p>
+            <p className="mt-1 text-sm text-gray-500">Avg Response Time</p>
           </div>
-        </div>
+        </section>
 
         {analytics && analytics.totalConversations === 0 ? (
-          <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-16 text-center shadow-xl animate-fade-in">
-            <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4 transform hover:scale-110 transition-transform duration-300">
-              <BarChart3 className="w-10 h-10 text-purple-600" />
+          /* Empty state */
+          <section className="bg-white rounded-[24px] border border-gray-200 p-10 sm:p-16 text-center shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+            <div className="w-16 h-16 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center mx-auto mb-6">
+              <BarChart3 className="w-8 h-8 text-purple-600" />
             </div>
-            <h3 className="text-2xl font-bold mb-2 text-gray-900">No analytics data yet</h3>
-            <p className="text-gray-600 mb-6">Create a chatbot and start conversations to see analytics here</p>
-            <Button 
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300"
+            <h2 className="font-instrument-serif text-4xl sm:text-5xl font-normal text-gray-950">
+              No analytics data yet
+            </h2>
+            <p className="mt-3 text-gray-500 max-w-md mx-auto">
+              Create a chatbot and start conversations to see performance data here.
+            </p>
+            <Button
+              className="mt-7 bg-gray-950 hover:bg-gray-800 text-white px-6 py-5 rounded-xl shadow-sm transition-colors duration-150"
               onClick={() => navigate('/dashboard')}
             >
               Go to Dashboard
             </Button>
-          </div>
+          </section>
         ) : (
           <>
-            {/* Graphs Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-              
-              {/* Conversation Trend - Area Chart */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-6 shadow-xl animate-fade-in-up">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg">
-                    <MessageSquare className="w-5 h-5 text-white" />
+            {/* Main charts */}
+            <section className="grid grid-cols-1 xl:grid-cols-2 gap-5 mb-5">
+              {/* Conversation Trend */}
+              <div className="bg-white rounded-[22px] border border-gray-200/90 p-5 sm:p-6 shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-gray-400 font-semibold">Trend</p>
+                    <h2 className="font-instrument-serif text-3xl font-normal text-gray-950 mt-1">
+                      Conversations Over Time
+                    </h2>
                   </div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Conversations Over Time</h2>
+                  <div className="w-9 h-9 rounded-xl bg-purple-50 flex items-center justify-center">
+                    <MessageSquare className="w-4 h-4 text-purple-600" />
+                  </div>
                 </div>
+
                 <ResponsiveContainer width="100%" height={300}>
-                  <AreaChart data={conversationData}>
+                  <AreaChart data={conversationData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorConv" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#9333ea" stopOpacity={0.8}/>
-                        <stop offset="95%" stopColor="#ec4899" stopOpacity={0.1}/>
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.18}/>
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                        border: '2px solid #e9d5ff',
+                    <CartesianGrid vertical={false} stroke="#eeeaf2" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} stroke="#9ca3af" style={{ fontSize: '11px' }} />
+                    <YAxis axisLine={false} tickLine={false} stroke="#9ca3af" style={{ fontSize: '11px' }} />
+                    <Tooltip
+                      cursor={{ stroke: '#ddd6fe' }}
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e5e7eb',
                         borderRadius: '12px',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                      }} 
+                        boxShadow: '0 8px 24px rgba(31,24,45,0.08)'
+                      }}
                     />
-                    <Area type="monotone" dataKey="count" stroke="#9333ea" strokeWidth={2} fillOpacity={1} fill="url(#colorConv)" />
+                    <Area type="monotone" dataKey="count" stroke="#7c3aed" strokeWidth={2.5} fill="url(#colorConv)" />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* Message Volume - Bar Chart */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-blue-200/50 p-6 shadow-xl animate-fade-in-up animation-delay-300">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg">
-                    <Activity className="w-5 h-5 text-white" />
+              {/* Message Volume */}
+              <div className="bg-white rounded-[22px] border border-gray-200/90 p-5 sm:p-6 shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-gray-400 font-semibold">Activity</p>
+                    <h2 className="font-instrument-serif text-3xl font-normal text-gray-950 mt-1">
+                      Message Volume
+                    </h2>
                   </div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-blue-600 bg-clip-text text-transparent">Message Volume</h2>
+                  <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center">
+                    <Activity className="w-4 h-4 text-blue-600" />
+                  </div>
                 </div>
+
                 <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={messageData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                        border: '2px solid #dbeafe',
+                  <BarChart data={messageData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke="#eeeaf2" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} stroke="#9ca3af" style={{ fontSize: '11px' }} />
+                    <YAxis axisLine={false} tickLine={false} stroke="#9ca3af" style={{ fontSize: '11px' }} />
+                    <Tooltip
+                      cursor={{ fill: '#f8fafc' }}
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e5e7eb',
                         borderRadius: '12px',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                      }} 
+                        boxShadow: '0 8px 24px rgba(31,24,45,0.08)'
+                      }}
                     />
-                    <Bar dataKey="count" fill="url(#barGradient)" radius={[8, 8, 0, 0]} />
-                    <defs>
-                      <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#3b82f6" />
-                        <stop offset="100%" stopColor="#06b6d4" />
-                      </linearGradient>
-                    </defs>
+                    <Bar dataKey="count" fill="#3b82f6" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
 
-              {/* AI Provider Distribution - Pie Chart */}
+              {/* Provider Distribution */}
               {providerData.length > 0 && (
-                <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-green-200/50 p-6 shadow-xl animate-fade-in-up animation-delay-500">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
-                      <Bot className="w-5 h-5 text-white" />
+                <div className="bg-white rounded-[22px] border border-gray-200/90 p-5 sm:p-6 shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+                  <div className="flex items-start justify-between mb-5">
+                    <div>
+                      <p className="text-xs uppercase tracking-[0.12em] text-gray-400 font-semibold">Infrastructure</p>
+                      <h2 className="font-instrument-serif text-3xl font-normal text-gray-950 mt-1">
+                        AI Provider Distribution
+                      </h2>
                     </div>
-                    <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-green-600 bg-clip-text text-transparent">AI Provider Distribution</h2>
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center">
+                      <Bot className="w-4 h-4 text-emerald-600" />
+                    </div>
                   </div>
+
                   <ResponsiveContainer width="100%" height={300}>
                     <PieChart>
                       <Pie
@@ -301,22 +336,25 @@ const Analytics = () => {
                         cy="50%"
                         labelLine={false}
                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                        outerRadius={100}
+                        outerRadius={96}
+                        innerRadius={58}
                         fill="#8884d8"
                         dataKey="value"
+                        stroke="#ffffff"
+                        strokeWidth={3}
                       >
                         {providerData.map((entry, index) => {
-                          const colors = ['#9333ea', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
+                          const colors = ['#7c3aed', '#3b82f6', '#10b981', '#f59e0b', '#ef4444'];
                           return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
                         })}
                       </Pie>
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                          border: '2px solid #d1fae5',
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #e5e7eb',
                           borderRadius: '12px',
-                          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                        }} 
+                          boxShadow: '0 8px 24px rgba(31,24,45,0.08)'
+                        }}
                       />
                       <Legend />
                     </PieChart>
@@ -324,76 +362,92 @@ const Analytics = () => {
                 </div>
               )}
 
-              {/* Chatbot Performance - Line Chart */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-orange-200/50 p-6 shadow-xl animate-fade-in-up animation-delay-700">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-2 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg">
-                    <TrendingUp className="w-5 h-5 text-white" />
+              {/* Performance */}
+              <div className="bg-white rounded-[22px] border border-gray-200/90 p-5 sm:p-6 shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+                <div className="flex items-start justify-between mb-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.12em] text-gray-400 font-semibold">Performance</p>
+                    <h2 className="font-instrument-serif text-3xl font-normal text-gray-950 mt-1">
+                      Performance Metrics
+                    </h2>
                   </div>
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-orange-600 bg-clip-text text-transparent">Performance Metrics</h2>
+                  <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-orange-600" />
+                  </div>
                 </div>
+
                 <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={conversationData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                    <XAxis dataKey="date" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: 'rgba(255, 255, 255, 0.95)', 
-                        border: '2px solid #fed7aa',
+                  <LineChart data={conversationData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
+                    <CartesianGrid vertical={false} stroke="#eeeaf2" />
+                    <XAxis dataKey="date" axisLine={false} tickLine={false} stroke="#9ca3af" style={{ fontSize: '11px' }} />
+                    <YAxis axisLine={false} tickLine={false} stroke="#9ca3af" style={{ fontSize: '11px' }} />
+                    <Tooltip
+                      cursor={{ stroke: '#fed7aa' }}
+                      contentStyle={{
+                        backgroundColor: '#ffffff',
+                        border: '1px solid #e5e7eb',
                         borderRadius: '12px',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
-                      }} 
+                        boxShadow: '0 8px 24px rgba(31,24,45,0.08)'
+                      }}
                     />
                     <Legend />
-                    <Line type="monotone" dataKey="count" stroke="#f97316" strokeWidth={3} name="Conversations" dot={{ fill: '#f97316', r: 4 }} />
+                    <Line
+                      type="monotone"
+                      dataKey="count"
+                      stroke="#ea580c"
+                      strokeWidth={2.5}
+                      name="Conversations"
+                      dot={{ fill: '#ea580c', r: 3 }}
+                      activeDot={{ r: 5 }}
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </div>
+            </section>
 
-            {/* Additional Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl animate-fade-in-up">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Satisfaction Rate</h3>
-                  <TrendingUp className="w-6 h-6" />
+            {/* Summary modules */}
+            <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-[22px] bg-gray-950 text-white p-6 shadow-[0_12px_32px_rgba(17,24,39,0.12)]">
+                <div className="flex items-center justify-between mb-8">
+                  <p className="text-sm text-gray-300">Satisfaction Rate</p>
+                  <TrendingUp className="w-5 h-5 text-purple-300" />
                 </div>
-                <p className="text-5xl font-bold mb-2">{analytics?.satisfaction || 0}%</p>
-                <p className="text-purple-100 text-sm">Based on user interactions</p>
+                <p className="font-instrument-serif text-5xl font-normal leading-none">{analytics?.satisfaction || 0}%</p>
+                <p className="text-xs text-gray-400 mt-3">Based on user interactions</p>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl animate-fade-in-up animation-delay-300">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Avg Msg/Conv</h3>
-                  <MessageSquare className="w-6 h-6" />
+              <div className="rounded-[22px] bg-white border border-gray-200/90 p-6 shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+                <div className="flex items-center justify-between mb-8">
+                  <p className="text-sm text-gray-500">Avg Msg / Conv</p>
+                  <MessageSquare className="w-5 h-5 text-blue-500" />
                 </div>
-                <p className="text-5xl font-bold mb-2">
-                  {analytics?.totalConversations > 0 
+                <p className="font-instrument-serif text-5xl font-normal leading-none text-gray-950">
+                  {analytics?.totalConversations > 0
                     ? (analytics.totalMessages / analytics.totalConversations).toFixed(1)
-                    : 0
-                  }
+                    : 0}
                 </p>
-                <p className="text-blue-100 text-sm">Messages per conversation</p>
+                <p className="text-xs text-gray-400 mt-3">Messages per conversation</p>
               </div>
 
-              <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl animate-fade-in-up animation-delay-500">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold">Total Leads</h3>
-                  <Users className="w-6 h-6" />
+              <div className="rounded-[22px] bg-white border border-gray-200/90 p-6 shadow-[0_8px_30px_rgba(31,24,45,0.05)]">
+                <div className="flex items-center justify-between mb-8">
+                  <p className="text-sm text-gray-500">Total Leads</p>
+                  <Users className="w-5 h-5 text-emerald-500" />
                 </div>
-                <p className="text-5xl font-bold mb-2">{analytics?.totalLeads || 0}</p>
-                <p className="text-green-100 text-sm">Captured from conversations</p>
+                <p className="font-instrument-serif text-5xl font-normal leading-none text-gray-950">
+                  {analytics?.totalLeads || 0}
+                </p>
+                <p className="text-xs text-gray-400 mt-3">Captured from conversations</p>
               </div>
-            </div>
+            </section>
           </>
         )}
-      </div>
+      </main>
 
-      {/* Footer */}
       <Footer variant="dashboard" />
     </div>
   );
 };
+
 
 export default Analytics;

@@ -8,15 +8,35 @@ const Pricing = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [currency, setCurrency] = useState('INR');
 
   useEffect(() => {
     setIsLoaded(true);
+
+    // Detect visitor country so US visitors see USD pricing.
+    const detectCurrency = async () => {
+      try {
+        const response = await fetch('https://ipapi.co/country/', {
+          headers: { 'Accept': 'text/plain' }
+        });
+        if (!response.ok) return;
+
+        const countryCode = (await response.text()).trim().toUpperCase();
+        setCurrency(countryCode === 'US' ? 'USD' : 'INR');
+      } catch (error) {
+        // Keep INR as the safe fallback if location detection fails.
+        console.warn('Currency detection failed:', error);
+      }
+    };
+
+    detectCurrency();
   }, []);
 
   const plans = [
     {
       name: 'Free',
-      price: '₹0',
+      priceINR: 0,
+      priceUSD: 0,
       period: '/month',
       description: 'Perfect for trying out BotSmith',
       icon: Sparkles,
@@ -33,7 +53,8 @@ const Pricing = () => {
     },
     {
       name: 'Starter',
-      price: '₹7,999',
+      priceINR: 7999,
+      priceUSD: 99,
       period: '/month',
       description: 'For growing businesses',
       icon: Zap,
@@ -53,7 +74,8 @@ const Pricing = () => {
     },
     {
       name: 'Professional',
-      price: '₹24,999',
+      priceINR: 24999,
+      priceUSD: 299,
       period: '/month',
       description: 'For large teams & high volume',
       icon: Crown,
@@ -74,7 +96,8 @@ const Pricing = () => {
     },
     {
       name: 'Scale Up',
-      price: 'Custom',
+      priceINR: null,
+      priceUSD: null,
       period: '',
       description: 'Tailored solutions for your needs',
       icon: Building2,
@@ -95,6 +118,21 @@ const Pricing = () => {
       ctaVariant: 'default'
     }
   ];
+
+  const formatPrice = (plan) => {
+    if (plan.priceINR === null) return 'Custom';
+
+    const amount = currency === 'USD' ? plan.priceUSD : plan.priceINR;
+
+    return new Intl.NumberFormat(
+      currency === 'USD' ? 'en-US' : 'en-IN',
+      {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0
+      }
+    ).format(amount);
+  };
 
   return (
     <div className={`min-h-screen bg-white transition-opacity duration-700 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}>
@@ -177,7 +215,7 @@ const Pricing = () => {
                       <p className="text-gray-600 text-xs mb-3">{plan.description}</p>
                       
                       <div>
-                        <span className="text-3xl font-bold">{plan.price}</span>
+                        <span className="text-3xl font-bold">{formatPrice(plan)}</span>
                         {plan.period && (
                           <span className="text-gray-500 text-sm">{plan.period}</span>
                         )}

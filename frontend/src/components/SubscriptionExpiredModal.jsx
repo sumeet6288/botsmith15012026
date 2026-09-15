@@ -134,7 +134,7 @@ const SubscriptionExpiredModal = ({
             <ul className="space-y-2 text-sm text-red-800">
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>You'll lose access to all chatbots and features</span>
+                <span>You'll lose access to all agents and features</span>
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
@@ -146,7 +146,7 @@ const SubscriptionExpiredModal = ({
               </li>
               <li className="flex items-start">
                 <span className="mr-2">•</span>
-                <span>You won't be able to create new chatbots or conversations</span>
+                <span>You won't be able to create new agents or conversations</span>
               </li>
             </ul>
           </div>

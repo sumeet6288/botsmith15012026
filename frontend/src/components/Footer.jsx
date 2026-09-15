@@ -23,7 +23,7 @@ const Footer = ({ variant = 'landing' }) => {
                 </span>
               </div>
               <p className="text-sm text-gray-600 mb-4">
-                Build intelligent chatbots powered by AI
+                Build intelligent agents powered by AI
               </p>
             </div>
 
@@ -89,7 +89,7 @@ const Footer = ({ variant = 'landing' }) => {
               <ul className="space-y-3">
                 <li className="flex items-start text-gray-600 text-sm">
                   <Mail className="w-4 h-4 mr-2 mt-0.5 text-purple-600" />
-                  <span>support@botsmith.com</span>
+                  <span>support@botsmith.pro</span>
                 </li>
                 <li className="flex items-start text-gray-600 text-sm">
                   <Phone className="w-4 h-4 mr-2 mt-0.5 text-purple-600" />
@@ -144,7 +144,7 @@ const Footer = ({ variant = 'landing' }) => {
               <span className="text-2xl font-bold">BotSmith</span>
             </div>
             <p className="text-gray-300 mb-6 leading-relaxed">
-              Create intelligent, context-aware chatbots with advanced AI capabilities. Transform customer engagement with our powerful platform.
+              Create intelligent, context-aware agents with advanced AI capabilities. Transform customer engagement with our powerful platform.
             </p>
           </div>
 

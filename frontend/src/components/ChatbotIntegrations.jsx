@@ -49,9 +49,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'whatsapp',
       name: 'WhatsApp',
-      description: 'Connect your chatbot to WhatsApp Business API',
+      description: 'Connect your agent to WhatsApp Business API',
       icon: <Phone className="w-6 h-6" />,
-      gradient: 'from-green-500 to-green-600',
+      accent: 'purple',
       fields: [
         { name: 'access_token', label: 'Access Token (from Meta Business Suite)', type: 'password', required: true },
         { name: 'phone_number_id', label: 'Phone Number ID', type: 'text', required: true },
@@ -61,9 +61,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'slack',
       name: 'Slack',
-      description: 'Deploy chatbot to your Slack workspace',
+      description: 'Deploy agent to your Slack workspace',
       icon: <Send className="w-6 h-6" />,
-      gradient: 'from-purple-500 to-purple-600',
+      accent: 'purple',
       fields: [
         { name: 'bot_token', label: 'Bot Token', type: 'password', required: true },
         { name: 'workspace_url', label: 'Workspace URL', type: 'text', required: false },
@@ -73,9 +73,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'telegram',
       name: 'Telegram',
-      description: 'Create a Telegram bot for your chatbot',
+      description: 'Create a Telegram bot for your agent',
       icon: <Send className="w-6 h-6" />,
-      gradient: 'from-blue-500 to-blue-600',
+      accent: 'purple',
       fields: [
         { name: 'bot_token', label: 'Bot Token', type: 'password', required: true },
         { name: 'username', label: 'Bot Username', type: 'text', required: false }
@@ -84,9 +84,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'discord',
       name: 'Discord',
-      description: 'Add chatbot to your Discord server',
+      description: 'Add agent to your Discord server',
       icon: <MessageCircle className="w-6 h-6" />,
-      gradient: 'from-indigo-500 to-indigo-600',
+      accent: 'purple',
       fields: [
         { name: 'bot_token', label: 'Bot Token', type: 'password', required: true },
         { name: 'client_id', label: 'Client ID', type: 'text', required: false },
@@ -96,9 +96,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'msteams',
       name: 'Microsoft Teams',
-      description: 'Deploy chatbot to Microsoft Teams',
+      description: 'Deploy agent to Microsoft Teams',
       icon: <MessageCircle className="w-6 h-6" />,
-      gradient: 'from-purple-600 to-blue-600',
+      accent: 'purple',
       fields: [
         { name: 'app_id', label: 'Bot App ID', type: 'text', required: true },
         { name: 'app_password', label: 'App Password', type: 'password', required: true },
@@ -110,7 +110,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       name: 'REST API',
       description: 'Integrate via REST API for custom applications',
       icon: <Zap className="w-6 h-6" />,
-      gradient: 'from-orange-500 to-orange-600',
+      accent: 'purple',
       fields: [],
       isAPIIntegration: true
     },
@@ -119,7 +119,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       name: 'Facebook Messenger',
       description: 'Connect to Facebook Messenger',
       icon: <MessageCircle className="w-6 h-6" />,
-      gradient: 'from-blue-600 to-blue-700',
+      accent: 'purple',
       fields: [
         { name: 'page_access_token', label: 'Page Access Token', type: 'password', required: true },
         { name: 'app_secret', label: 'App Secret', type: 'password', required: false },
@@ -129,9 +129,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'instagram',
       name: 'Instagram',
-      description: 'Connect your chatbot to Instagram Direct Messages',
+      description: 'Connect your agent to Instagram Direct Messages',
       icon: <MessageCircle className="w-6 h-6" />,
-      gradient: 'from-pink-500 to-purple-600',
+      accent: 'purple',
       fields: [
         { name: 'page_access_token', label: 'Page Access Token', type: 'password', required: true },
         { name: 'verify_token', label: 'Verify Token', type: 'text', required: false },
@@ -141,9 +141,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'zapier',
       name: 'Zapier',
-      description: 'Connect your chatbot to Zapier for workflow automation',
+      description: 'Connect your agent to Zapier for workflow automation',
       icon: <Zap className="w-6 h-6" />,
-      gradient: 'from-orange-400 to-orange-600',
+      accent: 'purple',
       fields: [
         { name: 'webhook_url', label: 'Webhook URL (from Zapier)', type: 'text', required: true },
         { name: 'api_key', label: 'API Key (optional)', type: 'password', required: false }
@@ -152,9 +152,9 @@ const ChatbotIntegrations = ({ chatbot }) => {
     {
       id: 'twilio',
       name: 'Twilio SMS',
-      description: 'Connect your chatbot to SMS via Twilio',
+      description: 'Connect your agent to SMS via Twilio',
       icon: <Phone className="w-6 h-6" />,
-      gradient: 'from-red-500 to-rose-600',
+      accent: 'purple',
       fields: [
         { name: 'account_sid', label: 'Account SID', type: 'text', required: true },
         { name: 'auth_token', label: 'Auth Token', type: 'password', required: true },
@@ -627,7 +627,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
   const getStatusBadge = (status, enabled) => {
     if (!enabled) {
       return (
-        <span className="px-3 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-semibold">
+        <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-medium text-gray-500">
           Disabled
         </span>
       );
@@ -636,27 +636,27 @@ const ChatbotIntegrations = ({ chatbot }) => {
     switch (status) {
       case 'connected':
         return (
-          <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold flex items-center gap-1">
-            <CheckCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700">
+            <CheckCircle className="h-3 w-3" />
             Connected
           </span>
         );
       case 'error':
         return (
-          <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold flex items-center gap-1">
-            <XCircle className="w-3 h-3" />
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-red-200 bg-red-50 px-2.5 py-1 text-[11px] font-medium text-red-700">
+            <XCircle className="h-3 w-3" />
             Error
           </span>
         );
       case 'pending':
         return (
-          <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-700">
             Pending Test
           </span>
         );
       default:
         return (
-          <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
+          <span className="inline-flex items-center gap-1.5 rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1 text-[11px] font-medium text-gray-600">
             Available
           </span>
         );
@@ -665,84 +665,114 @@ const ChatbotIntegrations = ({ chatbot }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <RefreshCw className="w-8 h-8 text-purple-600 animate-spin" />
+      <div className="space-y-5">
+        <div className="flex items-end justify-between gap-4">
+          <div className="space-y-2">
+            <div className="h-2.5 w-28 animate-pulse rounded bg-gray-200" />
+            <div className="h-8 w-56 animate-pulse rounded bg-gray-200" />
+            <div className="h-3 w-72 animate-pulse rounded bg-gray-100" />
+          </div>
+          <div className="hidden h-9 w-36 animate-pulse rounded-lg bg-gray-100 sm:block" />
+        </div>
+
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {[1, 2, 3, 4].map((item) => (
+            <div key={item} className="h-52 animate-pulse rounded-xl border border-gray-200 bg-white p-6">
+              <div className="h-10 w-10 rounded-lg bg-gray-100" />
+              <div className="mt-5 h-4 w-32 rounded bg-gray-200" />
+              <div className="mt-2 h-3 w-64 rounded bg-gray-100" />
+              <div className="mt-8 h-9 w-full rounded-lg bg-gray-100" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <div className="space-y-5 bg-[#F8F9FB] text-gray-950">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">
+          <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-purple-600">
+            Workspace Integrations
+          </p>
+          <h2 className="mt-1.5 text-[28px] font-semibold leading-tight tracking-[-0.025em] text-gray-950">
             Platform Integrations
           </h2>
-          <p className="text-gray-600">
-            Connect your chatbot to various platforms and channels
+          <p className="mt-1.5 text-xs text-gray-500">
+            Connect your agent to platforms and channels.
           </p>
         </div>
+
         <Button
           onClick={() => {
             setShowLogsModal(true);
             fetchLogs();
           }}
           variant="outline"
-          className="border-2 border-purple-600 text-purple-600 hover:bg-purple-50"
+          className="h-9 border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 shadow-none hover:bg-gray-50 hover:text-gray-950"
         >
-          <Activity className="w-4 h-4 mr-2" />
+          <Activity className="mr-2 h-4 w-4" strokeWidth={1.8} />
           View Activity Logs
         </Button>
       </div>
 
-      {/* Global Webhook & API Info */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl p-6">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg flex items-center justify-center flex-shrink-0">
-            <Zap className="w-5 h-5 text-white" />
+      {/* Credentials / API information */}
+      <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-none sm:p-6">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-purple-100 bg-purple-50">
+            <Zap className="h-4 w-4 text-purple-600" strokeWidth={1.8} />
           </div>
           <div>
-            <h3 className="font-semibold text-gray-900 mb-1">Integration Credentials</h3>
-            <p className="text-sm text-gray-600">Use these credentials to connect your chatbot to external platforms</p>
+            <h3 className="text-sm font-semibold tracking-tight text-gray-950">
+              Integration Credentials
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-gray-500">
+              Use these credentials to connect your chatbot to external platforms.
+            </p>
           </div>
         </div>
 
-        <div className="space-y-3">
+        <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
           <div>
-            <label className="text-xs font-semibold text-gray-700 mb-1 block">Webhook URL</label>
+            <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-gray-500">
+              Webhook URL
+            </label>
             <div className="flex gap-2">
               <Input
                 value={`${window.location.origin}/api/webhook/${chatbot.id}`}
                 readOnly
-                className="font-mono text-xs bg-white"
+                className="h-9 border-gray-200 bg-gray-50 font-mono text-xs shadow-none"
               />
               <Button
                 onClick={copyWebhookURL}
                 variant="outline"
                 size="sm"
-                className="flex-shrink-0"
+                className="h-9 w-9 shrink-0 border-gray-200 bg-white p-0 text-gray-500 shadow-none hover:bg-gray-50 hover:text-gray-900"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="h-4 w-4" strokeWidth={1.8} />
               </Button>
             </div>
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-gray-700 mb-1 block">Chatbot ID</label>
+            <label className="mb-1.5 block text-[10px] font-medium uppercase tracking-[0.1em] text-gray-500">
+              Chatbot ID
+            </label>
             <div className="flex gap-2">
               <Input
                 value={chatbot.id}
                 readOnly
-                className="font-mono text-xs bg-white"
+                className="h-9 border-gray-200 bg-gray-50 font-mono text-xs shadow-none"
               />
               <Button
                 onClick={copyAPIKey}
                 variant="outline"
                 size="sm"
-                className="flex-shrink-0"
+                className="h-9 w-9 shrink-0 border-gray-200 bg-white p-0 text-gray-500 shadow-none hover:bg-gray-50 hover:text-gray-900"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="h-4 w-4" strokeWidth={1.8} />
               </Button>
             </div>
           </div>
@@ -750,79 +780,104 @@ const ChatbotIntegrations = ({ chatbot }) => {
       </div>
 
       {/* Integrations Grid */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {integrationDefinitions.map((definition) => {
-          const integration = getIntegrationStatus(definition.id);
-          const isConfigured = !!integration;
+      <div>
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-medium uppercase tracking-[0.12em] text-gray-400">
+              Available Platforms
+            </p>
+            <h3 className="mt-1 text-[15px] font-semibold tracking-tight text-gray-950">
+              Channels & Integrations
+            </h3>
+          </div>
+          <span className="text-xs text-gray-500">
+            {integrations.length} configured
+          </span>
+        </div>
 
-          return (
-            <Card
-              key={definition.id}
-              className={`p-6 hover:shadow-xl transition-all duration-300 border-2 ${
-                integration?.enabled && integration?.status === 'connected'
-                  ? 'border-green-200 bg-green-50/30' 
-                  : isConfigured
-                  ? 'border-purple-200/50'
-                  : 'border-gray-200 hover:border-purple-400'
-              }`}
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-start gap-3 flex-1">
-                  <div className={`w-12 h-12 bg-gradient-to-br ${definition.gradient} rounded-xl flex items-center justify-center text-white shadow-lg transform hover:scale-110 transition-transform flex-shrink-0`}>
-                    {definition.icon}
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+          {integrationDefinitions.map((definition) => {
+            const integration = getIntegrationStatus(definition.id);
+            const isConfigured = !!integration;
+            const isConnected = integration?.enabled && integration?.status === 'connected';
+
+            return (
+              <Card
+                key={definition.id}
+                className={`rounded-xl border bg-white p-5 shadow-none transition-colors ${
+                  isConnected
+                    ? 'border-purple-200'
+                    : isConfigured
+                    ? 'border-gray-200'
+                    : 'border-gray-200 hover:border-gray-300'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600">
+                      {React.cloneElement(definition.icon, {
+                        className: 'h-4.5 w-4.5',
+                        strokeWidth: 1.8,
+                      })}
+                    </div>
+
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="text-sm font-semibold tracking-tight text-gray-950">
+                          {definition.name}
+                        </h3>
+                        {isConfigured && getStatusBadge(integration.status, integration.enabled)}
+                      </div>
+                      <p className="mt-1 text-xs leading-5 text-gray-500">
+                        {definition.description}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      {definition.name}
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      {definition.description}
+                </div>
+
+                {integration?.error_message && integration.enabled && (
+                  <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3">
+                    <p className="flex items-start gap-2 text-xs leading-5 text-red-700">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{integration.error_message}</span>
                     </p>
                   </div>
-                </div>
-                {isConfigured && getStatusBadge(integration.status, integration.enabled)}
-              </div>
+                )}
 
-              {integration?.error_message && integration.enabled && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-xs text-red-700 flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>{integration.error_message}</span>
-                  </p>
-                </div>
-              )}
+                {definition.id === 'discord' && isConfigured && (
+                  <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                    <p className="flex items-start gap-2 text-xs leading-5 text-amber-800">
+                      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>
+                        <strong>Important:</strong> Enable "MESSAGE CONTENT INTENT" in Discord Developer Portal → Your App → Bot → Privileged Gateway Intents. Then click the Start Bot button below.
+                      </span>
+                    </p>
+                  </div>
+                )}
 
-              {definition.id === 'discord' && isConfigured && (
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-xs text-blue-700 flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                    <span>
-                      <strong>Important:</strong> Enable "MESSAGE CONTENT INTENT" in Discord Developer Portal → Your App → Bot → Privileged Gateway Intents. 
-                      Then click the ⚡ Start Bot button below.
-                    </span>
-                  </p>
-                </div>
-              )}
-
-              <div className="space-y-3">
                 {isConfigured && (
-                  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium text-gray-700">Enable Integration</span>
+                  <div className="mt-4 flex items-center justify-between border-y border-gray-100 py-3">
+                    <div>
+                      <p className="text-xs font-medium text-gray-800">Enable Integration</p>
+                      <p className="mt-0.5 text-[11px] text-gray-500">
+                        Control whether this channel is active.
+                      </p>
                     </div>
                     <Switch
                       checked={integration.enabled}
-                      onCheckedChange={() => handleToggleIntegration(integration.id, integration.enabled)}
+                      onCheckedChange={() =>
+                        handleToggleIntegration(integration.id, integration.enabled)
+                      }
                     />
                   </div>
                 )}
 
-                <div className="flex gap-2">
+                <div className="mt-4 flex flex-wrap gap-2">
                   <Button
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
                     onClick={() => openSetupModal(definition)}
+                    className="h-9 flex-1 bg-gray-950 px-3 text-xs font-medium text-white shadow-none hover:bg-gray-800"
                   >
-                    <Settings className="w-4 h-4 mr-2" />
+                    <Settings className="mr-2 h-3.5 w-3.5" strokeWidth={1.8} />
                     {isConfigured ? 'Reconfigure' : 'Setup'}
                   </Button>
 
@@ -832,9 +887,13 @@ const ChatbotIntegrations = ({ chatbot }) => {
                         variant="outline"
                         onClick={() => handleTestConnection(integration.id)}
                         disabled={testing}
-                        className="border-2 border-blue-600 text-blue-600 hover:bg-blue-50"
+                        className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
+                        title="Test connection"
                       >
-                        <RefreshCw className={`w-4 h-4 ${testing ? 'animate-spin' : ''}`} />
+                        <RefreshCw
+                          className={`h-3.5 w-3.5 ${testing ? 'animate-spin' : ''}`}
+                          strokeWidth={1.8}
+                        />
                       </Button>
 
                       {definition.id === 'telegram' && (
@@ -842,10 +901,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleSetupTelegramWebhook(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Setup Telegram Webhook"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
@@ -854,10 +913,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleSetupSlackWebhook(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Setup Slack Webhook"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
@@ -866,10 +925,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleStartDiscordBot(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Start Discord Bot (Required for Messages)"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
@@ -878,10 +937,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleSetupInstagramWebhook(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Setup Instagram Webhook"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
@@ -890,10 +949,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleSetupWhatsAppWebhook(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Setup WhatsApp Webhook"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
@@ -902,10 +961,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleSetupMessengerWebhook(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Setup Messenger Webhook"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
@@ -914,94 +973,96 @@ const ChatbotIntegrations = ({ chatbot }) => {
                           variant="outline"
                           onClick={() => handleSetupTwilioWebhook(integration.id)}
                           disabled={testing}
-                          className="border-2 border-green-600 text-green-600 hover:bg-green-50"
+                          className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-600 shadow-none hover:bg-gray-50 hover:text-gray-950"
                           title="Setup Twilio SMS Webhook"
                         >
-                          <Zap className="w-4 h-4" />
+                          <Zap className="h-3.5 w-3.5" strokeWidth={1.8} />
                         </Button>
                       )}
 
                       <Button
                         variant="outline"
                         onClick={() => handleDeleteIntegration(integration.id, definition.name)}
-                        className="border-2 border-red-600 text-red-600 hover:bg-red-50"
+                        className="h-9 w-9 border-gray-200 bg-white p-0 text-gray-500 shadow-none hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                        title={`Delete ${definition.name} integration`}
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="h-3.5 w-3.5" strokeWidth={1.8} />
                       </Button>
                     </>
                   )}
                 </div>
-              </div>
-            </Card>
-          );
-        })}
+              </Card>
+            );
+          })}
+        </div>
       </div>
 
       {/* Setup Modal */}
       <Dialog open={showSetupModal} onOpenChange={setShowSetupModal}>
-        <DialogContent className={`${activeIntegration?.isAPIIntegration ? 'max-w-3xl' : 'max-w-md'} max-h-[80vh] overflow-y-auto`}>
+        <DialogContent
+          className={`${
+            activeIntegration?.isAPIIntegration ? 'max-w-3xl' : 'max-w-md'
+          } max-h-[80vh] overflow-y-auto border-gray-200 bg-white`}
+        >
           <DialogHeader>
-            <DialogTitle>
-              {activeIntegration?.isAPIIntegration ? (
-                <span className="flex items-center gap-2">
-                  <Zap className="w-5 h-5 text-orange-600" />
-                  {activeIntegration?.name} Documentation
-                </span>
-              ) : (
-                `Setup ${activeIntegration?.name}`
-              )}
+            <DialogTitle className="text-base font-semibold tracking-tight text-gray-950">
+              {activeIntegration?.isAPIIntegration
+                ? `${activeIntegration?.name} Documentation`
+                : `Setup ${activeIntegration?.name}`}
             </DialogTitle>
-            <DialogDescription>
-              {activeIntegration?.isAPIIntegration 
-                ? 'Use these API endpoints to integrate your chatbot programmatically'
-                : `Enter your ${activeIntegration?.name} credentials to connect this integration`
-              }
+            <DialogDescription className="text-xs leading-5 text-gray-500">
+              {activeIntegration?.isAPIIntegration
+                ? 'Use these API endpoints to integrate your chatbot programmatically.'
+                : `Enter your ${activeIntegration?.name} credentials to connect this integration.`}
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             {activeIntegration?.isAPIIntegration ? (
-              <div className="space-y-4">
-                <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200 rounded-lg p-4">
-                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
-                    <Zap className="w-5 h-5 text-orange-600" />
-                    REST API Integration
-                  </h4>
-                  <p className="text-sm text-gray-600 mb-4">
+              <div className="space-y-5">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-purple-600" strokeWidth={1.8} />
+                    <h4 className="text-sm font-semibold text-gray-950">
+                      REST API Integration
+                    </h4>
+                  </div>
+                  <p className="mt-1.5 text-xs leading-5 text-gray-500">
                     Use these endpoints to integrate your chatbot into custom applications via REST API.
                   </p>
                 </div>
 
-                {/* Base URL */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700">Base URL</Label>
+                  <Label className="text-xs font-medium text-gray-700">Base URL</Label>
                   <div className="flex gap-2">
                     <Input
                       value={process.env.REACT_APP_BACKEND_URL || window.location.origin}
                       readOnly
-                      className="font-mono text-xs bg-gray-50"
+                      className="h-9 border-gray-200 bg-gray-50 font-mono text-xs shadow-none"
                     />
                     <Button
                       onClick={() => {
-                        navigator.clipboard.writeText(process.env.REACT_APP_BACKEND_URL || window.location.origin);
+                        navigator.clipboard.writeText(
+                          process.env.REACT_APP_BACKEND_URL || window.location.origin
+                        );
                         toast({ title: 'Copied!', description: 'Base URL copied to clipboard' });
                       }}
                       variant="outline"
                       size="sm"
+                      className="h-9 w-9 shrink-0 border-gray-200 p-0 shadow-none"
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="h-4 w-4" strokeWidth={1.8} />
                     </Button>
                   </div>
                 </div>
 
-                {/* Chatbot ID */}
                 <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-gray-700">Chatbot ID</Label>
+                  <Label className="text-xs font-medium text-gray-700">Chatbot ID</Label>
                   <div className="flex gap-2">
                     <Input
                       value={chatbot.id}
                       readOnly
-                      className="font-mono text-xs bg-gray-50"
+                      className="h-9 border-gray-200 bg-gray-50 font-mono text-xs shadow-none"
                     />
                     <Button
                       onClick={() => {
@@ -1010,46 +1071,59 @@ const ChatbotIntegrations = ({ chatbot }) => {
                       }}
                       variant="outline"
                       size="sm"
+                      className="h-9 w-9 shrink-0 border-gray-200 p-0 shadow-none"
                     >
-                      <Copy className="w-4 h-4" />
+                      <Copy className="h-4 w-4" strokeWidth={1.8} />
                     </Button>
                   </div>
                 </div>
 
-                {/* API Endpoints */}
-                <div className="space-y-3 mt-4">
-                  <h4 className="font-semibold text-gray-900 text-sm">Available Endpoints</h4>
-                  
-                  {/* Send Message Endpoint */}
-                  <div className="bg-white border-2 border-gray-200 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-mono font-bold rounded">POST</span>
-                      <code className="text-xs text-gray-700 font-mono">/api/public/chat/{'{chatbot_id}'}</code>
+                <div className="space-y-3">
+                  <h4 className="text-sm font-semibold text-gray-950">Available Endpoints</h4>
+
+                  <div className="space-y-2.5">
+                    <div className="rounded-lg border border-gray-200 bg-white p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded bg-gray-950 px-2 py-1 text-[10px] font-bold font-mono text-white">
+                          POST
+                        </span>
+                        <code className="text-xs font-mono text-gray-700">
+                          /api/public/chat/{'{chatbot_id}'}
+                        </code>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">
+                        Send a message and get AI response
+                      </p>
+                      <div className="mt-2 rounded bg-gray-50 p-2 text-xs font-mono leading-5 text-gray-700">
+                        <div className="text-gray-400">// Request Body</div>
+                        <div>{`{`}</div>
+                        <div className="pl-4">"message": "Your message here",</div>
+                        <div className="pl-4">"session_id": "unique-session-id",</div>
+                        <div className="pl-4">"user_name": "Optional User Name"</div>
+                        <div>{`}`}</div>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-600">Send a message and get AI response</p>
-                    <div className="bg-gray-50 rounded p-2 text-xs font-mono">
-                      <div className="text-gray-500">// Request Body</div>
-                      <div className="text-gray-700">{`{`}</div>
-                      <div className="text-gray-700 pl-4">"message": "Your message here",</div>
-                      <div className="text-gray-700 pl-4">"session_id": "unique-session-id",</div>
-                      <div className="text-gray-700 pl-4">"user_name": "Optional User Name"</div>
-                      <div className="text-gray-700">{`}`}</div>
+
+                    <div className="rounded-lg border border-gray-200 bg-white p-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded bg-gray-100 px-2 py-1 text-[10px] font-bold font-mono text-gray-700">
+                          GET
+                        </span>
+                        <code className="text-xs font-mono text-gray-700">
+                          /api/public/chatbot/{'{chatbot_id}'}
+                        </code>
+                      </div>
+                      <p className="mt-2 text-xs text-gray-500">
+                        Get agent configuration and settings
+                      </p>
                     </div>
                   </div>
 
-                  {/* Get Chatbot Info */}
-                  <div className="bg-white border-2 border-gray-200 rounded-lg p-3 space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-mono font-bold rounded">GET</span>
-                      <code className="text-xs text-gray-700 font-mono">/api/public/chatbot/{'{chatbot_id}'}</code>
-                    </div>
-                    <p className="text-xs text-gray-600">Get chatbot configuration and settings</p>
-                  </div>
-
-                  {/* Example cURL */}
-                  <div className="bg-gray-900 rounded-lg p-3 space-y-2">
+                  <div className="rounded-lg bg-gray-950 p-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-white text-xs font-semibold">Example cURL Request</span>
+                      <span className="text-xs font-semibold text-white">
+                        Example cURL Request
+                      </span>
                       <Button
                         onClick={() => {
                           const curlCommand = `curl -X POST "${process.env.REACT_APP_BACKEND_URL || window.location.origin}/api/public/chat/${chatbot.id}" \\
@@ -1064,12 +1138,12 @@ const ChatbotIntegrations = ({ chatbot }) => {
                         }}
                         variant="ghost"
                         size="sm"
-                        className="text-white hover:bg-gray-800"
+                        className="h-7 text-gray-300 hover:bg-gray-800 hover:text-white"
                       >
-                        <Copy className="w-3 h-3" />
+                        <Copy className="h-3 w-3" />
                       </Button>
                     </div>
-                    <pre className="text-xs text-green-400 overflow-x-auto">
+                    <pre className="mt-2 overflow-x-auto text-xs leading-5 text-gray-300">
 {`curl -X POST "${process.env.REACT_APP_BACKEND_URL || window.location.origin}/api/public/chat/${chatbot.id}" \\
   -H "Content-Type: application/json" \\
   -d '{
@@ -1080,22 +1154,26 @@ const ChatbotIntegrations = ({ chatbot }) => {
                   </div>
                 </div>
 
-                {/* Documentation Link */}
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
                   <div className="flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-gray-500" />
                     <div className="flex-1">
-                      <p className="text-xs text-blue-800 font-semibold mb-1">Full API Documentation</p>
-                      <p className="text-xs text-blue-700 mb-2">
+                      <p className="text-xs font-semibold text-gray-900">Full API Documentation</p>
+                      <p className="mt-1 text-xs leading-5 text-gray-500">
                         For complete API documentation including all endpoints, authentication, and examples:
                       </p>
                       <Button
-                        onClick={() => window.open(`${process.env.REACT_APP_BACKEND_URL || window.location.origin}/docs`, '_blank')}
+                        onClick={() =>
+                          window.open(
+                            `${process.env.REACT_APP_BACKEND_URL || window.location.origin}/docs`,
+                            '_blank'
+                          )
+                        }
                         variant="outline"
                         size="sm"
-                        className="text-xs border-blue-600 text-blue-600 hover:bg-blue-100"
+                        className="mt-2 h-8 border-gray-200 bg-white text-xs shadow-none"
                       >
-                        <ExternalLink className="w-3 h-3 mr-1" />
+                        <ExternalLink className="mr-1.5 h-3 w-3" />
                         Open API Docs
                       </Button>
                     </div>
@@ -1104,96 +1182,124 @@ const ChatbotIntegrations = ({ chatbot }) => {
               </div>
             ) : (
               <>
-                {/* Webhook URL Field - Show for platforms that need it */}
-                {activeIntegration?.id && ['whatsapp', 'slack', 'discord', 'msteams', 'messenger', 'instagram'].includes(activeIntegration.id) && (
-                  <div className="space-y-2 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2 mb-2">
-                      <Zap className="w-4 h-4 text-blue-600" />
-                      <Label className="text-sm font-semibold text-gray-900 mb-0">
-                        Webhook URL
-                      </Label>
+                {/* Webhook URL Field */}
+                {activeIntegration?.id &&
+                  ['whatsapp', 'slack', 'discord', 'msteams', 'messenger', 'instagram'].includes(
+                    activeIntegration.id
+                  ) && (
+                    <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                      <div className="flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-purple-600" strokeWidth={1.8} />
+                        <Label className="text-xs font-semibold text-gray-900">
+                          Webhook URL
+                        </Label>
+                      </div>
+                      <p className="text-xs leading-5 text-gray-500">
+                        Copy this URL and paste it in your {activeIntegration.name} dashboard webhook settings.
+                      </p>
+                      <div className="flex gap-2">
+                        <Input
+                          value={`https://botsmith.pro/api/webhooks/${
+                            activeIntegration.id === 'msteams'
+                              ? 'teams'
+                              : activeIntegration.id === 'messenger'
+                              ? 'facebook'
+                              : activeIntegration.id
+                          }`}
+                          readOnly
+                          className="h-9 border-gray-200 bg-white font-mono text-xs shadow-none"
+                        />
+                        <Button
+                          onClick={async () => {
+                            const webhookUrl = `https://botsmith.pro/api/webhooks/${
+                              activeIntegration.id === 'msteams'
+                                ? 'teams'
+                                : activeIntegration.id === 'messenger'
+                                ? 'facebook'
+                                : activeIntegration.id
+                            }`;
+                            try {
+                              await navigator.clipboard.writeText(webhookUrl);
+                              toast({
+                                title: 'Webhook URL copied',
+                                description: "Paste this URL in your platform's webhook settings",
+                              });
+                            } catch (err) {
+                              console.error('Failed to copy:', err);
+                            }
+                          }}
+                          variant="outline"
+                          size="sm"
+                          className="h-9 w-9 shrink-0 border-gray-200 bg-white p-0 shadow-none"
+                        >
+                          <Copy className="h-4 w-4" strokeWidth={1.8} />
+                        </Button>
+                      </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-2">
-                      Copy this URL and paste it in your {activeIntegration.name} dashboard webhook settings
-                    </p>
-                    <div className="flex gap-2">
-                      <Input
-                        value={`https://botsmith.pro/api/webhooks/${
-                          activeIntegration.id === 'msteams' ? 'teams' : 
-                          activeIntegration.id === 'messenger' ? 'facebook' : 
-                          activeIntegration.id
-                        }`}
-                        readOnly
-                        className="font-mono text-xs bg-white border-blue-300"
-                      />
-                      <Button
-                        onClick={async () => {
-                          const webhookUrl = `https://botsmith.pro/api/webhooks/${
-                            activeIntegration.id === 'msteams' ? 'teams' : 
-                            activeIntegration.id === 'messenger' ? 'facebook' : 
-                            activeIntegration.id
-                          }`;
-                          try {
-                            await navigator.clipboard.writeText(webhookUrl);
-                            toast({
-                              title: 'Webhook URL copied',
-                              description: 'Paste this URL in your platform\'s webhook settings'
-                            });
-                          } catch (err) {
-                            console.error('Failed to copy:', err);
-                          }
-                        }}
-                        variant="outline"
-                        size="sm"
-                        className="flex-shrink-0 border-blue-600 text-blue-600 hover:bg-blue-100"
-                      >
-                        <Copy className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                  )}
 
                 {activeIntegration?.fields.map((field) => (
                   <div key={field.name} className="space-y-2">
-                    <Label htmlFor={field.name}>
-                      {field.label} {field.required && <span className="text-red-500">*</span>}
+                    <Label
+                      htmlFor={field.name}
+                      className="text-xs font-medium text-gray-700"
+                    >
+                      {field.label}{' '}
+                      {field.required && <span className="text-red-500">*</span>}
                     </Label>
                     <div className="relative">
                       <Input
                         id={field.name}
                         type={showCredentials[field.name] ? 'text' : field.type}
                         value={credentials[field.name] || ''}
-                        onChange={(e) => setCredentials({...credentials, [field.name]: e.target.value})}
+                        onChange={(e) =>
+                          setCredentials({
+                            ...credentials,
+                            [field.name]: e.target.value,
+                          })
+                        }
                         placeholder={`Enter ${field.label.toLowerCase()}`}
-                        className="pr-10"
+                        className="h-9 border-gray-200 pr-10 text-sm shadow-none focus-visible:ring-1 focus-visible:ring-purple-500"
                       />
                       {field.type === 'password' && (
                         <button
                           type="button"
-                          onClick={() => setShowCredentials({...showCredentials, [field.name]: !showCredentials[field.name]})}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          onClick={() =>
+                            setShowCredentials({
+                              ...showCredentials,
+                              [field.name]: !showCredentials[field.name],
+                            })
+                          }
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
                         >
-                          {showCredentials[field.name] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showCredentials[field.name] ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
                         </button>
                       )}
                     </div>
                   </div>
                 ))}
 
-                {activeIntegration?.fields.length === 0 && !activeIntegration?.isAPIIntegration && (
-                  <p className="text-sm text-gray-600 text-center py-4">
-                    This integration doesn't require any credentials. Click save to activate.
-                  </p>
-                )}
+                {activeIntegration?.fields.length === 0 &&
+                  !activeIntegration?.isAPIIntegration && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 text-center">
+                      <p className="text-xs leading-5 text-gray-500">
+                        This integration doesn't require any credentials. Click save to activate.
+                      </p>
+                    </div>
+                  )}
               </>
             )}
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-2 border-t border-gray-100 pt-4">
             {activeIntegration?.isAPIIntegration ? (
               <Button
                 onClick={() => setShowSetupModal(false)}
-                className="flex-1 bg-gradient-to-r from-orange-600 to-yellow-600 hover:from-orange-700 hover:to-yellow-700 text-white"
+                className="h-9 flex-1 bg-gray-950 text-xs font-medium text-white shadow-none hover:bg-gray-800"
               >
                 Close
               </Button>
@@ -1202,14 +1308,14 @@ const ChatbotIntegrations = ({ chatbot }) => {
                 <Button
                   variant="outline"
                   onClick={() => setShowSetupModal(false)}
-                  className="flex-1"
+                  className="h-9 flex-1 border-gray-200 bg-white text-xs shadow-none"
                 >
                   Cancel
                 </Button>
                 <Button
                   onClick={handleSaveIntegration}
                   disabled={saving}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                  className="h-9 flex-1 bg-gray-950 text-xs font-medium text-white shadow-none hover:bg-gray-800"
                 >
                   {saving ? 'Saving...' : 'Save Integration'}
                 </Button>
@@ -1221,44 +1327,52 @@ const ChatbotIntegrations = ({ chatbot }) => {
 
       {/* Activity Logs Modal */}
       <Dialog open={showLogsModal} onOpenChange={setShowLogsModal}>
-        <DialogContent className="max-w-2xl max-h-[80vh]">
+        <DialogContent className="max-h-[80vh] max-w-2xl border-gray-200 bg-white">
           <DialogHeader>
-            <DialogTitle>Integration Activity Logs</DialogTitle>
-            <DialogDescription>
-              Recent activity for all integrations
+            <DialogTitle className="text-base font-semibold tracking-tight text-gray-950">
+              Integration Activity Logs
+            </DialogTitle>
+            <DialogDescription className="text-xs text-gray-500">
+              Recent activity for all integrations.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 max-h-96 overflow-y-auto py-4">
+          <div className="max-h-96 space-y-2 overflow-y-auto py-4">
             {logs.length === 0 ? (
-              <p className="text-center text-gray-500 py-8">No activity logs yet</p>
+              <div className="rounded-lg border border-dashed border-gray-200 bg-gray-50 py-10 text-center">
+                <Activity className="mx-auto mb-3 h-5 w-5 text-gray-400" />
+                <p className="text-xs text-gray-500">No activity logs yet</p>
+              </div>
             ) : (
               logs.map((log) => (
-                <div key={log.id} className={`p-4 rounded-lg border-2 ${
-                  log.status === 'success' ? 'bg-green-50 border-green-200' :
-                  log.status === 'failure' ? 'bg-red-50 border-red-200' :
-                  'bg-yellow-50 border-yellow-200'
-                }`}>
-                  <div className="flex items-start justify-between mb-2">
+                <div
+                  key={log.id}
+                  className="rounded-lg border border-gray-200 bg-white p-4"
+                >
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
-                      <span className={`w-2 h-2 rounded-full ${
-                        log.status === 'success' ? 'bg-green-500' :
-                        log.status === 'failure' ? 'bg-red-500' :
-                        'bg-yellow-500'
-                      }`}></span>
-                      <span className="font-semibold text-sm capitalize">
+                      <span
+                        className={`h-2 w-2 rounded-full ${
+                          log.status === 'success'
+                            ? 'bg-emerald-500'
+                            : log.status === 'failure'
+                            ? 'bg-red-500'
+                            : 'bg-amber-500'
+                        }`}
+                      />
+                      <span className="text-sm font-semibold capitalize text-gray-900">
                         {log.integration_type}
                       </span>
-                      <span className="text-xs text-gray-500">•</span>
-                      <span className="text-xs text-gray-600 capitalize">
+                      <span className="text-xs text-gray-300">•</span>
+                      <span className="text-xs capitalize text-gray-500">
                         {log.event_type.replace('_', ' ')}
                       </span>
                     </div>
-                    <span className="text-xs text-gray-500">
+                    <span className="text-[11px] text-gray-400">
                       {new Date(log.timestamp).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-sm text-gray-700">{log.message}</p>
+                  <p className="mt-2 text-xs leading-5 text-gray-600">{log.message}</p>
                 </div>
               ))
             )}

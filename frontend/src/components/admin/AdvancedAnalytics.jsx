@@ -282,7 +282,7 @@ const AdvancedAnalytics = ({ backendUrl }) => {
                 <tr>
                   <td colSpan="4" className="py-8 text-center text-gray-400">
                     <p className="text-lg font-medium">No provider data available</p>
-                    <p className="text-sm mt-2">Create chatbots with AI providers to see statistics</p>
+                    <p className="text-sm mt-2">Create agents with AI providers to see statistics</p>
                   </td>
                 </tr>
               )}

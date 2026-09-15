@@ -83,7 +83,7 @@ const DashboardRedesigned = () => {
       }
 
       const newChatbot = await chatbotAPI.create({
-        name: 'New Chatbot',
+        name: 'New Agent',
         model: 'gpt-4o-mini',
         provider: 'openai',
         temperature: 0.7,
@@ -103,7 +103,7 @@ const DashboardRedesigned = () => {
       
       toast({
         title: 'Success',
-        description: 'Chatbot created successfully'
+        description: 'Agent created successfully'
       });
       
       navigate(`/chatbot/${newChatbot.data.id}`);

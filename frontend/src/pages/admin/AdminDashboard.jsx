@@ -258,7 +258,7 @@ const AdminDashboard = () => {
                   <p className="text-4xl font-bold text-white">
                     {loading ? '...' : stats.activeChatbots.toLocaleString()}
                   </p>
-                  <p className="text-green-100 text-sm mt-1 font-medium">Active Chatbots</p>
+                  <p className="text-green-100 text-sm mt-1 font-medium">Active agents</p>
                 </div>
                 <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
                   <MessageSquare className="w-8 h-8 text-white mb-3 opacity-90" />
