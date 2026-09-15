@@ -38,7 +38,7 @@ import remarkGfm from 'remark-gfm';
 const blogFiles = require.context('../content/blog', false, /\.md$/);
 
 const parseMarkdownPost = (source) => {
-  const match = source.match(/^---\\s*([\\s\\S]*?)\\s*---\\s*([\\s\\S]*)$/);
+  const match = source.match(/^\uFEFF?\s*---\s*([\s\S]*?)\s*---\s*([\s\S]*)$/);
 
   if (!match) {
     return {
@@ -49,7 +49,7 @@ const parseMarkdownPost = (source) => {
 
   const frontmatter = {};
 
-  match[1].split('\\n').forEach((line) => {
+  match[1].split('\n').forEach((line) => {
     const separatorIndex = line.indexOf(':');
 
     if (separatorIndex === -1) return;
