@@ -526,6 +526,10 @@ const LandingPage = () => {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif&display=swap');
 
+        html {
+          scroll-behavior: smooth;
+        }
+
         .font-instrument-serif {
           font-family: "Instrument Serif", serif;
           font-weight: 400;
