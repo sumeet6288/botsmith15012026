@@ -589,7 +589,7 @@ const DashboardRedesigned = () => {
                   {/* Toggle Switch */}
                   <button
                     onClick={(e) => handleToggleChatbot(e, bot.id, bot.status)}
-                    className={`absolute top-3 right-0.1 relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                    className={`absolute top-3 right-[-13px] relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
                       bot.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
                     }`}
                     role="switch"
