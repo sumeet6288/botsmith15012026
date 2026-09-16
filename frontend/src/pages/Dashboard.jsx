@@ -203,244 +203,312 @@ const DashboardRedesigned = () => {
           </Button>
         </div>
 
-        {/* Usage Overview - Subtle Color Accents */}
+        {/* Usage Overview + Resource Usage */}
         <div className="mb-8">
-          <h2 style={{ 
-            fontFamily: 'Inter, sans-serif', 
-            fontSize: '13px', 
-            fontWeight: '600',
-            color: '#0B0B0B',
-            marginBottom: '16px',
-            textTransform: 'uppercase',
-            letterSpacing: '0.05em'
-          }}>
-            Usage Overview
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Total Chatbots */}
-            <div className="border-l-2 border-purple-600 pl-4">
-              <p style={{ 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '13px',
-                color: '#6B7280',
-                marginBottom: '4px'
-              }}>
-                Total Agents
-              </p>
-              <p style={{ 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#0B0B0B'
-              }}>
-                {analytics?.total_chatbots || 0}
-              </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
+
+            {/* Usage Overview */}
+            <div className="lg:col-span-3">
+              <div
+                className="h-full bg-white border border-gray-200 rounded-xl p-4 shadow-sm"
+                style={{ fontFamily: 'Inter, sans-serif' }}
+              >
+                <h2
+                  style={{
+                    fontFamily: 'Inter, sans-serif',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: '#0B0B0B',
+                    marginBottom: '16px',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.05em'
+                  }}
+                >
+                  Usage Overview
+                </h2>
+
+                <div className="space-y-4">
+                  <div className="pb-4 border-b border-gray-100">
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '12px',
+                        color: '#6B7280',
+                        marginBottom: '6px'
+                      }}
+                    >
+                      Total Agents
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '24px',
+                        lineHeight: '1',
+                        fontWeight: '600',
+                        color: '#0B0B0B'
+                      }}
+                    >
+                      {analytics?.total_chatbots || 0}
+                    </p>
+                  </div>
+
+                  <div className="pb-5 border-b border-gray-100">
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '12px',
+                        color: '#6B7280',
+                        marginBottom: '6px'
+                      }}
+                    >
+                      Total Conversations
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '26px',
+                        lineHeight: '1',
+                        fontWeight: '600',
+                        color: '#0B0B0B'
+                      }}
+                    >
+                      {analytics?.total_conversations?.toLocaleString() || 0}
+                    </p>
+                  </div>
+
+                  <div>
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '12px',
+                        color: '#6B7280',
+                        marginBottom: '6px'
+                      }}
+                    >
+                      Total Messages
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '26px',
+                        lineHeight: '1',
+                        fontWeight: '600',
+                        color: '#0B0B0B'
+                      }}
+                    >
+                      {analytics?.total_messages?.toLocaleString() || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
 
-            {/* Total Conversations */}
-            <div className="border-l-2 border-purple-600 pl-4">
-              <p style={{ 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '13px',
-                color: '#6B7280',
-                marginBottom: '4px'
-              }}>
-                Total Conversations
-              </p>
-              <p style={{ 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#0B0B0B'
-              }}>
-                {analytics?.total_conversations?.toLocaleString() || 0}
-              </p>
-            </div>
+            {/* Resource Usage */}
+            {usageStats && (
+              <div className="lg:col-span-9">
+                <div
+                  className="h-full bg-white border border-gray-200 rounded-xl p-6 shadow-sm"
+                  style={{ fontFamily: 'Inter, sans-serif' }}
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h2
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: '#0B0B0B',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em'
+                      }}
+                    >
+                      Resource Usage
+                    </h2>
 
-            {/* Total Messages */}
-            <div className="border-l-2 border-purple-600 pl-4">
-              <p style={{ 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '13px',
-                color: '#6B7280',
-                marginBottom: '4px'
-              }}>
-                Total Messages
-              </p>
-              <p style={{ 
-                fontFamily: 'Inter, sans-serif', 
-                fontSize: '18px',
-                fontWeight: '600',
-                color: '#0B0B0B'
-              }}>
-                {analytics?.total_messages?.toLocaleString() || 0}
-              </p>
-            </div>
+                    <span
+                      className="px-2.5 py-1 rounded-md bg-gray-50 border border-gray-200"
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '10px',
+                        color: '#6B7280'
+                      }}
+                    >
+                      Current plan
+                    </span>
+                  </div>
+
+                  <div className="space-y-5">
+
+                    {/* Agents */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px', color: '#0B0B0B', fontWeight: '500' }}>
+                          Agents
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                            {usageStats.usage?.chatbots?.current}/{usageStats.usage?.chatbots?.limit}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'Inter, sans-serif',
+                              fontSize: '11px',
+                              color: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#6B7280',
+                              fontWeight: usageStats.usage?.chatbots?.percentage >= 100 ? '600' : '400'
+                            }}
+                          >
+                            {usageStats.usage?.chatbots?.percentage}% used
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(usageStats.usage?.chatbots?.percentage || 0, 100)}%`,
+                            backgroundColor: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Messages */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px', color: '#0B0B0B', fontWeight: '500' }}>
+                          Messages
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                            {usageStats.usage?.messages?.current}/{usageStats.usage?.messages?.limit === 999999 || usageStats.usage?.messages?.limit === 999999999 ? '∞' : usageStats.usage?.messages?.limit?.toLocaleString()}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'Inter, sans-serif',
+                              fontSize: '11px',
+                              color: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#6B7280',
+                              fontWeight: usageStats.usage?.messages?.percentage >= 100 ? '600' : '400'
+                            }}
+                          >
+                            {usageStats.usage?.messages?.percentage}% used
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(usageStats.usage?.messages?.percentage || 0, 100)}%`,
+                            backgroundColor: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Files */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px', color: '#0B0B0B', fontWeight: '500' }}>
+                          Files
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                            {usageStats.usage?.file_uploads?.current}/{usageStats.usage?.file_uploads?.limit}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'Inter, sans-serif',
+                              fontSize: '11px',
+                              color: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#6B7280',
+                              fontWeight: usageStats.usage?.file_uploads?.percentage >= 100 ? '600' : '400'
+                            }}
+                          >
+                            {usageStats.usage?.file_uploads?.percentage}% used
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(usageStats.usage?.file_uploads?.percentage || 0, 100)}%`,
+                            backgroundColor: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Websites */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px', color: '#0B0B0B', fontWeight: '500' }}>
+                          Websites
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                            {usageStats.usage?.website_sources?.current}/{usageStats.usage?.website_sources?.limit}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'Inter, sans-serif',
+                              fontSize: '11px',
+                              color: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#6B7280',
+                              fontWeight: usageStats.usage?.website_sources?.percentage >= 100 ? '600' : '400'
+                            }}
+                          >
+                            {usageStats.usage?.website_sources?.percentage}% used
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(usageStats.usage?.website_sources?.percentage || 0, 100)}%`,
+                            backgroundColor: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Text Sources */}
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '12px', color: '#0B0B0B', fontWeight: '500' }}>
+                          Text Sources
+                        </span>
+                        <div className="flex items-center gap-4">
+                          <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '11px', color: '#6B7280' }}>
+                            {usageStats.usage?.text_sources?.current}/{usageStats.usage?.text_sources?.limit}
+                          </span>
+                          <span
+                            style={{
+                              fontFamily: 'Inter, sans-serif',
+                              fontSize: '11px',
+                              color: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#6B7280',
+                              fontWeight: usageStats.usage?.text_sources?.percentage >= 100 ? '600' : '400'
+                            }}
+                          >
+                            {usageStats.usage?.text_sources?.percentage}% used
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-1.5">
+                        <div
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{
+                            width: `${Math.min(usageStats.usage?.text_sources?.percentage || 0, 100)}%`,
+                            backgroundColor: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-
-        {/* Resource Usage / Plan Limits */}
-        {usageStats && (
-          <div className="mb-8">
-            <h2 style={{ 
-              fontFamily: 'Inter, sans-serif', 
-              fontSize: '13px', 
-              fontWeight: '600',
-              color: '#0B0B0B',
-              marginBottom: '16px',
-              textTransform: 'uppercase',
-              letterSpacing: '0.05em'
-            }}>
-              Resource Usage
-            </h2>
-            <div className="space-y-4">
-              {/* Chatbots */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#0B0B0B' }}>
-                    Agents
-                  </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.chatbots?.current}/{usageStats.usage?.chatbots?.limit}
-                  </span>
-                  <span style={{ 
-                    fontFamily: 'Inter, sans-serif', 
-                    fontSize: '13px', 
-                    color: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#6B7280',
-                    fontWeight: usageStats.usage?.chatbots?.percentage >= 100 ? '600' : '400'
-                  }}>
-                    {usageStats.usage?.chatbots?.percentage}% used
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.min(usageStats.usage?.chatbots?.percentage || 0, 100)}%`,
-                      backgroundColor: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#9333EA'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Messages */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#0B0B0B' }}>
-                    Messages
-                  </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.messages?.current}/{usageStats.usage?.messages?.limit === 999999 || usageStats.usage?.messages?.limit === 999999999 ? '∞' : usageStats.usage?.messages?.limit?.toLocaleString()}
-                  </span>
-                  <span style={{ 
-                    fontFamily: 'Inter, sans-serif', 
-                    fontSize: '13px', 
-                    color: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#6B7280',
-                    fontWeight: usageStats.usage?.messages?.percentage >= 100 ? '600' : '400'
-                  }}>
-                    {usageStats.usage?.messages?.percentage}% used
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.min(usageStats.usage?.messages?.percentage || 0, 100)}%`,
-                      backgroundColor: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#9333EA'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Files */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#0B0B0B' }}>
-                    Files
-                  </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.file_uploads?.current}/{usageStats.usage?.file_uploads?.limit}
-                  </span>
-                  <span style={{ 
-                    fontFamily: 'Inter, sans-serif', 
-                    fontSize: '13px', 
-                    color: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#6B7280',
-                    fontWeight: usageStats.usage?.file_uploads?.percentage >= 100 ? '600' : '400'
-                  }}>
-                    {usageStats.usage?.file_uploads?.percentage}% used
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.min(usageStats.usage?.file_uploads?.percentage || 0, 100)}%`,
-                      backgroundColor: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#9333EA'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Websites */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#0B0B0B' }}>
-                    Websites
-                  </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.website_sources?.current}/{usageStats.usage?.website_sources?.limit}
-                  </span>
-                  <span style={{ 
-                    fontFamily: 'Inter, sans-serif', 
-                    fontSize: '13px', 
-                    color: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#6B7280',
-                    fontWeight: usageStats.usage?.website_sources?.percentage >= 100 ? '600' : '400'
-                  }}>
-                    {usageStats.usage?.website_sources?.percentage}% used
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.min(usageStats.usage?.website_sources?.percentage || 0, 100)}%`,
-                      backgroundColor: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#9333EA'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Text Sources */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#0B0B0B' }}>
-                    Text Sources
-                  </span>
-                  <span style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px', color: '#6B7280' }}>
-                    {usageStats.usage?.text_sources?.current}/{usageStats.usage?.text_sources?.limit}
-                  </span>
-                  <span style={{ 
-                    fontFamily: 'Inter, sans-serif', 
-                    fontSize: '13px', 
-                    color: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#6B7280',
-                    fontWeight: usageStats.usage?.text_sources?.percentage >= 100 ? '600' : '400'
-                  }}>
-                    {usageStats.usage?.text_sources?.percentage}% used
-                  </span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="h-2 rounded-full transition-all duration-500"
-                    style={{ 
-                      width: `${Math.min(usageStats.usage?.text_sources?.percentage || 0, 100)}%`,
-                      backgroundColor: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#9333EA'
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Chatbots Section - Table Style */}
         <div className="mb-8">
