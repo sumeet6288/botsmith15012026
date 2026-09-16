@@ -510,157 +510,194 @@ const DashboardRedesigned = () => {
           </div>
         </div>
 
-        {/* Chatbots Section - Table Style */}
+        {/* Chatbots Section - Card Style */}
         <div className="mb-8">
-          <h2 style={{ 
-            fontFamily: 'Inter, sans-serif', 
-            fontSize: '20px', 
-            fontWeight: '600',
-            color: '#0B0B0B',
-            marginBottom: '16px'
-          }}>
-            Your Agents
-          </h2>
-          
+          <div className="flex items-center justify-between mb-4">
+            <h2 style={{
+              fontFamily: 'Inter, sans-serif',
+              fontSize: '20px',
+              fontWeight: '600',
+              color: '#0B0B0B'
+            }}>
+              Your Agents
+            </h2>
+          </div>
+
           {chatbots.length === 0 ? (
-            <div className="text-center py-12 border border-gray-200 rounded-lg">
+            <div className="text-center py-12 border border-gray-200 rounded-xl bg-white">
               <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-              <p style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', color: '#6B7280' }}>
+              <p style={{
+                fontFamily: 'Inter, sans-serif',
+                fontSize: '14px',
+                color: '#6B7280'
+              }}>
                 No agents yet. Create your first one to get started.
               </p>
             </div>
           ) : (
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
-              <table className="w-full">
-                <thead className="bg-gray-50 border-b border-gray-200">
-                  <tr>
-                    <th style={{ 
-                      fontFamily: 'Inter, sans-serif', 
-                      fontSize: '12px', 
-                      fontWeight: '500',
-                      color: '#6B7280',
-                      textAlign: 'left',
-                      padding: '12px 16px'
-                    }}>
-                      Agent Name
-                    </th>
-                    <th style={{ 
-                      fontFamily: 'Inter, sans-serif', 
-                      fontSize: '12px', 
-                      fontWeight: '500',
-                      color: '#6B7280',
-                      textAlign: 'left',
-                      padding: '12px 16px'
-                    }}>
-                      Status
-                    </th>
-                    <th style={{ 
-                      fontFamily: 'Inter, sans-serif', 
-                      fontSize: '12px', 
-                      fontWeight: '500',
-                      color: '#6B7280',
-                      textAlign: 'left',
-                      padding: '12px 16px'
-                    }}>
-                      Model
-                    </th>
-                    <th style={{ 
-                      fontFamily: 'Inter, sans-serif', 
-                      fontSize: '12px', 
-                      fontWeight: '500',
-                      color: '#6B7280',
-                      textAlign: 'left',
-                      padding: '12px 16px'
-                    }}>
-                      Messages
-                    </th>
-                    <th style={{ 
-                      fontFamily: 'Inter, sans-serif', 
-                      fontSize: '12px', 
-                      fontWeight: '500',
-                      color: '#6B7280',
-                      textAlign: 'right',
-                      padding: '12px 16px'
-                    }}>
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {chatbots.map((bot) => (
-                    <tr 
-                      key={bot.id}
-                      className="border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors"
-                      onClick={() => navigate(`/chatbot/${bot.id}`)}
-                    >
-                      <td style={{ 
-                        fontFamily: 'Inter, sans-serif', 
-                        fontSize: '13px',
-                        color: '#0B0B0B',
-                        padding: '16px'
-                      }}>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {chatbots.map((bot) => (
+                <div
+                  key={bot.id}
+                  className="relative bg-white border border-gray-200 rounded-xl overflow-hidden transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md"
+                  onClick={() => navigate(`/chatbot/${bot.id}`)}
+                >
+                  {/* Agent Preview */}
+                  <div
+                    className="h-44 border-b border-gray-100 flex items-center justify-center overflow-hidden"
+                    style={{
+                      background: 'linear-gradient(135deg, #F5F3FF 0%, #FAFAFA 100%)'
+                    }}
+                  >
+                    <div className="w-[72%] h-[86%] bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                      <div
+                        className="h-8 px-3 flex items-center"
+                        style={{
+                          backgroundColor: '#111111',
+                          color: '#FFFFFF',
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: '8px',
+                          fontWeight: '500'
+                        }}
+                      >
                         {bot.name}
-                      </td>
-                      <td style={{ padding: '16px' }}>
-                        <span 
-                          className="inline-block px-2 py-1 rounded-md text-xs"
-                          style={{ 
-                            fontFamily: 'Inter, sans-serif',
-                            backgroundColor: bot.status === 'active' ? '#D1FAE5' : '#E5E7EB',
-                            color: bot.status === 'active' ? '#065F46' : '#6B7280'
+                      </div>
+                      <div className="p-3">
+                        <div className="h-2 w-2/5 rounded-full bg-gray-100 mb-3"></div>
+                        <div className="h-2 w-1/2 rounded-full bg-purple-100 ml-auto mb-3"></div>
+                        <div className="h-2 w-1/3 rounded-full bg-gray-100"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Manage Button */}
+                  <Button
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(`/chatbot/${bot.id}`);
+                    }}
+                    className="absolute bottom-11 right-4 h-8 px-3 bg-white hover:bg-gray-50 border-gray-300 shadow-sm"
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '11px'
+                    }}
+                  >
+                    Manage
+                  </Button>
+
+                  {/* Toggle Switch */}
+                  <button
+                    onClick={(e) => handleToggleChatbot(e, bot.id, bot.status)}
+                    className={`absolute top-3 right-0.1 relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
+                      bot.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
+                    }`}
+                    role="switch"
+                    aria-checked={bot.status === 'active'}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        bot.status === 'active' ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+
+                  {/* Agent Information */}
+                  <div className="px-4 py-4">
+                    <h3
+                      className="pr-2 truncate"
+                      style={{
+                        fontFamily: 'Inter, sans-serif',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        color: '#0B0B0B'
+                      }}
+                    >
+                      {bot.name}
+                    </h3>
+
+                    <div className="flex items-center gap-2 mt-2">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md"
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: '10px',
+                          backgroundColor: bot.status === 'active' ? '#D1FAE5' : '#E5E7EB',
+                          color: bot.status === 'active' ? '#065F46' : '#6B7280'
+                        }}
+                      >
+                        <span
+                          className="w-1.5 h-1.5 rounded-full"
+                          style={{
+                            backgroundColor: bot.status === 'active' ? '#10B981' : '#9CA3AF'
                           }}
-                        >
-                          {bot.status === 'active' ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td style={{ 
-                        fontFamily: 'Inter, sans-serif', 
-                        fontSize: '13px',
-                        color: '#6B7280',
-                        padding: '16px'
-                      }}>
+                        />
+                        {bot.status === 'active' ? 'Active' : 'Inactive'}
+                      </span>
+
+                      <span
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: '10px',
+                          color: '#6B7280'
+                        }}
+                      >
                         {bot.model}
-                      </td>
-                      <td style={{ 
-                        fontFamily: 'Inter, sans-serif', 
-                        fontSize: '13px',
-                        color: '#0B0B0B',
-                        padding: '16px'
-                      }}>
-                        {bot.messages_count?.toLocaleString() || 0}
-                      </td>
-                      <td style={{ padding: '16px', textAlign: 'right' }}>
-                        <div className="flex items-center justify-end gap-3">
-                          {/* Toggle Switch */}
-                          <button
-                            onClick={(e) => handleToggleChatbot(e, bot.id, bot.status)}
-                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                              bot.status === 'active' ? 'bg-green-500' : 'bg-gray-300'
-                            }`}
-                            role="switch"
-                            aria-checked={bot.status === 'active'}
-                          >
-                            <span
-                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                bot.status === 'active' ? 'translate-x-6' : 'translate-x-1'
-                              }`}
-                            />
-                          </button>
-                          
-                          <Button 
-                            variant="outline" 
-                            onClick={(e) => { e.stopPropagation(); navigate(`/chatbot/${bot.id}`); }}
-                            className="border border-gray-300 hover:bg-gray-100 transition-all"
-                            style={{ fontFamily: 'Inter, sans-serif', fontSize: '13px' }}
-                          >
-                            Manage
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </span>
+
+                      <span
+                        className="ml-auto"
+                        style={{
+                          fontFamily: 'Inter, sans-serif',
+                          fontSize: '10px',
+                          color: '#6B7280'
+                        }}
+                      >
+                        {bot.messages_count?.toLocaleString() || 0} msgs
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              {/* Create New Agent Card - UI only */}
+              <div
+                className="min-h-[265px] bg-white border border-dashed border-gray-300 rounded-xl flex items-center justify-center transition-all duration-200 hover:border-purple-300 hover:bg-purple-50/20 cursor-pointer"
+                onClick={handleCreateChatbot}
+              >
+                <div className="text-center px-5">
+                  <div
+                    className="w-10 h-10 mx-auto mb-3 rounded-lg border border-gray-200 bg-gray-50 flex items-center justify-center"
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '22px',
+                      color: '#6B7280'
+                    }}
+                  >
+                    +
+                  </div>
+                  <h3
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      color: '#0B0B0B'
+                    }}
+                  >
+                    Create new agent
+                  </h3>
+                  <p
+                    className="mt-1"
+                    style={{
+                      fontFamily: 'Inter, sans-serif',
+                      fontSize: '10px',
+                      color: '#6B7280'
+                    }}
+                  >
+                    Build another AI assistant
+                  </p>
+                </div>
+              </div>
             </div>
           )}
         </div>
