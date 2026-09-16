@@ -556,7 +556,7 @@ const DashboardRedesigned = () => {
                           backgroundColor: '#111111',
                           color: '#FFFFFF',
                           fontFamily: 'Inter, sans-serif',
-                          fontSize: '8px',
+                          fontSize: '10px',
                           fontWeight: '500'
                         }}
                       >
