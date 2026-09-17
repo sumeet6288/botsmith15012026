@@ -563,9 +563,9 @@ const DashboardRedesigned = () => {
                         {bot.name}
                       </div>
                       <div className="p-3">
-                        <div className="h-2 w-2/5 rounded-full bg-gray-100 mb-3"></div>
-                        <div className="h-2 w-1/2 rounded-full bg-purple-100 ml-auto mb-3"></div>
-                        <div className="h-2 w-1/3 rounded-full bg-gray-100"></div>
+                        <div className="h-2 w-2/5 rounded-full bg-black mb-3"></div>
+                        <div className="h-2 w-1/2 rounded-full bg-black ml-auto mb-3"></div>
+                        <div className="h-2 w-1/3 rounded-full bg-black"></div>
                       </div>
                     </div>
                   </div>
