@@ -52,6 +52,7 @@ const FooterColumn = ({ title, links }) => (
 const LandingPage = () => {
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [cookieConsent, setCookieConsent] = useState(null);
 
   // Scroll animation hooks for different sections - removed for performance
   const featuresRef = React.useRef(null);
@@ -68,7 +69,21 @@ const LandingPage = () => {
   // Scroll to top on mount to fix reload issue
   useEffect(() => {
     window.scrollTo(0, 0);
+
+    const consent = document.cookie
+      .split('; ')
+      .find((row) => row.startsWith('botsmith_cookie_consent='))
+      ?.split('=')[1];
+
+    if (consent === 'accepted' || consent === 'declined') {
+      setCookieConsent(consent);
+    }
   }, []);
+
+  const handleCookieConsent = (choice) => {
+    document.cookie = `botsmith_cookie_consent=${choice}; max-age=${60 * 60 * 24 * 365}; path=/; SameSite=Lax`;
+    setCookieConsent(choice);
+  };
 
   // Reference-style feature card motion using scroll position.
   // This intentionally uses the same scale/rotation/origin model as the shared reference,
@@ -1221,6 +1236,52 @@ const LandingPage = () => {
           </div>
         </footer>
       </section>
+
+      {/* Cookie Consent Banner */}
+      {cookieConsent === null && (
+        <div className="fixed bottom-4 left-4 right-4 sm:left-6 sm:right-6 lg:left-6 lg:right-auto lg:max-w-[520px] z-[200]">
+          <div className="rounded-2xl border border-gray-200 bg-white/95 backdrop-blur-xl p-5 shadow-[0_18px_50px_rgba(20,18,28,0.16)]">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 text-xl">🍪</div>
+              <div className="min-w-0 flex-1">
+                <h3 className="text-sm font-semibold text-gray-900">
+                  We use cookies
+                </h3>
+                <p className="mt-1.5 text-xs sm:text-sm leading-5 text-gray-500">
+                  We use cookies to improve your experience and understand how visitors use BotSmith.
+                </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Button
+                    type="button"
+                    onClick={() => handleCookieConsent('declined')}
+                    variant="outline"
+                    className="h-9 rounded-lg border-gray-200 px-4 text-xs font-medium text-gray-700 hover:bg-gray-50"
+                  >
+                    Decline
+                  </Button>
+
+                  <Button
+                    type="button"
+                    onClick={() => handleCookieConsent('accepted')}
+                    className="h-9 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-xs font-medium text-white shadow-md shadow-purple-500/20 hover:from-purple-700 hover:to-pink-700"
+                  >
+                    Accept
+                  </Button>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate('/cookie-policy')}
+                    className="ml-1 text-xs font-medium text-purple-600 hover:text-purple-700"
+                  >
+                    Cookie Policy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
