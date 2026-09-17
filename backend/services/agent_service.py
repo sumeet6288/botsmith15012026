@@ -317,14 +317,24 @@ Do not announce database operations. Simply continue the conversation naturally.
     @staticmethod
     def _extract_name(message: str) -> Optional[str]:
         """
-        Conservative extraction only for explicit
-        "my name is ..." messages.
+        Conservative extraction only for explicit "my name is ..."
+        messages. Stops before phone/contact phrases so they are never
+        included in the stored name.
         """
         if not message:
             return None
 
+        # Capture only the name portion.
+        #
+        # Examples:
+        #   "My name is Sam and my number is 9876543210" -> "Sam"
+        #   "My name is Rahul Patil, my phone is 9876543210" -> "Rahul Patil"
+        #   "My name is Sam" -> "Sam"
         match = re.search(
-            r"\bmy\s+name\s+is\s+([A-Za-z][A-Za-z .'-]{1,60})",
+            r"\bmy\s+name\s+is\s+"
+            r"([A-Za-z][A-Za-z .'-]{1,60}?)"
+            r"(?=\s*(?:,|;|\.|and\s+)?"
+            r"(?:my\s+)?(?:phone|mobile|number|contact)\b|\s*$)",
             message,
             re.I,
         )
@@ -332,16 +342,18 @@ Do not announce database operations. Simply continue the conversation naturally.
         if not match:
             return None
 
-        name = match.group(1).strip()
+        name = match.group(1).strip(" ,;:-")
 
-        # Remove common trailing phrases if the user puts phone information
-        # immediately after their name.
-        name = re.split(
-            r"\b(?:and\s+)?(?:my\s+)?(?:phone|mobile|number|contact)\b",
+        # Reject anything that still contains a contact-information phrase.
+        if not name or len(name) > 60:
+            return None
+
+        if re.search(
+            r"\b(?:my\s+)?(?:phone|mobile|number|contact)\b",
             name,
-            maxsplit=1,
-            flags=re.I,
-        )[0].strip(" ,;:-")
+            re.I,
+        ):
+            return None
 
         return name or None
 
