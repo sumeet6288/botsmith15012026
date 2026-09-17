@@ -93,16 +93,9 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
   }; 
 
   const handleSaveEmailAlert = async () => {
-    if (!emailAlertAddress.trim()) {
-      toast({
-        title: 'Email required',
-        description: 'Please enter an email address.',
-        variant: 'destructive'
-      });
-      return;
-    }
+    const email = emailAlertAddress.trim();
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAlertAddress.trim())) {
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       toast({
         title: 'Invalid email',
         description: 'Please enter a valid email address.',
@@ -114,20 +107,24 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
     try {
       setSavingEmailAlert(true);
       await chatbotAPI.update(chatbot.id, {
-        email_alerts_enabled: true,
-        email_alert_address: emailAlertAddress.trim()
+        email_alerts_enabled: Boolean(email),
+        email_alert_address: email || null
       });
-      setEmailAlertsEnabled(true);
+      setEmailAlertsEnabled(Boolean(email));
       toast({
-        title: 'Email Alert Saved',
-        description: `New lead alerts will be sent to ${emailAlertAddress.trim()}.`
+        title: email ? 'Email Alert Saved' : 'Email Alerts Disabled',
+        description: email
+          ? `New lead alerts will be sent to ${email}.`
+          : 'Email alerts have been disabled and the email address was removed.'
       });
       if (onUpdate) await onUpdate();
     } catch (err) {
       console.error('Error saving email alert settings:', err);
       toast({
         title: 'Error',
-        description: err.response?.data?.detail || 'Failed to save email alert settings',
+        description: Array.isArray(err.response?.data?.detail)
+          ? (err.response.data.detail[0]?.msg || 'Failed to save email alert settings')
+          : (err.response?.data?.detail || 'Failed to save email alert settings'),
         variant: 'destructive'
       });
     } finally {
@@ -321,6 +318,10 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
                 Save
               </button>
             </div>
+
+            <p className="mt-2 text-xs text-gray-500">
+              To remove email alerts, remove the email from this field and click Save.
+            </p>
           </div>
         )}
       </div> 
