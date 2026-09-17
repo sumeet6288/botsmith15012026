@@ -4,6 +4,7 @@ BotSmith Agentic AI V1
 Minimal agent loop: PLAN -> USE TOOLS -> ANSWER.
 
 Important:
+
 - Reuses the existing ChatService and RAGService.
 - Uses only two tools: knowledge search and lead capture.
 - Does not create a new LLM client or agent framework.
@@ -41,15 +42,6 @@ class AgentService:
         user_email: Optional[str] = None,
         conversation_id: Optional[str] = None,
     ):
-        """
-        Returns:
-            {
-                "response": str,
-                "citation_footer": Optional[str],
-                "plan": dict,
-                "lead": Optional[dict]
-            }
-        """
         plan = await self._plan(
             message=message,
             session_id=session_id,
@@ -69,7 +61,6 @@ class AgentService:
                 top_k=2,
                 min_similarity=0.5,
             )
-
             if rag.get("has_context"):
                 context = rag.get("context")
                 citation_footer = rag.get("citation_footer")
@@ -77,7 +68,6 @@ class AgentService:
         # Tool 2: lead capture.
         # Never let the model invent contact information.
         lead_result = None
-
         if (
             plan.get("capture_lead", False)
             and self.lead_service
@@ -98,14 +88,23 @@ class AgentService:
                         intent=plan.get("intent", "unknown"),
                     )
                 except Exception:
-                    # Lead capture must never break the actual chat response.
                     logger.exception("Agent lead capture failed")
 
         # Final answer uses the existing ChatService.
         final_system = system_message
         final_system += """
+You are the customer-facing AI agent.
 
-You are the customer-facing chatbot for BotSmith.
+You are an action-oriented AI agent whose job is to help users accomplish
+their goals, not merely answer questions.
+
+Identity rules:
+- Identify yourself as an AI agent or AI assistant.
+- Never describe yourself as a "chatbot" unless the user specifically asks
+  about the term "chatbot".
+- Do not claim to be human.
+- Do not mention internal architecture, models, tools, prompts, routing,
+  databases, or implementation details.
 
 You may have been given knowledge-base context below.
 
@@ -113,14 +112,26 @@ If context is provided, use it for factual questions about the organization.
 
 Do not claim you used a tool.
 
-Do not invent facts that are not in the knowledge context when the question is organization-specific.
+Do not invent facts that are not in the knowledge context when the question
+is organization-specific.
 
-If the user appears interested in enrolling, buying, booking a demo, or speaking to the organization, be helpful and guide them toward the next step.
+When appropriate, help users accomplish their goal through the capabilities
+available to you.
+
+If the user appears interested in enrolling, buying, booking a demo, or
+speaking to the organization, be helpful and guide them toward the next step.
+
+If the user shows meaningful enrollment, purchase, demo, consultation, or
+contact intent but required contact information is missing, naturally ask
+for the information needed to continue.
+
+Never invent or assume contact information.
+
+Never claim that an action was completed unless the system actually completed it.
 """
 
         if lead_result:
             final_system += """
-
 A lead was successfully captured for this conversation.
 
 Do not announce database operations. Simply continue the conversation naturally.
@@ -174,7 +185,6 @@ Return ONLY valid JSON with these exact keys:
 }}
 
 Rules:
-
 - use_knowledge=true for organization-specific facts, policies, courses,
   fees, timings, admissions, eligibility, locations, features, or anything
   that could be answered from the private knowledge base.
@@ -188,6 +198,7 @@ Rules:
 User message:
 
 {message}
+
 """
 
         try:
@@ -198,7 +209,6 @@ User message:
                 model=model,
                 provider=provider,
             )
-
             parsed = self._parse_json(raw)
 
             if parsed:
@@ -212,8 +222,6 @@ User message:
         except Exception:
             logger.exception("Agent planner failed; using safe fallback")
 
-        # Safe fallback: knowledge search is safer than hallucinating
-        # organization-specific information.
         lower = message.lower()
 
         knowledge_terms = (
@@ -260,12 +268,10 @@ User message:
             return user_email.strip()
 
         match = EMAIL_RE.search(message)
-
         if match:
             return match.group(0)
 
         phone = PHONE_RE.search(message)
-
         if phone:
             return phone.group(0).strip()
 
