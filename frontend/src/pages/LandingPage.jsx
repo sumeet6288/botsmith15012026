@@ -450,86 +450,116 @@ const LandingPage = () => {
               <div className="absolute top-8 right-8 w-4 h-4 bg-white/30 rounded-full animate-ping pointer-events-none"></div>
               <div className="absolute bottom-12 left-12 w-3 h-3 bg-yellow-300/40 rounded-full animate-ping animation-delay-1000 pointer-events-none"></div>
               
-              <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl w-full max-w-md transition-shadow duration-300 border border-white/50 pointer-events-none">
+              <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl w-full max-w-lg transition-shadow duration-300 border border-white/50 pointer-events-none">
                 <div className="relative">
-                  {/* Chatbot Header */}
-                  <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
+                  {/* Premium Modular Chat Preview */}
+                  <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
-                        <Sparkles className="w-5 h-5 text-white" />
+                      <div className="relative w-10 h-10 rounded-[14px] bg-gradient-to-br from-purple-600 via-fuchsia-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+                        <Sparkles className="w-[18px] h-[18px] text-white" />
+                        <span className="absolute -right-0.5 -bottom-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white"></span>
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-gray-900">BotSmith AI</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-[16px] font-semibold tracking-tight text-gray-950">BotSmith AI</h3>
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-600">Live</span>
+                        </div>
+                        <p className="mt-0.5 text-[13px] text-gray-400">Student support assistant</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button className="w-8 h-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        <span className="text-base leading-none">•••</span>
+                      </button>
+                      <button className="w-8 h-8 rounded-lg border border-gray-100 bg-white text-gray-400 hover:text-gray-700 hover:bg-gray-50 transition-colors">
+                        <X className="w-4 h-4 mx-auto" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Conversation */}
+                  <div className="space-y-4 mb-5 max-h-[285px] overflow-hidden">
+                    {/* AI Welcome Module */}
+                    <div className="flex items-start gap-2.5 animate-slide-in-left">
+                      <div className="w-7 h-7 rounded-[9px] bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <Sparkles className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="bg-[#f7f7fa] border border-gray-100 rounded-2xl rounded-tl-md px-4 py-3 shadow-[0_4px_16px_rgba(25,20,35,0.035)]">
+                          <p className="text-[15px] leading-6 text-gray-800">
+                            Hi! I’m your campus AI assistant. What can I help you find?
+                          </p>
+                        </div>
+                        <span className="block mt-1.5 ml-1 text-[10px] font-medium text-gray-400">Just now</span>
+                      </div>
+                    </div>
+
+                    {/* Quick Action Modules */}
+                    <div className="ml-9 flex flex-wrap gap-2 animate-slide-in-left animation-delay-300">
+                      <span className="inline-flex items-center rounded-full border border-purple-100 bg-purple-50/70 px-3.5 py-1.5 text-[11px] font-medium text-purple-700">
+                        Admissions
+                      </span>
+                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 text-[11px] font-medium text-gray-600 shadow-sm">
+                        Courses
+                      </span>
+                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 text-[11px] font-medium text-gray-600 shadow-sm">
+                        Campus
+                      </span>
+                    </div>
+
+                    {/* User Message Module */}
+                    <div className="flex items-start justify-end animate-slide-in-right animation-delay-300">
+                      <div className="max-w-[78%]">
+                        <div className="rounded-2xl rounded-tr-md bg-gradient-to-br from-purple-600 to-fuchsia-600 px-4 py-3 shadow-[0_8px_20px_rgba(124,58,237,0.18)]">
+                          <p className="text-[15px] leading-6 text-white">What services do you offer?</p>
+                        </div>
+                        <div className="mt-1.5 text-right text-[10px] font-medium text-gray-400">10:24 AM · Sent</div>
+                      </div>
+                    </div>
+
+                    {/* AI Response Module */}
+                    <div className="flex items-start gap-2.5 animate-slide-in-left animation-delay-600">
+                      <div className="w-7 h-7 rounded-[9px] bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <Sparkles className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="bg-[#f7f7fa] border border-gray-100 rounded-2xl rounded-tl-md px-4 py-3 shadow-[0_4px_16px_rgba(25,20,35,0.035)]">
+                          <p className="text-[15px] leading-6 text-gray-800">
+                            Admissions, programs, fees, campus information, and student support — instantly.
+                          </p>
+                        </div>
+                        <div className="mt-2 flex items-center gap-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>
+                          <span className="text-[10px] font-medium text-gray-400">AI response</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Typing Module */}
+                    <div className="flex items-center gap-2.5 animate-slide-in-left animation-delay-900">
+                      <div className="w-7 h-7 rounded-[9px] bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <Sparkles className="w-3.5 h-3.5 text-white" />
+                      </div>
+                      <div className="rounded-2xl bg-gray-50 border border-gray-100 px-3.5 py-2.5">
                         <div className="flex items-center gap-1">
-                          <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                          <span className="text-xs text-gray-500">Online</span>
-                        </div>
-                      </div>
-                    </div>
-                    <button className="text-gray-400 hover:text-gray-600 transition-colors">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  
-                  {/* Chat Messages */}
-                  <div className="space-y-4 mb-4 max-h-[280px] overflow-hidden">
-                    {/* AI Message */}
-                    <div className="flex items-start gap-2 animate-slide-in-left">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                        <Sparkles className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-2.5 max-w-[75%] shadow-sm">
-                        <p className="text-sm text-gray-800">👋 Hi! I'm your AI assistant. How can I help you today?</p>
-                      </div>
-                    </div>
-                    
-                    {/* User Message */}
-                    <div className="flex items-start gap-2 justify-end animate-slide-in-right animation-delay-300">
-                      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl rounded-tr-sm px-4 py-2.5 max-w-[75%] shadow-md">
-                        <p className="text-sm text-white">What services do you offer?</p>
-                      </div>
-                    </div>
-                    
-                    {/* AI Response */}
-                    <div className="flex items-start gap-2 animate-slide-in-left animation-delay-600">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                        <Sparkles className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-2.5 max-w-[75%] shadow-sm">
-                        <p className="text-sm text-gray-800">I can help students with admissions, campus information, and answer questions instantly! 🎓</p>
-                      </div>
-                    </div>
-                    
-                    {/* Typing Indicator */}
-                    <div className="flex items-start gap-2 animate-slide-in-left animation-delay-900">
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0 shadow-md">
-                        <Sparkles className="w-4 h-4 text-white" />
-                      </div>
-                      <div className="bg-gray-100 rounded-2xl rounded-tl-sm px-4 py-2.5 shadow-sm">
-                        <div className="flex gap-1">
-                          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></span>
-                          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce animation-delay-100"></span>
-                          <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce animation-delay-200"></span>
+                          <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce"></span>
+                          <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce animation-delay-100"></span>
+                          <span className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce animation-delay-200"></span>
                         </div>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Chat Input */}
-                  <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-xl border border-gray-200">
-                    <input 
-                      type="text" 
-                      placeholder="Type your message..."
-                      className="flex-1 bg-transparent px-3 py-2 text-sm text-gray-700 placeholder-gray-400 outline-none"
-                      disabled
-                    />
-                    <button className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-2 rounded-lg hover:from-purple-700 hover:to-pink-700 transition-all duration-300 shadow-md">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                      </svg>
-                    </button>
+
+                  {/* Premium Input Module */}
+                  <div className="rounded-2xl border border-gray-200 bg-white p-1.5 shadow-[0_8px_24px_rgba(25,20,35,0.06)]">
+                    <div className="flex items-center gap-2 rounded-[13px] bg-gray-50/80 px-2">
+                      <div className="flex-1 px-2 py-3 text-[14px] text-gray-400">
+                        Ask about admissions, courses...
+                      </div>
+                      <button className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-600 to-pink-500 text-white shadow-md shadow-purple-500/20 transition-transform duration-200 hover:scale-105">
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
