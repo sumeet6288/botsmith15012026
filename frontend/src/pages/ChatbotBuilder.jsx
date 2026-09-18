@@ -48,6 +48,54 @@ const ChatbotBuilder = () => {
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEnabled, setWebhookEnabled] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
+
+  // Hide BotSmith's global assistant widget while inside the Chatbot Builder.
+  // The real chatbot preview lives inside the iframe, so this only removes
+  // the duplicate parent-page widget without affecting deployed/public widgets.
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'botsmith-builder-hide-global-agent';
+    style.textContent = `
+      #botsmith-container,
+      #botsmith-side-greeting {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+    `;
+    document.head.appendChild(style);
+
+    return () => {
+      style.remove();
+    };
+  }, []);
+
+  // Keep the real widget preview synchronized with the chatbot's
+  // current saved appearance/settings without changing any API logic.
+  useEffect(() => {
+    if (!chatbot) return;
+
+    setIframeKey((prev) => prev + 1);
+  }, [
+    chatbot?.primary_color,
+    chatbot?.secondary_color,
+    chatbot?.accent_color,
+    chatbot?.logo_url,
+    chatbot?.avatar_url,
+    chatbot?.welcome_message,
+    chatbot?.welcome_screen_message,
+    chatbot?.widget_position,
+    chatbot?.widget_theme,
+    chatbot?.widget_size,
+    chatbot?.widget_button_icon,
+    chatbot?.widget_button_color,
+    chatbot?.widget_button_size,
+    chatbot?.widget_button_text,
+    chatbot?.bubble_style,
+    chatbot?.powered_by_text,
+    chatbot?.name
+  ]);
+
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('botsmith-chatbot-builder-sidebar-collapsed');
     return saved === 'true';
@@ -1029,35 +1077,56 @@ const ChatbotBuilder = () => {
               </div>
 
               {/* Live Preview */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-6 shadow-xl">
-                <div className="mb-4 flex items-center justify-between">
+              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-200 bg-white flex items-center justify-between">
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-1 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Live Preview</h3>
-                    <p className="text-sm text-gray-600">See how your agent will look when embedded</p>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                        Live
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-500 mt-0.5">
+                      Preview uses your current chatbot settings and appearance.
+                    </p>
                   </div>
+
                   <Button
                     onClick={() => setIframeKey(prev => prev + 1)}
                     variant="outline"
                     size="sm"
-                    className="border-purple-300 hover:bg-purple-50"
+                    className="h-9 border-gray-300 text-gray-700 hover:bg-gray-50"
                   >
                     🔄 Refresh
                   </Button>
                 </div>
-                <div className="border-2 border-purple-300 rounded-xl overflow-hidden shadow-lg" style={{ height: '600px' }}>
-                  <iframe
-                    key={`embed-${chatbot.id}-${iframeKey}`}
-                    src={`${window.location.origin}/embed/${chatbot.id}`}
-                    width="100%"
-                    height="100%"
-                    frameBorder="0"
-                    title="Chatbot Preview"
-                  />
-                </div>
-                <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-purple-300 rounded-xl shadow-sm">
-                  <p className="text-sm text-purple-800 font-medium">
-                    <strong>💡 Tip:</strong> The agent automatically adapts to your website's style and works on all devices.
-                  </p>
+
+                <div className="p-4 sm:p-5 bg-gray-50">
+                  <div
+                    className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
+                    style={{ height: '620px' }}
+                  >
+                    <iframe
+                      key={`embed-${chatbot.id}-${iframeKey}`}
+                      src={`${window.location.origin}/embed/${chatbot.id}`}
+                      width="100%"
+                      height="100%"
+                      frameBorder="0"
+                      title="Live Chatbot Widget Preview"
+                      className="block w-full h-full bg-white"
+                    />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-gray-500">
+                    <span>
+                      Changes saved in Settings and Appearance are reflected here automatically.
+                    </span>
+                    <span className="hidden sm:inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      Widget connected
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
