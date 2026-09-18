@@ -347,13 +347,7 @@ const ChatbotBuilder = () => {
   const embedCode = `<iframe src="${window.location.origin}/embed/${chatbot.id}" width="100%" height="600px" frameborder="0"></iframe>`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob"></div>
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-blob animation-delay-2000"></div>
-      </div>
-
+    <div className="min-h-screen bg-gray-50">
       {/* Top Navigation */}
       <nav className="bg-white/80 backdrop-blur-lg border-b border-purple-200/50 sticky top-0 z-50 shadow-sm">
         <div className="px-4 sm:px-8 py-4 flex items-center justify-between max-w-[95%] mx-auto">
@@ -380,63 +374,125 @@ const ChatbotBuilder = () => {
         </div>
       </nav>
 
-      <div className="p-4 sm:p-6 max-w-[95%] mx-auto relative z-10">
+      <div className="w-full mx-auto relative z-10">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* Left Sidebar Navigation */}
-          <div className="flex flex-col lg:flex-row gap-6 items-start">
-            <aside className={`w-full ${isSidebarCollapsed ? 'lg:w-20' : 'lg:w-72'} lg:flex-shrink-0 lg:-ml-6 transition-all duration-300 ease-in-out`}>
-              <div className={`flex mb-2 ${isSidebarCollapsed ? 'lg:justify-center' : 'justify-end'}`}>
-                <button
-                  type="button"
-                  onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
-                  aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                  title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                  className="hidden lg:flex p-2 rounded-lg text-purple-600 hover:bg-purple-100/70 transition-colors"
-                >
-                  {isSidebarCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-                </button>
+          {/* Full-height modular sidebar + workspace */}
+          <div className="flex flex-col lg:flex-row items-stretch min-h-[calc(100vh-80px)]">
+            <aside
+              className={`w-full ${isSidebarCollapsed ? 'lg:w-[72px]' : 'lg:w-[272px]'} lg:flex-shrink-0 bg-white border-r border-gray-200 transition-[width] duration-200`}
+            >
+              <div className="lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] flex flex-col">
+                <div className="flex-1 overflow-y-auto p-3">
+                  {!isSidebarCollapsed && (
+                    <div className="px-3 pt-1 pb-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+                        Agent workspace
+                      </p>
+                    </div>
+                  )}
+
+                  <TabsList className={`flex flex-nowrap overflow-x-auto lg:overflow-visible scrollbar-hide lg:flex-col h-auto w-full gap-1 bg-transparent p-0 ${isSidebarCollapsed ? 'lg:items-center' : ''}`}>
+
+                    <TabsTrigger
+                      value="sources"
+                      title="Sources"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <FileText className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Sources</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="settings"
+                      title="Settings"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <Settings className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Settings</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="appearance"
+                      title="Appearance"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <Palette className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Appearance</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="widget"
+                      title="Widget"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <MessageSquare className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Widget</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="analytics"
+                      title="Analytics"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <BarChart3 className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Analytics</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="advanced-analytics"
+                      title="Insights"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <TrendingUp className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Insights</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="leads-captured"
+                      data-testid="tab-leads-captured"
+                      title="Lead Captured"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <Users className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Lead Captured</span>
+                    </TabsTrigger>
+
+
+                    <TabsTrigger
+                      value="integrations"
+                      title="Integrations"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <Zap className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Integrations</span>
+                    </TabsTrigger>
+                  </TabsList>
+                </div>
+
+                <div className="border-t border-gray-200 p-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsSidebarCollapsed((collapsed) => !collapsed)}
+                    aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    title={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                    className={`w-full h-[42px] inline-flex items-center rounded-lg border border-gray-200 bg-white text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors ${isSidebarCollapsed ? 'justify-center' : 'justify-start gap-2 px-3'}`}
+                  >
+                    {isSidebarCollapsed ? (
+                      <PanelLeftOpen className="w-[18px] h-[18px]" />
+                    ) : (
+                      <PanelLeftClose className="w-[18px] h-[18px]" />
+                    )}
+                    {!isSidebarCollapsed && <span className="text-sm font-medium">Collapse sidebar</span>}
+                  </button>
+                </div>
               </div>
-              <TabsList className={`flex flex-nowrap overflow-x-auto lg:overflow-visible scrollbar-hide lg:flex-col h-auto w-full gap-2 bg-white/80 backdrop-blur-sm border-2 border-purple-200/50 p-3 rounded-xl shadow-lg animate-fade-in-up ${isSidebarCollapsed ? 'lg:items-center' : ''}`}>
-                <TabsTrigger value="sources" title="Sources" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <FileText className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Sources</span>
-                </TabsTrigger>
-                <TabsTrigger value="settings" title="Settings" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <Settings className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Settings</span>
-                </TabsTrigger>
-                <TabsTrigger value="appearance" title="Appearance" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <Palette className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Appearance</span>
-                </TabsTrigger>
-                <TabsTrigger value="widget" title="Widget" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <MessageSquare className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Widget</span>
-                </TabsTrigger>
-                <TabsTrigger value="analytics" title="Analytics" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <BarChart3 className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Analytics</span>
-                </TabsTrigger>
-                <TabsTrigger value="advanced-analytics" title="Advanced Analytics" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <TrendingUp className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Insights</span>
-                </TabsTrigger>
-                <TabsTrigger value="integrations" title="Integrations" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <Zap className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Integrations</span>
-                </TabsTrigger>
-                <TabsTrigger value="leads-captured" data-testid="tab-leads-captured" title="Lead Captured" className={`flex-shrink-0 lg:w-full ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-4'} py-2 whitespace-nowrap data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-pink-600 data-[state=active]:text-white rounded-lg transition-all duration-300`}>
-                  <Users className={`${isSidebarCollapsed ? '' : 'mr-2'} w-4 h-4`} />
-                  <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Lead Captured</span>
-                </TabsTrigger>
-              </TabsList>
             </aside>
 
             {/* Main Tab Content */}
-            <main className="flex-1 min-w-0 w-full">
+            <main className="flex-1 min-w-0 w-full p-0">
 
           {/* Sources Tab */}
-          <TabsContent value="sources">
+          <TabsContent value="sources" className="m-0">
             <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
               {/* Header */}
               <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between gap-4">
@@ -564,7 +620,7 @@ const ChatbotBuilder = () => {
           </TabsContent>
 
           {/* Settings Tab */}
-          <TabsContent value="settings" className="animate-fade-in-up">
+          <TabsContent value="settings" className="m-0 animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl space-y-6">
               <div>
                 <h2 className="text-2xl font-bold mb-4 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Agent Settings</h2>
@@ -671,7 +727,7 @@ const ChatbotBuilder = () => {
           </TabsContent>
 
           {/* Widget Tab */}
-          <TabsContent value="widget" className="animate-fade-in-up">
+          <TabsContent value="widget" className="m-0 animate-fade-in-up">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Configuration Panel */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-6 shadow-xl space-y-6">
@@ -1008,7 +1064,7 @@ const ChatbotBuilder = () => {
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics" className="animate-fade-in-up">
+          <TabsContent value="analytics" className="m-0 animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl mb-6">
               <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Agent Analytics</h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1166,7 +1222,7 @@ const ChatbotBuilder = () => {
           </TabsContent>
 
           {/* Appearance Tab */}
-          <TabsContent value="appearance" className="animate-fade-in-up">
+          <TabsContent value="appearance" className="m-0 animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Customize Appearance</h2>
               <AppearanceTab chatbot={chatbot} onUpdate={refreshChatbot} />
@@ -1174,21 +1230,21 @@ const ChatbotBuilder = () => {
           </TabsContent>
 
           {/* Advanced Analytics Tab */}
-          <TabsContent value="advanced-analytics" className="animate-fade-in-up">
+          <TabsContent value="advanced-analytics" className="m-0 animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <AdvancedAnalytics chatbotId={id} />
             </div>
           </TabsContent>
 
           {/* Integrations Tab */}
-          <TabsContent value="integrations" className="animate-fade-in-up">
+          <TabsContent value="integrations" className="m-0 animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <ChatbotIntegrations chatbot={chatbot} />
             </div>
           </TabsContent>
 
           {/* Lead Captured Tab */}
-          <TabsContent value="leads-captured" className="animate-fade-in-up">
+          <TabsContent value="leads-captured" className="m-0 animate-fade-in-up">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <LeadCaptured chatbot={chatbot} onUpdate={refreshChatbot} />
             </div>

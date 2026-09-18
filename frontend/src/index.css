@@ -1303,3 +1303,8 @@ input:focus, textarea:focus, select:focus {
 #root.blog-route {
   zoom: 1;
 }
+
+/* Remove global 0.8 zoom effect ONLY from ChatbotBuilder */
+#root.chatbot-builder-route {
+  zoom: 1;
+}

@@ -135,6 +135,7 @@ function AuthRouteDetector() {
     const isAuthRoute = authRoutes.includes(location.pathname);
     const isMainDashboard = location.pathname === '/dashboard';
     const isBlogRoute = location.pathname.startsWith('/blog');
+    const isChatbotBuilder = location.pathname.startsWith('/chatbot/');
     
     // Get the root element
     const rootElement = document.getElementById('root');
@@ -159,6 +160,13 @@ function AuthRouteDetector() {
         rootElement.classList.add('blog-route');
       } else {
         rootElement.classList.remove('blog-route');
+      }
+
+      // Handle ChatbotBuilder route class (remove global zoom 0.8 effect ONLY from /chatbot/:id)
+      if (isChatbotBuilder) {
+        rootElement.classList.add('chatbot-builder-route');
+      } else {
+        rootElement.classList.remove('chatbot-builder-route');
       }
     }
   }, [location.pathname]);
