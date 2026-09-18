@@ -562,7 +562,7 @@ class Chatbot(BaseModel):
     auto_expand: bool = False
     
     # Lead Capture Settings
-    lead_capture_enabled: bool = True
+    lead_capture_enabled: bool = False
     email_alerts_enabled: bool = False
     email_alert_address: Optional[EmailStr] = None
     
@@ -664,7 +664,7 @@ class ChatbotResponse(BaseModel):
     widget_theme: str = "auto"
     widget_size: str = "medium"
     auto_expand: bool = False
-    lead_capture_enabled: bool = True
+    lead_capture_enabled: bool = False
     email_alerts_enabled: bool = False
     email_alert_address: Optional[EmailStr] = None
     powered_by_text: Optional[str] = None  # Custom "Powered by" text for white label

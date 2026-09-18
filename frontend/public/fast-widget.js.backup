@@ -60,14 +60,36 @@
       }
     }
   
-  // Get configuration from script tag
+  // Get configuration from BotSmith loader
+  const embedConfig = window.__BOTSMITH_EMBED_CONFIG__ || {};
   const script = document.currentScript;
+
   const config = {
-    chatbotId: script?.getAttribute('chatbot-id') || window.botsmithConfig?.chatbotId,
-    domain: script?.getAttribute('domain') || window.botsmithConfig?.domain || window.location.origin,
-    position: script?.getAttribute('position') || 'bottom-right',
-    theme: script?.getAttribute('theme') || 'purple',
-    apiUrl: script?.getAttribute('api-url') || (script?.getAttribute('domain') || window.location.origin) + '/api'
+    chatbotId:
+      embedConfig.chatbotId ||
+      script?.getAttribute('chatbot-id') ||
+      window.botsmithConfig?.chatbotId,
+
+    domain:
+      embedConfig.domain ||
+      script?.getAttribute('domain') ||
+      window.botsmithConfig?.domain ||
+      'https://botsmith.pro',
+
+    position:
+      embedConfig.position ||
+      script?.getAttribute('position') ||
+      'bottom-right',
+
+    theme:
+      embedConfig.theme ||
+      script?.getAttribute('theme') ||
+      'purple',
+
+    apiUrl:
+      embedConfig.apiUrl ||
+      script?.getAttribute('api-url') ||
+      'https://botsmith.pro/api'
   };
   
   if (!config.chatbotId) {
@@ -464,17 +486,32 @@
   `;
   inputArea.innerHTML = `
     <form id="botsmith-form" style="display: flex; gap: 10px; margin: 0;">
-      <input 
-        type="text" 
-        id="botsmith-input" 
+      <input
+        type="text"
+        id="botsmith-input"
         placeholder="Type your message..."
-        style="flex: 1; padding: 12px 18px; border: 2px solid #e5e7eb; border-radius: 28px; outline: none; font-size: 15px; transition: all 0.3s ease; background: #fafafa;"
+        style="flex: 1; min-width: 0; padding: 12px 18px; border: 2px solid #e5e7eb; border-radius: 28px; outline: none; font-size: 15px; transition: all 0.3s ease; background: #fafafa;"
       />
-      <button 
-        type="submit" 
-        id="botsmith-send" 
+
+      <button
+        type="button"
+        id="botsmith-mic"
+        aria-label="Start dictation"
+        title="Start dictation"
+        style="width: 48px; height: 48px; flex-shrink: 0; border: none; border-radius: 50%; background: #e5e7eb; color: #6b7280; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;"
+      >
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+          <rect x="9" y="3" width="6" height="12" rx="3" stroke="currentColor" stroke-width="2"/>
+          <path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <button
+        type="submit"
+        id="botsmith-send"
         class="botsmith-send-button"
-        style="width: 48px; height: 48px; border-radius: 50%; border: none; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 4px 12px ${customization.accent_color}40;">
+        style="width: 48px; height: 48px; flex-shrink: 0; border-radius: 50%; border: none; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px ${customization.accent_color}40;"
+      >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
           <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -1018,6 +1055,43 @@
     sendMessage(input.value);
   };
 
+  // Voice-to-text dictation
+  const micButton = document.getElementById('botsmith-mic');
+  const messageInput = document.getElementById('botsmith-input');
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-IN';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    micButton.addEventListener('click', () => {
+      recognition.start();
+      micButton.style.background = '#111827';
+      micButton.style.color = 'white';
+      micButton.title = 'Listening...';
+    });
+
+    recognition.onresult = (event) => {
+      messageInput.value = event.results[0][0].transcript;
+    };
+
+    recognition.onend = () => {
+      micButton.style.background = '#e5e7eb';
+      micButton.style.color = '#6b7280';
+      micButton.title = 'Start dictation';
+    };
+
+    recognition.onerror = () => {
+      micButton.style.background = '#e5e7eb';
+      micButton.style.color = '#6b7280';
+      micButton.title = 'Start dictation';
+    };
+  } else {
+    micButton.style.display = 'none';
+  }
+
   // API
   window.BotSmith = {
     open: () => { if (!isOpen) toggleChat(); },
@@ -1050,13 +1124,13 @@
       position: fixed;
       z-index: 999998;
 
-      width: 280px;
+      width: 230px;
       max-width: calc(100vw - 120px);
 
       background: #ffffff;
       color: #293142;
 
-      padding: 16px 42px 16px 18px;
+      padding: 10px 18px 10px 18px;
 
       border-radius: 14px;
 
@@ -1069,8 +1143,8 @@
         "Segoe UI",
         sans-serif;
 
-      font-size: 15px;
-      line-height: 1.45;
+      font-size: 14px;
+      line-height: 1.3;
 
       opacity: 0;
       visibility: hidden;
@@ -1088,6 +1162,12 @@
       opacity: 1;
       visibility: visible;
       pointer-events: auto;
+    }
+
+    #botsmith-side-greeting strong {
+      display: inline-block;
+      margin-bottom: 2px;
+      font-size: 14px;
     }
 
     #botsmith-side-greeting button {
@@ -1267,6 +1347,7 @@
       display: flex;
       align-items: center;
       z-index: 999999;
+      margin-right: 8px;
     }
 
     #botsmith-three-dot-btn {
@@ -2121,6 +2202,14 @@ function botsmithInitLeadCapture() {
     }
 
 
+    #botsmith-lead-phone.invalid-phone {
+
+      border-color: #dc2626 !important;
+
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.16) !important;
+    }
+
+
     @media (max-width: 480px) {
 
       #botsmith-lead-form-wrapper {
@@ -2339,6 +2428,12 @@ function botsmithInitLeadCapture() {
 
       </div>
 
+      <div id="botsmith-lead-phone-error" style="display: none; margin-top: 8px; font-size: 11px; color: #dc2626;">
+
+        Please enter a valid 10-digit phone number.
+
+      </div>
+
 
 
       <!-- NOTE -->
@@ -2402,6 +2497,52 @@ function botsmithInitLeadCapture() {
     );
 
 
+  const leadPhoneError =
+    document.getElementById(
+      'botsmith-lead-phone-error'
+    );
+
+
+  function isValidLeadPhone(value) {
+
+    const trimmed = value.trim();
+
+    if (!trimmed) return false;
+
+    // Remove common phone-number formatting characters
+    const normalized = trimmed.replace(/[\s\-().]/g, '');
+
+    // Only requirement: exactly 10 digits
+    return /^\d{10}$/.test(normalized);
+  }
+
+
+  function clearPhoneValidationError() {
+
+    leadPhoneInput.classList.remove('invalid-phone');
+
+    leadPhoneError.style.display = 'none';
+  }
+
+
+  function showPhoneValidationError() {
+
+    leadPhoneInput.classList.add('invalid-phone');
+
+    leadPhoneError.style.display = 'block';
+
+    leadPhoneInput.focus();
+  }
+
+
+  leadPhoneInput.addEventListener('input', () => {
+
+    if (isValidLeadPhone(leadPhoneInput.value)) {
+      clearPhoneValidationError();
+    }
+  });
+
+
 
   /* =========================
      9. HANDLE SUBMISSION
@@ -2425,16 +2566,26 @@ function botsmithInitLeadCapture() {
 
       /* VALIDATION */
 
-      if (
-        !leadName ||
-        !leadPhone
-      ) {
+      if (!leadName) {
 
-        leadError.style.display =
-          'block';
+        leadError.textContent =
+          'Please enter your name and phone number.';
+
+        leadError.style.display = 'block';
 
         return;
       }
+
+      if (!isValidLeadPhone(leadPhone)) {
+
+        leadError.style.display = 'none';
+
+        showPhoneValidationError();
+
+        return;
+      }
+
+      clearPhoneValidationError();
 
 
 
@@ -2635,7 +2786,7 @@ function botsmithInitLeadCapture() {
   style.textContent = `
     #botsmith-messages {
       background-color: #fafafa !important;
-      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.35) 1px, transparent 1px) !important;
+      background-image: radial-gradient(circle, rgba(100, 116, 139, 0.16) 1px, transparent 1px) !important;
       background-size: 20px 20px !important;
       background-repeat: repeat !important;
     }

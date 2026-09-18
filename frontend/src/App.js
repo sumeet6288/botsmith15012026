@@ -26,6 +26,7 @@ import PublicChat from './pages/PublicChat';
 import Pricing from './pages/Pricing';
 import Enterprise from './pages/Enterprise';
 import Resources from './pages/Resources';
+import Blog from './pages/Blog';
 import Documentation from './pages/resources/Documentation';
 import GettingStarted from './pages/resources/GettingStarted';
 import UserGuides from './pages/resources/UserGuides';
@@ -133,6 +134,8 @@ function AuthRouteDetector() {
     const authRoutes = ['/signin', '/signup'];
     const isAuthRoute = authRoutes.includes(location.pathname);
     const isMainDashboard = location.pathname === '/dashboard';
+    const isBlogRoute = location.pathname.startsWith('/blog');
+    const isChatbotBuilder = location.pathname.startsWith('/chatbot/');
     
     // Get the root element
     const rootElement = document.getElementById('root');
@@ -150,6 +153,20 @@ function AuthRouteDetector() {
         rootElement.classList.add('dashboard-route');
       } else {
         rootElement.classList.remove('dashboard-route');
+      }
+
+      // Handle blog route class (remove zoom 0.8 effect ONLY from /blog)
+      if (isBlogRoute) {
+        rootElement.classList.add('blog-route');
+      } else {
+        rootElement.classList.remove('blog-route');
+      }
+
+      // Handle ChatbotBuilder route class (remove global zoom 0.8 effect ONLY from /chatbot/:id)
+      if (isChatbotBuilder) {
+        rootElement.classList.add('chatbot-builder-route');
+      } else {
+        rootElement.classList.remove('chatbot-builder-route');
       }
     }
   }, [location.pathname]);
@@ -180,6 +197,7 @@ function AppContent() {
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/enterprise" element={<Enterprise />} />
             <Route path="/resources" element={<Resources />} />
+            <Route path="/blog/*" element={<Blog />} />
             <Route path="/resources/documentation" element={<Documentation />} />
             <Route path="/resources/getting-started" element={<GettingStarted />} />
             <Route path="/resources/user-guides" element={<UserGuides />} />

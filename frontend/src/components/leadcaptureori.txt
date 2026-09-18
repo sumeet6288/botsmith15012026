@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'; 
 import { Users, RefreshCw, Inbox, Download, Calendar } from 'lucide-react'; 
-import api, { chatbotAPI, plansAPI } from '../utils/api'; 
+import api, { chatbotAPI } from '../utils/api'; 
 import { Switch } from './ui/switch'; 
 import { useToast } from '../hooks/use-toast'; 
 
@@ -34,68 +34,44 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
   const [emailAlertAddress, setEmailAlertAddress] = useState('');
   const [emailAlertsEnabled, setEmailAlertsEnabled] = useState(false);
   const [savingEmailAlert, setSavingEmailAlert] = useState(false);
-  const [showUpgradeMessage, setShowUpgradeMessage] = useState(false);
-  const [userPlan, setUserPlan] = useState(null);
-  const [loadingPlan, setLoadingPlan] = useState(true);
 
-  // Use the same paid-plan permission as the White Label Branding feature.
-  const isPaidUser = Boolean(userPlan?.limits?.custom_branding);
+  const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false; 
 
-  const leadCaptureEnabled = chatbot?.lead_capture_enabled !== false;
-
-  useEffect(() => {
-    const fetchUserPlan = async () => {
-      try {
-        const response = await plansAPI.getUsageStats();
-        setUserPlan(response.data.plan);
-      } catch (err) {
-        console.error('Error fetching user plan:', err);
-      } finally {
-        setLoadingPlan(false);
-      }
-    };
-
-    fetchUserPlan();
-  }, []);
-
-  const handleToggleLeadCapture = async (checked) => {
-    if (!chatbot?.id || togglingCapture) return;
-
-    // Free users cannot enable Lead Capture.
-    // Keep the switch OFF and show only the inline upgrade message.
-    if (checked && !isPaidUser) {
-      setShowUpgradeMessage(true);
-      return;
-    }
-
-    setShowUpgradeMessage(false);
-
-    try {
-      setTogglingCapture(true);
-      await chatbotAPI.update(chatbot.id, { lead_capture_enabled: checked });
-      toast({
-        title: checked ? 'Lead Capture Enabled' : 'Lead Capture Disabled',
-        description: checked
-          ? 'Visitors will see the lead form before chatting.'
-          : 'Visitors will chat directly without submitting details.'
-      });
-      if (onUpdate) await onUpdate();
-    } catch (err) {
-      console.error('Error updating lead capture setting:', err);
-      toast({
-        title: 'Error',
-        description: 'Failed to update lead capture setting',
-        variant: 'destructive'
-      });
-    } finally {
-      setTogglingCapture(false);
-    }
+  const handleToggleLeadCapture = async (checked) => { 
+    if (!chatbot?.id || togglingCapture) return; 
+    try { 
+      setTogglingCapture(true); 
+      await chatbotAPI.update(chatbot.id, { lead_capture_enabled: checked }); 
+      toast({ 
+        title: checked ? 'Lead Capture Enabled' : 'Lead Capture Disabled', 
+        description: checked 
+          ? 'Visitors will see the lead form before chatting.' 
+          : 'Visitors will chat directly without submitting details.' 
+      }); 
+      if (onUpdate) await onUpdate(); 
+    } catch (err) { 
+      console.error('Error updating lead capture setting:', err); 
+      toast({ 
+        title: 'Error', 
+        description: 'Failed to update lead capture setting', 
+        variant: 'destructive' 
+      }); 
+    } finally { 
+      setTogglingCapture(false); 
+    } 
   }; 
 
   const handleSaveEmailAlert = async () => {
-    const email = emailAlertAddress.trim();
+    if (!emailAlertAddress.trim()) {
+      toast({
+        title: 'Email required',
+        description: 'Please enter an email address.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailAlertAddress.trim())) {
       toast({
         title: 'Invalid email',
         description: 'Please enter a valid email address.',
@@ -107,24 +83,20 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
     try {
       setSavingEmailAlert(true);
       await chatbotAPI.update(chatbot.id, {
-        email_alerts_enabled: Boolean(email),
-        email_alert_address: email || null
+        email_alerts_enabled: true,
+        email_alert_address: emailAlertAddress.trim()
       });
-      setEmailAlertsEnabled(Boolean(email));
+      setEmailAlertsEnabled(true);
       toast({
-        title: email ? 'Email Alert Saved' : 'Email Alerts Disabled',
-        description: email
-          ? `New lead alerts will be sent to ${email}.`
-          : 'Email alerts have been disabled and the email address was removed.'
+        title: 'Email Alert Saved',
+        description: `New lead alerts will be sent to ${emailAlertAddress.trim()}.`
       });
       if (onUpdate) await onUpdate();
     } catch (err) {
       console.error('Error saving email alert settings:', err);
       toast({
         title: 'Error',
-        description: Array.isArray(err.response?.data?.detail)
-          ? (err.response.data.detail[0]?.msg || 'Failed to save email alert settings')
-          : (err.response?.data?.detail || 'Failed to save email alert settings'),
+        description: err.response?.data?.detail || 'Failed to save email alert settings',
         variant: 'destructive'
       });
     } finally {
@@ -260,12 +232,6 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
             <p className="text-sm text-gray-600 mt-1 max-w-md">
               Require visitors to provide their details before starting a conversation with the AI.
             </p>
-
-            {showUpgradeMessage && !isPaidUser && (
-              <p className="mt-2 text-sm text-red-600">
-                Please upgrade to use the Lead Capture feature.
-              </p>
-            )}
           </div>
 
           <div className="flex items-center gap-4">
@@ -282,7 +248,7 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
             <Switch
               checked={leadCaptureEnabled}
               onCheckedChange={handleToggleLeadCapture}
-              disabled={togglingCapture || loadingPlan}
+              disabled={togglingCapture}
               data-testid="lead-capture-toggle"
             />
           </div>
@@ -318,10 +284,6 @@ const LeadCaptured = ({ chatbot, onUpdate }) => {
                 Save
               </button>
             </div>
-
-            <p className="mt-2 text-xs text-gray-500">
-              To remove email alerts, remove the email from this field and click Save.
-            </p>
           </div>
         )}
       </div> 

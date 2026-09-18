@@ -258,7 +258,7 @@ const AnalyticsInsights = () => {
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />
-                  <span>Number of active chatbots</span>
+                  <span>Number of active agents</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <CheckCircle2 className="w-5 h-5 text-green-600 mt-1 flex-shrink-0" />

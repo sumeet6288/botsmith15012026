@@ -36,7 +36,7 @@ class Plan(BaseModel):
                 "price": 7999.0,
                 "description": "For growing businesses",
                 "limits": {
-                    "max_chatbots": 5,
+                    "max_chatbots": 1,
                     "max_messages_per_month": 15000,
                     "max_file_uploads": 20,
                     "max_file_size_mb": 50,
@@ -50,7 +50,7 @@ class Plan(BaseModel):
                     "support_level": "priority"
                 },
                 "features": [
-                    "5 chatbots",
+                    "1 chatbots",
                     "10,000 messages/month",
                     "Advanced analytics",
                     "Priority support",

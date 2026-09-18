@@ -149,7 +149,7 @@ const EnhancedChatbotsManagement = ({ backendUrl }) => {
       });
       const data = await response.json();
       if (data.success) {
-        alert('Chatbot deleted successfully');
+        alert('Agent deleted successfully');
         fetchChatbots();
       }
     } catch (error) {

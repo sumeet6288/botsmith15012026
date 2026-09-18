@@ -22,13 +22,22 @@ const SubscriptionNew = () => {
   const [syncing, setSyncing] = useState(false);
   const [renewing, setRenewing] = useState(false);
   const [redirectCountdown, setRedirectCountdown] = useState(5);
+  const [currency, setCurrency] = useState(() => {
+    try {
+      const selectedPlan = JSON.parse(localStorage.getItem('selectedPlan') || 'null');
+      return selectedPlan?.currency === 'USD' ? 'USD' : 'INR';
+    } catch {
+      return 'INR';
+    }
+  });
 
   // Define plans matching the Pricing page
   const plans = [
     {
       id: 'free',
       name: 'Free',
-      price: '₹0',
+      priceINR: 0,
+      priceUSD: 0,
       period: '/month',
       description: 'Perfect for trying out BotSmith',
       icon: Sparkles,
@@ -46,7 +55,8 @@ const SubscriptionNew = () => {
     {
       id: 'starter',
       name: 'Starter',
-      price: '₹7,999',
+      priceINR: 7999,
+      priceUSD: 99,
       period: '/month',
       description: 'For growing businesses',
       icon: Zap,
@@ -66,7 +76,8 @@ const SubscriptionNew = () => {
     {
       id: 'professional',
       name: 'Professional',
-      price: '₹24,999',
+      priceINR: 24999,
+      priceUSD: 299,
       period: '/month',
       description: 'For large teams & high volume',
       icon: Crown,
@@ -87,7 +98,8 @@ const SubscriptionNew = () => {
     {
       id: 'enterprise',
       name: 'Scale Up',
-      price: 'Custom',
+      priceINR: null,
+      priceUSD: null,
       period: '',
       description: 'Tailored solutions for your needs',
       icon: Building2,
@@ -108,9 +120,47 @@ const SubscriptionNew = () => {
     }
   ];
 
+  const formatPrice = (plan) => {
+    if (plan.priceINR === null) return 'Custom';
+    const amount = currency === 'USD' ? plan.priceUSD : plan.priceINR;
+    return new Intl.NumberFormat(
+      currency === 'USD' ? 'en-US' : 'en-IN',
+      {
+        style: 'currency',
+        currency,
+        maximumFractionDigits: 0
+      }
+    ).format(amount);
+  };
+
   useEffect(() => {
     fetchData();
     
+    // If Pricing did not already store a currency, detect the visitor country.
+    const selectedPlan = (() => {
+      try {
+        return JSON.parse(localStorage.getItem('selectedPlan') || 'null');
+      } catch {
+        return null;
+      }
+    })();
+
+    if (!selectedPlan?.currency) {
+      const detectCurrency = async () => {
+        try {
+          const response = await fetch('https://ipapi.co/country/', {
+            headers: { 'Accept': 'text/plain' }
+          });
+          if (!response.ok) return;
+          const countryCode = (await response.text()).trim().toUpperCase();
+          setCurrency(countryCode === 'US' ? 'USD' : 'INR');
+        } catch (error) {
+          console.warn('Currency detection failed:', error);
+        }
+      };
+      detectCurrency();
+    }
+
     // Check for success parameter or returning from payment
     const success = searchParams.get('success');
     const fromPayment = searchParams.get('from_payment');
@@ -582,7 +632,7 @@ const SubscriptionNew = () => {
                     <p className="text-gray-600 text-xs mb-3">{plan.description}</p>
                     
                     <div>
-                      <span className="text-3xl font-bold">{plan.price}</span>
+                      <span className="text-3xl font-bold">{formatPrice(plan)}</span>
                       {plan.period && (
                         <span className="text-gray-500 text-sm">{plan.period}</span>
                       )}
