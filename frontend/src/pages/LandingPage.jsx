@@ -10,7 +10,7 @@ import heroClouds from '../assets/herocloud.png';
 
 const FooterColumnDark = ({ title, links, onLinkClick }) => (
   <div>
-    <h3 className="mb-5 text-sm font-semibold text-white">
+    <h3 className="mb-5 text-base font-semibold text-white">
       {title}
     </h3>
 
@@ -19,7 +19,7 @@ const FooterColumnDark = ({ title, links, onLinkClick }) => (
         <span
           key={link}
           onClick={() => onLinkClick?.(link)}
-          className={`block text-[13px] text-white/45 transition-colors duration-200 hover:text-white/85 ${
+          className={`block text-sm text-white/45 transition-colors duration-200 hover:text-white/85 ${
             onLinkClick ? 'cursor-pointer' : ''
           }`}
         >
@@ -32,7 +32,7 @@ const FooterColumnDark = ({ title, links, onLinkClick }) => (
 
 const FooterColumn = ({ title, links }) => (
   <div>
-    <h3 className="mb-4 text-[10px] font-semibold uppercase tracking-[0.16em] text-gray-400">
+    <h3 className="mb-4 text-xs font-semibold uppercase tracking-[0.16em] text-gray-400">
       {title}
     </h3>
 
@@ -40,7 +40,7 @@ const FooterColumn = ({ title, links }) => (
       {links.map((link) => (
         <span
           key={link}
-          className="block text-[13px] text-gray-600 transition-colors duration-200 hover:text-purple-600"
+          className="block text-sm text-gray-600 transition-colors duration-200 hover:text-purple-600"
         >
           {link}
         </span>
@@ -496,13 +496,13 @@ const LandingPage = () => {
 
                     {/* Quick Action Modules */}
                     <div className="ml-9 flex flex-wrap gap-2 animate-slide-in-left animation-delay-300">
-                      <span className="inline-flex items-center rounded-full border border-purple-100 bg-purple-50/70 px-3.5 py-1.5 text-[11px] font-medium text-purple-700">
+                      <span className="inline-flex items-center rounded-full border border-purple-100 bg-purple-50/70 px-3.5 py-1.5 text-[13px] font-medium text-purple-700">
                         Admissions
                       </span>
-                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 text-[11px] font-medium text-gray-600 shadow-sm">
+                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 text-[13px] font-medium text-gray-600 shadow-sm">
                         Courses
                       </span>
-                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 text-[11px] font-medium text-gray-600 shadow-sm">
+                      <span className="inline-flex items-center rounded-full border border-gray-100 bg-white px-3.5 py-1.5 text-[13px] font-medium text-gray-600 shadow-sm">
                         Campus
                       </span>
                     </div>
@@ -1176,12 +1176,12 @@ const LandingPage = () => {
                 </span>
               </div>
 
-              <p className="mt-5 max-w-[330px] text-sm leading-6 text-white/50">
+              <p className="mt-5 max-w-[330px] text-base leading-6 text-white/50">
                 AI assistants that help colleges and universities guide,
                 support, and engage every student.
               </p>
 
-              <div className="mt-7 space-y-2 text-xs text-white/45">
+              <div className="mt-7 space-y-2 text-sm text-white/45">
                 <div className="flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-white/40"></span>
                   Built for modern education
@@ -1196,7 +1196,7 @@ const LandingPage = () => {
                 {['in', '𝕏', '◎', '▶'].map((item) => (
                   <span
                     key={item}
-                    className="grid h-8 w-8 place-items-center rounded-lg border border-white/[0.1] bg-white/[0.03] text-[11px] text-white/45 transition-colors duration-200 hover:border-white/20 hover:text-white"
+                    className="grid h-8 w-8 place-items-center rounded-lg border border-white/[0.1] bg-white/[0.03] text-xs text-white/45 transition-colors duration-200 hover:border-white/20 hover:text-white"
                   >
                     {item}
                   </span>
@@ -1230,7 +1230,7 @@ const LandingPage = () => {
           </div>
 
           {/* Bottom rail */}
-          <div className="relative flex flex-col gap-3 border-t border-white/[0.08] px-6 py-5 text-[11px] text-white/35 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-14">
+          <div className="relative flex flex-col gap-3 border-t border-white/[0.08] px-6 py-5 text-xs text-white/35 sm:flex-row sm:items-center sm:justify-between sm:px-10 lg:px-14">
             <span>© 2026 BotSmith. All rights reserved.</span>
 
             <div className="flex flex-wrap gap-x-6 gap-y-2">
