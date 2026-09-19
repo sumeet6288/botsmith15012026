@@ -743,6 +743,25 @@ const LandingPage = () => {
         </div>
       </section>
 
+      {/* Why BotSmith — editorial value proposition */}
+      <section className="relative z-10 bg-white px-6 py-20 sm:px-10 sm:py-24 lg:px-[90px] lg:py-28">
+        <div className="w-full">
+          <div className="mb-7 text-[12px] font-semibold uppercase tracking-[0.22em] text-purple-600">
+            WHY BOTSMITH?
+          </div>
+
+          <p className="w-full font-sans text-[36px] font-normal leading-[1.18] tracking-[-0.025em] text-gray-950 sm:text-[42px] lg:text-[48px]">
+            <strong className="font-medium">
+              BotSmith is the all-in-one AI platform for educational businesses that want to attract, engage, and convert more students.
+            </strong>{' '}
+            Capture leads, answer admissions questions, qualify prospective students, share course information, automate follow-ups, and engage visitors 24/7 — all from one intelligent AI platform.{' '}
+            <strong className="font-medium">
+              We help educational businesses turn more website visitors into students.
+            </strong>
+          </p>
+        </div>
+      </section>
+
       {/* Features Section - Streamlined Premium */}
       <section className="py-16 px-4 sm:px-6 lg:px-8 xl:px-12 relative z-10" ref={featuresRef}>
         <div className="max-w-[1600px] mx-auto relative z-10 w-full">
