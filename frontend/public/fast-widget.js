@@ -142,6 +142,27 @@
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.05); }
     }
+    @keyframes botsmithMessageEyeBlink {
+      0%, 84% { transform: scaleY(1); }
+      86%, 89% { transform: scaleY(0.08); }
+      91%, 100% { transform: scaleY(1); }
+    }
+
+    .botsmith-message-eye {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: botsmithMessageEyeBlink 5.8s ease-in-out infinite;
+    }
+
+    .botsmith-message-eye.right {
+      animation-delay: 0.06s;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .botsmith-message-eye {
+        animation: none !important;
+      }
+    }
     @keyframes bounce {
       0%, 20%, 50%, 80%, 100% { 
         transform: translateY(0); 
@@ -345,8 +366,10 @@
   const bubble = document.createElement('button');
   bubble.className = 'botsmith-bubble';
   bubble.innerHTML = `
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="white"/>
+      <ellipse class="botsmith-message-eye" cx="9" cy="10" rx="1.35" ry="1.7" fill="#000000"/>
+      <ellipse class="botsmith-message-eye right" cx="15" cy="10" rx="1.35" ry="1.7" fill="#000000"/>
     </svg>
   `;
   bubble.style.cssText = `
@@ -1011,8 +1034,10 @@
     } else {
       chatWindow.style.display = 'none';
       bubble.innerHTML = `
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="white"/>
+          <ellipse class="botsmith-message-eye" cx="9" cy="10" rx="1.35" ry="1.7" fill="#000000"/>
+          <ellipse class="botsmith-message-eye right" cx="15" cy="10" rx="1.35" ry="1.7" fill="#000000"/>
         </svg>
       `;
       bubble.className = 'botsmith-bubble';
