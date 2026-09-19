@@ -1034,7 +1034,7 @@
     } else {
       chatWindow.style.display = 'none';
       bubble.innerHTML = `
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" fill="white"/>
           <ellipse class="botsmith-message-eye" cx="9" cy="10" rx="1.35" ry="1.7" fill="#000000"/>
           <ellipse class="botsmith-message-eye right" cx="15" cy="10" rx="1.35" ry="1.7" fill="#000000"/>
