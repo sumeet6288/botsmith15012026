@@ -553,7 +553,7 @@ const DashboardRedesigned = () => {
                       <div
                         className="h-8 px-3 flex items-center"
                         style={{
-                          backgroundColor: '#111111',
+                          backgroundColor: bot.primary_color || '#111111',
                           color: '#FFFFFF',
                           fontFamily: 'Inter, sans-serif',
                           fontSize: '10px',
@@ -563,9 +563,24 @@ const DashboardRedesigned = () => {
                         {bot.name}
                       </div>
                       <div className="p-3">
-                        <div className="h-2 w-2/5 rounded-full bg-black mb-3"></div>
-                        <div className="h-2 w-1/2 rounded-full bg-black ml-auto mb-3"></div>
-                        <div className="h-2 w-1/3 rounded-full bg-black"></div>
+                        <div
+                          className="h-2 w-2/5 rounded-full mb-3"
+                          style={{
+                            backgroundColor: bot.secondary_color || '#E5E7EB'
+                          }}
+                        ></div>
+                        <div
+                          className="h-2 w-1/2 rounded-full ml-auto mb-3"
+                          style={{
+                            backgroundColor: bot.accent_color || '#6366F1'
+                          }}
+                        ></div>
+                        <div
+                          className="h-2 w-1/3 rounded-full"
+                          style={{
+                            backgroundColor: bot.secondary_color || '#E5E7EB'
+                          }}
+                        ></div>
                       </div>
                     </div>
                   </div>
