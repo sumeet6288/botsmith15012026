@@ -6,23 +6,6 @@ import { useScrollAnimation } from '../hooks/useScrollAnimation';
 import BotSmithLogo from '../components/BotSmithLogo';
 import heroClouds from '../assets/herocloud.png';
 
-const hasValidAuthToken = () => {
-  const token = localStorage.getItem('botsmith_token');
-  if (!token) return false;
-
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-    if (payload.exp && payload.exp * 1000 <= Date.now()) {
-      localStorage.removeItem('botsmith_token');
-      return false;
-    }
-  } catch (error) {
-    // Keep the session visible for tokens that cannot be decoded client-side.
-  }
-
-  return true;
-};
-
 
 
 const FooterColumnDark = ({ title, links, onLinkClick }) => (
@@ -68,7 +51,6 @@ const FooterColumn = ({ title, links }) => (
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => hasValidAuthToken());
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cookieConsent, setCookieConsent] = useState(null);
 
@@ -85,15 +67,6 @@ const LandingPage = () => {
   const testimonialsVisible = true;
 
   // Scroll to top on mount to fix reload issue
-  useEffect(() => {
-    const syncAuthState = () => setIsAuthenticated(hasValidAuthToken());
-
-    syncAuthState();
-    window.addEventListener('storage', syncAuthState);
-
-    return () => window.removeEventListener('storage', syncAuthState);
-  }, []);
-
   useEffect(() => {
     window.scrollTo(0, 0);
 
@@ -377,21 +350,10 @@ const LandingPage = () => {
           
           {/* Desktop Action Buttons */}
           <div className="hidden sm:flex items-center gap-2 sm:gap-4">
-            {isAuthenticated ? (
-              <Button
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 text-sm sm:text-base px-3 sm:px-4"
-                onClick={() => navigate('/dashboard')}
-              >
-                Dashboard
-              </Button>
-            ) : (
-              <>
-                <Button variant="ghost" onClick={() => navigate('/signin')} className="hover:bg-purple-50 transition-colors text-sm sm:text-base px-2 sm:px-4">Sign in</Button>
-                <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 text-sm sm:text-base px-3 sm:px-4" onClick={() => navigate('/signup')}>
-                  Try for Free
-                </Button>
-              </>
-            )}
+            <Button variant="ghost" onClick={() => navigate('/signin')} className="hover:bg-purple-50 transition-colors text-sm sm:text-base px-2 sm:px-4">Sign in</Button>
+            <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 text-sm sm:text-base px-3 sm:px-4" onClick={() => navigate('/signup')}>
+              Try for Free
+            </Button>
           </div>
           
           {/* Mobile Menu Button */}
@@ -417,23 +379,12 @@ const LandingPage = () => {
                 Learn
               </button>
               <div className="pt-3 border-t border-gray-200 space-y-2">
-                {isAuthenticated ? (
-                  <Button
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30"
-                    onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
-                  >
-                    Dashboard
-                  </Button>
-                ) : (
-                  <>
-                    <Button variant="ghost" onClick={() => { navigate('/signin'); setMobileMenuOpen(false); }} className="w-full hover:bg-purple-50 transition-colors">
-                      Sign in
-                    </Button>
-                    <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30" onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }}>
-                      Try for Free
-                    </Button>
-                  </>
-                )}
+                <Button variant="ghost" onClick={() => { navigate('/signin'); setMobileMenuOpen(false); }} className="w-full hover:bg-purple-50 transition-colors">
+                  Sign in
+                </Button>
+                <Button className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30" onClick={() => { navigate('/signup'); setMobileMenuOpen(false); }}>
+                  Try for Free
+                </Button>
               </div>
             </div>
           </div>
