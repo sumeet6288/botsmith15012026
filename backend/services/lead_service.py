@@ -15,6 +15,7 @@ This service keeps the existing plan-limit check for AgentService captures.
 
 import logging
 import os
+import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -38,24 +39,6 @@ _leads_collection = _db.chatbot_leads
 
 
 class LeadService:
-    """
-    Service responsible for capturing conversational leads.
-
-    The database connection is exposed through the instance so that
-    AgentService can safely access the same BotSmith database connection.
-    """
-
-    def __init__(self):
-        # Keep references on the service instance.
-        #
-        # AgentService uses lead_service._db to access the BotSmith
-        # database for persistent agent state.
-        #
-        # These point to the same MongoDB database/collection that were
-        # already used by the existing lead-capture implementation.
-        self._db = _db
-        self._leads_collection = _leads_collection
-
     async def capture_lead(
         self,
         *,
@@ -86,7 +69,7 @@ class LeadService:
         # chatbot_leads does not currently store user_id, so count the
         # owner's chatbots and their captured leads to enforce the same
         # account-level limit.
-        chatbot_ids = await self._db.chatbots.find(
+        chatbot_ids = await _db.chatbots.find(
             {"user_id": owner_user_id},
             {"id": 1},
         ).to_list(length=None)
@@ -100,7 +83,7 @@ class LeadService:
         current_count = 0
 
         if owner_chatbot_ids:
-            current_count = await self._leads_collection.count_documents(
+            current_count = await _leads_collection.count_documents(
                 {"chatbot_id": {"$in": owner_chatbot_ids}}
             )
 
@@ -110,9 +93,7 @@ class LeadService:
         max_leads = plan["limits"].get("max_leads", 50)
 
         # Keep compatibility with existing custom-limit behavior where possible.
-        user_doc = await self._db.users.find_one(
-            {"id": owner_user_id}
-        )
+        user_doc = await _db.users.find_one({"id": owner_user_id})
 
         if user_doc:
             custom_limits = user_doc.get("custom_limits") or {}
@@ -143,9 +124,7 @@ class LeadService:
             # safe duplicate key.
             duplicate_filter["name"] = name
 
-        existing = await self._leads_collection.find_one(
-            duplicate_filter
-        )
+        existing = await _leads_collection.find_one(duplicate_filter)
 
         if existing:
             return {
@@ -179,21 +158,17 @@ class LeadService:
         if intent:
             lead_dict["intent"] = intent
 
-        await self._leads_collection.insert_one(lead_dict)
+        await _leads_collection.insert_one(lead_dict)
 
         # Send the same email alert used by the existing widget lead form.
         # Import locally to avoid introducing a module-level dependency cycle.
         try:
             from services.resend_service import send_lead_alert
 
-            chatbot = await self._db.chatbots.find_one(
-                {"id": chatbot_id}
-            )
+            chatbot = await _db.chatbots.find_one({"id": chatbot_id})
 
-            if (
-                chatbot
-                and chatbot.get("email_alerts_enabled")
-                and chatbot.get("email_alert_address")
+            if chatbot and chatbot.get("email_alerts_enabled") and chatbot.get(
+                "email_alert_address"
             ):
                 await send_lead_alert(
                     recipient=str(chatbot["email_alert_address"]),
