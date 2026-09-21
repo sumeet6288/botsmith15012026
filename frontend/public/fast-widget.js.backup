@@ -60,36 +60,14 @@
       }
     }
   
-  // Get configuration from BotSmith loader
-  const embedConfig = window.__BOTSMITH_EMBED_CONFIG__ || {};
+  // Get configuration from script tag
   const script = document.currentScript;
-
   const config = {
-    chatbotId:
-      embedConfig.chatbotId ||
-      script?.getAttribute('chatbot-id') ||
-      window.botsmithConfig?.chatbotId,
-
-    domain:
-      embedConfig.domain ||
-      script?.getAttribute('domain') ||
-      window.botsmithConfig?.domain ||
-      'https://botsmith.pro',
-
-    position:
-      embedConfig.position ||
-      script?.getAttribute('position') ||
-      'bottom-right',
-
-    theme:
-      embedConfig.theme ||
-      script?.getAttribute('theme') ||
-      'purple',
-
-    apiUrl:
-      embedConfig.apiUrl ||
-      script?.getAttribute('api-url') ||
-      'https://botsmith.pro/api'
+    chatbotId: script?.getAttribute('chatbot-id') || window.botsmithConfig?.chatbotId,
+    domain: script?.getAttribute('domain') || window.botsmithConfig?.domain || window.location.origin,
+    position: script?.getAttribute('position') || 'bottom-right',
+    theme: script?.getAttribute('theme') || 'purple',
+    apiUrl: script?.getAttribute('api-url') || (script?.getAttribute('domain') || window.location.origin) + '/api'
   };
   
   if (!config.chatbotId) {
@@ -240,6 +218,22 @@
     @keyframes botsmithCursorBlink {
       0%, 50% { opacity: 1; }
       51%, 100% { opacity: 0; }
+    }
+
+    @keyframes botsmithMicPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(17, 24, 39, 0.35);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(17, 24, 39, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(17, 24, 39, 0);
+      }
+    }
+
+    .botsmith-mic-listening {
+      animation: botsmithMicPulse 1.4s ease-out infinite !important;
     }
 
     .botsmith-streaming-cursor {
@@ -401,7 +395,7 @@
     flex-direction: column; 
     overflow: hidden; 
     animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: 1px solid rgba(255, 255, 255, 0.8);
+    border: none;
   `;
 
   // Header with gradient and better design
@@ -409,7 +403,7 @@
   header.style.cssText = `
     background: linear-gradient(135deg, ${currentTheme.primary} 0%, ${currentTheme.secondary} 60%, ${currentTheme.accent || currentTheme.secondary} 100%);
     color: white; 
-    padding: 24px; 
+    padding: 12px 18px;
     display: flex; 
     align-items: center; 
     justify-content: space-between;
@@ -830,7 +824,7 @@
           background: white; border-radius: 24px; box-shadow: 0 25px 80px rgba(0, 0, 0, 0.18), 0 10px 30px rgba(0, 0, 0, 0.1);
           display: ${chatWindow.style.display || 'none'}; flex-direction: column; overflow: hidden; 
           animation: slideUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-          border: 1px solid rgba(255, 255, 255, 0.8);
+          border: none;
         `;
       }
       
@@ -1066,27 +1060,65 @@
     recognition.continuous = false;
     recognition.interimResults = false;
 
+    const micDefaultIcon = micButton.innerHTML;
+    const micListeningIcon = `
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none">
+        <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+    `;
+
+    let isMicListening = false;
+    let micCancelled = false;
+
+    function setMicListeningState(listening) {
+      isMicListening = listening;
+
+      if (listening) {
+        micButton.innerHTML = micListeningIcon;
+        micButton.style.background = '#111827';
+        micButton.style.color = 'white';
+        micButton.title = 'Stop listening';
+        micButton.setAttribute('aria-label', 'Stop listening');
+        micButton.classList.add('botsmith-mic-listening');
+      } else {
+        micButton.innerHTML = micDefaultIcon;
+        micButton.style.background = '#e5e7eb';
+        micButton.style.color = '#6b7280';
+        micButton.title = 'Start dictation';
+        micButton.setAttribute('aria-label', 'Start dictation');
+        micButton.classList.remove('botsmith-mic-listening');
+      }
+    }
+
     micButton.addEventListener('click', () => {
-      recognition.start();
-      micButton.style.background = '#111827';
-      micButton.style.color = 'white';
-      micButton.title = 'Listening...';
+      if (isMicListening) {
+        micCancelled = true;
+        try { recognition.abort(); } catch (e) {}
+        setMicListeningState(false);
+        return;
+      }
+
+      micCancelled = false;
+      try {
+        recognition.start();
+        setMicListeningState(true);
+      } catch (error) {
+        setMicListeningState(false);
+      }
     });
 
     recognition.onresult = (event) => {
-      messageInput.value = event.results[0][0].transcript;
+      if (!micCancelled) {
+        messageInput.value = event.results[0][0].transcript;
+      }
     };
 
     recognition.onend = () => {
-      micButton.style.background = '#e5e7eb';
-      micButton.style.color = '#6b7280';
-      micButton.title = 'Start dictation';
+      setMicListeningState(false);
     };
 
     recognition.onerror = () => {
-      micButton.style.background = '#e5e7eb';
-      micButton.style.color = '#6b7280';
-      micButton.title = 'Start dictation';
+      setMicListeningState(false);
     };
   } else {
     micButton.style.display = 'none';
