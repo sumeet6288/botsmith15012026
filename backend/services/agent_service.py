@@ -209,7 +209,7 @@ class AgentService:
                 for tool_name in ("search_knowledge", "capture_lead")
                 if registry.has(tool_name)
             ],
-            max_steps=2,
+            max_steps=4,
         )
 
         task = AgentTask(
@@ -223,7 +223,7 @@ class AgentService:
                 "user_name": user_name,
                 "user_email": user_email,
             },
-            max_steps=2,
+            max_steps=4,
         )
 
         state_manager = MongoAgentStateManager(db)
@@ -569,3 +569,4 @@ RULES:
             "used_knowledge": used_knowledge,
             "intent": intent,
         }
+        

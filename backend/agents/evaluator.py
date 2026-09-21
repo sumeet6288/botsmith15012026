@@ -50,4 +50,16 @@ class AgentEvaluator:
     def can_finish(self, *, user_message: str, observations: List[Dict[str, Any]]) -> bool:
         if not self.requires_knowledge(user_message):
             return True
-        return self.has_successful_knowledge(observations)
+
+        # A successful knowledge search is enough to allow the agent to finish.
+        # Even when no matching context is found, the search itself completed
+        # successfully. The final answer writer will handle the no-evidence case
+        # and tell the user that verified information is unavailable.
+        for observation in observations:
+            if (
+                observation.get("tool") == "search_knowledge"
+                and observation.get("success")
+            ):
+                return True
+
+        return False
