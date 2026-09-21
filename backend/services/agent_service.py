@@ -71,20 +71,46 @@ class AgentService:
         # 2. RETRIEVE KNOWLEDGE
         # ---------------------------------------------------------------
         # Never let RAG failure take down the chatbot.
-        if plan.get("use_knowledge", False):
+        #
+        # The planner is an LLM and can occasionally return
+        # use_knowledge=false even for an obvious organization-specific
+        # question. For clearly knowledge-base-oriented queries, force
+        # retrieval so the planner cannot accidentally bypass RAG.
+        force_knowledge = self._looks_like_knowledge_question(message)
+
+        if plan.get("use_knowledge", False) or force_knowledge:
             retrieval_query = self._build_retrieval_query(message, plan)
 
             try:
+                logger.info(
+                    "Knowledge retrieval enabled: planner=%s, forced=%s, query=%s",
+                    plan.get("use_knowledge", False),
+                    force_knowledge,
+                    retrieval_query,
+                )
+
                 rag = await self.rag_service.retrieve_relevant_context(
                     query=retrieval_query,
                     chatbot_id=chatbot_id,
                     top_k=2,
-                    min_similarity=0.5,
+                    # Keep the agent threshold aligned with RAGService's
+                    # configured vector threshold (0.4).
+                    min_similarity=0.4,
                 )
 
                 if rag and rag.get("has_context"):
                     context = rag.get("context")
                     citation_footer = rag.get("citation_footer")
+                    logger.info(
+                        "Knowledge retrieval succeeded: sources=%s avg_similarity=%s",
+                        rag.get("num_sources", 0),
+                        rag.get("avg_similarity", 0),
+                    )
+                else:
+                    logger.info(
+                        "Knowledge retrieval returned no context for query=%s",
+                        retrieval_query,
+                    )
 
             except Exception:
                 logger.exception(
@@ -456,6 +482,64 @@ CURRENT USER MESSAGE:
             "confidence": confidence,
             "reason": str(parsed.get("reason", "")),
         }
+
+    # ===================================================================
+    # DETERMINISTIC KNOWLEDGE ROUTING
+    # ===================================================================
+
+    @staticmethod
+    def _looks_like_knowledge_question(message: str) -> bool:
+        """
+        Detect questions that should search the organization's private
+        knowledge base regardless of an LLM planner decision.
+
+        This is intentionally conservative: it targets terms that normally
+        refer to organization-specific information rather than generic
+        conversation.
+        """
+        lower = (message or "").strip().lower()
+
+        if not lower:
+            return False
+
+        knowledge_terms = (
+            "policy",
+            "policies",
+            "acceptable use",
+            "acceptable policy",
+            "terms",
+            "terms of service",
+            "refund",
+            "refund policy",
+            "fee",
+            "fees",
+            "price",
+            "pricing",
+            "course",
+            "courses",
+            "program",
+            "programs",
+            "admission",
+            "admissions",
+            "eligibility",
+            "timing",
+            "timings",
+            "hours",
+            "location",
+            "address",
+            "placement",
+            "batch",
+            "campus",
+            "scholarship",
+            "hostel",
+            "exam",
+            "feature",
+            "features",
+            "service",
+            "services",
+        )
+
+        return any(term in lower for term in knowledge_terms)
 
     # ===================================================================
     # DETERMINISTIC FALLBACK
