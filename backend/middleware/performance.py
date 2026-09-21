@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class RequestTimeoutMiddleware(BaseHTTPMiddleware):
     """Middleware to enforce request timeouts to prevent resource exhaustion"""
     
-    def __init__(self, app: ASGIApp, timeout: int = 30):
+    def __init__(self, app: ASGIApp, timeout: int = 60):
         super().__init__(app)
         self.timeout = timeout
     
