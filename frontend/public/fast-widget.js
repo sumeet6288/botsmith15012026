@@ -221,6 +221,18 @@
     .botsmith-message-item {
       animation: messageSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
+
+    .botsmith-message-link {
+      color: #2563eb;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+      word-break: break-all;
+    }
+
+    .botsmith-message-link:hover {
+      color: #1d4ed8;
+    }
     
     .botsmith-typing-dot {
       width: 8px; 
@@ -599,6 +611,49 @@
     return sizes[customization.font_size] || '15px';
   }
 
+  // Convert plain-text URLs into safe clickable links.
+  function formatMessageContent(content) {
+    const escaped = String(content ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+
+    // First handle Markdown links so the URL inside [label](url)
+    // is not incorrectly processed as a plain-text URL.
+    const linkPlaceholders = [];
+
+    const withMarkdownLinks = escaped.replace(
+      /\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g,
+      (_, label, url) => {
+        const index = linkPlaceholders.length;
+        linkPlaceholders.push(
+          `<a class="botsmith-message-link" href="${url}" target="_blank" rel="noopener noreferrer">${label}</a>`
+        );
+        return `__BOTSMITH_LINK_${index}__`;
+      }
+    );
+
+    // Then convert remaining plain-text URLs.
+    const urlPattern = /(https?:\/\/[^\s<]+)/g;
+
+    let formatted = withMarkdownLinks.replace(urlPattern, (url) => {
+      const trailingMatch = url.match(/[.,!?;:)\]}]+$/);
+      const trailing = trailingMatch ? trailingMatch[0] : '';
+      const cleanUrl = trailing ? url.slice(0, -trailing.length) : url;
+
+      return `<a class="botsmith-message-link" href="${cleanUrl}" target="_blank" rel="noopener noreferrer">${cleanUrl}</a>${trailing}`;
+    });
+
+    // Restore Markdown links after plain URL processing.
+    linkPlaceholders.forEach((html, index) => {
+      formatted = formatted.replace(`__BOTSMITH_LINK_${index}__`, html);
+    });
+
+    return formatted.replace(/\n/g, '<br>');
+  }
+
   function renderMessages() {
     messagesContainer.innerHTML = '';
     const bubbleRadius = getBubbleRadius();
@@ -627,13 +682,13 @@
             ${avatarContent}
           </div>
           <div style="max-width: 72%; padding: 14px 18px; border-radius: ${bubbleRadius}; background: white; box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.05); word-wrap: break-word; font-size: ${fontSize}; line-height: 1.6; font-family: ${customization.font_family}; border: 1px solid rgba(0, 0, 0, 0.05);">
-            ${msg.content}
+            ${formatMessageContent(msg.content)}
           </div>
         `;
       } else {
         msgDiv.innerHTML = `
           <div style="max-width: 72%; padding: 14px 18px; border-radius: ${bubbleRadius}; background: linear-gradient(135deg, ${customization.accent_color} 0%, ${customization.accent_color}dd 100%); color: white; box-shadow: 0 3px 12px ${customization.accent_color}35, 0 1px 3px ${customization.accent_color}25; word-wrap: break-word; font-size: ${fontSize}; line-height: 1.6; font-family: ${customization.font_family}; font-weight: 500;">
-            ${msg.content}
+            ${formatMessageContent(msg.content)}
           </div>
         `;
       }
@@ -764,6 +819,9 @@
     }
 
     if (cursor) cursor.remove();
+
+    // Convert URLs into clickable links after the streaming animation completes.
+    contentElement.innerHTML = formatMessageContent(plainText);
 
     // Save the completed response so conversation history still works
     messages.push({
