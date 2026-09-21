@@ -170,7 +170,43 @@ class AgentRuntime:
                 )
                 await self.state.add_observation(task.tenant_id, run.id, observation)
 
-                # Tool errors are observations, not runtime crashes. The next planner step decides whether recovery is possible.
+                # IMPORTANT:
+                # A successful knowledge search is sufficient to move to the
+                # final answer stage. Do not call the planner again and allow
+                # it to repeat search_knowledge unnecessarily.
+                if (
+                    decision.tool_call.tool_name == "search_knowledge"
+                    and result.success
+                ):
+                    final_answer = await answer_writer(
+                        task=task,
+                        agent=agent,
+                        conversation=conversation,
+                        observations=observations,
+                    )
+                    await self.state.update_task(
+                        task.tenant_id,
+                        task.id,
+                        status=TaskStatus.COMPLETED.value,
+                        result=final_answer,
+                    )
+                    await self.state.finish_run(
+                        task.tenant_id,
+                        run.id,
+                        RunStatus.COMPLETED,
+                        step_count=step_number,
+                        tool_call_count=tool_call_count,
+                        final_output=final_answer,
+                    )
+                    return {
+                        "response": final_answer,
+                        "used_knowledge": True,
+                        "observations": observations,
+                        "run_id": run.id,
+                    }
+
+                # Tool errors are observations, not runtime crashes. The next
+                # planner step decides whether recovery is possible.
                 if not result.success:
                     logger.warning(
                         "Agent tool failed: tool=%s error=%s",
