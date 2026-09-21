@@ -50,6 +50,219 @@ class AgentService:
         user_email: Optional[str] = None,
         conversation_id: Optional[str] = None,
     ):
+        message = (message or "").strip()
+
+        # ---------------------------------------------------------------
+        # 0. FAST PATH: SIMPLE GREETINGS
+        # ---------------------------------------------------------------
+        # Greetings never need the planner, RAG, database history, or
+        # another LLM call. This keeps the widget response immediate.
+        if self._is_simple_greeting(message):
+            return {
+                "response": "Hi! 👋 How can I help you today?",
+                "citation_footer": None,
+                "plan": {
+                    "intent": "greeting",
+                    "use_knowledge": False,
+                    "capture_lead": False,
+                    "next_action": "answer",
+                    "confidence": 1.0,
+                    "reason": "deterministic greeting fast path",
+                },
+                "lead": None,
+                "lead_captured": False,
+                "used_knowledge": False,
+                "intent": "greeting",
+            }
+
+        # ---------------------------------------------------------------
+        # 0B. FAST PATH: LEAD / CONTACT INTENT
+        # ---------------------------------------------------------------
+        # Lead intent is deterministic. Do not spend an LLM call just to
+        # decide whether "I want a demo/contact/call/enroll" is a lead
+        # request. Actual storage still requires BOTH name and phone.
+        lead_intent = self._is_lead_intent(message)
+
+        # If this message only contains a name/phone, check recent user
+        # messages so a previous "I want a demo" message can be continued.
+        conversation_history = []
+        if conversation_id and (lead_intent or self._has_contact_detail(message)):
+            conversation_history = await self._get_user_messages(
+                conversation_id=conversation_id,
+                max_messages=8,
+            )
+
+        if not lead_intent and conversation_history:
+            previous_text = " ".join(
+                str(item.get("content", ""))
+                for item in conversation_history[-6:]
+            )
+            lead_intent = self._is_lead_intent(previous_text)
+
+        if lead_intent:
+            name = (
+                self._clean_name(user_name)
+                or self._find_name_in_messages(conversation_history)
+                or self._extract_name(message)
+            )
+            phone = (
+                self._extract_phone(message)
+                or self._find_phone_in_messages(conversation_history)
+            )
+
+            if not phone:
+                response = (
+                    "Absolutely! I can help with that. "
+                    "Please send me your phone number"
+                )
+                if name:
+                    response += " so the team can contact you."
+                else:
+                    response += " and your name so the team can contact you."
+                response += " 👋"
+
+                return {
+                    "response": response,
+                    "citation_footer": None,
+                    "plan": {
+                        "intent": "lead_or_next_step",
+                        "use_knowledge": False,
+                        "capture_lead": False,
+                        "next_action": "capture_lead",
+                        "confidence": 1.0,
+                        "reason": "deterministic lead intent; phone missing",
+                    },
+                    "lead": None,
+                    "lead_captured": False,
+                    "used_knowledge": False,
+                    "intent": "lead_or_next_step",
+                }
+
+            if not name:
+                return {
+                    "response": (
+                        "Sure! I have your phone number. "
+                        "What name should I use when I send your request "
+                        "to the team? 👋"
+                    ),
+                    "citation_footer": None,
+                    "plan": {
+                        "intent": "lead_or_next_step",
+                        "use_knowledge": False,
+                        "capture_lead": False,
+                        "next_action": "capture_lead",
+                        "confidence": 1.0,
+                        "reason": "deterministic lead intent; name missing",
+                    },
+                    "lead": None,
+                    "lead_captured": False,
+                    "used_knowledge": False,
+                    "intent": "lead_or_next_step",
+                }
+
+            if self.lead_service and owner_user_id:
+                try:
+                    lead_result = await self.lead_service.capture_lead(
+                        owner_user_id=owner_user_id,
+                        chatbot_id=chatbot_id,
+                        conversation_id=conversation_id,
+                        name=name,
+                        contact=phone,
+                        inquiry=message,
+                        intent="lead_or_next_step",
+                    )
+
+                    captured = bool(
+                        isinstance(lead_result, dict)
+                        and lead_result.get("captured")
+                    )
+
+                    if captured:
+                        return {
+                            "response": (
+                                f"Thanks, {name}! 👋 Your contact details have "
+                                "been shared with the team. They’ll contact you soon."
+                            ),
+                            "citation_footer": None,
+                            "plan": {
+                                "intent": "lead_or_next_step",
+                                "use_knowledge": False,
+                                "capture_lead": True,
+                                "next_action": "answer",
+                                "confidence": 1.0,
+                                "reason": "deterministic lead captured",
+                            },
+                            "lead": lead_result,
+                            "lead_captured": True,
+                            "used_knowledge": False,
+                            "intent": "lead_or_next_step",
+                        }
+
+                    return {
+                        "response": (
+                            "Thanks! 👋 We already have these contact details "
+                            "on file. The team can follow up with you."
+                        ),
+                        "citation_footer": None,
+                        "plan": {
+                            "intent": "lead_or_next_step",
+                            "use_knowledge": False,
+                            "capture_lead": True,
+                            "next_action": "answer",
+                            "confidence": 1.0,
+                            "reason": "lead already exists",
+                        },
+                        "lead": lead_result,
+                        "lead_captured": False,
+                        "used_knowledge": False,
+                        "intent": "lead_or_next_step",
+                    }
+
+                except Exception:
+                    # Lead capture must never take down normal chat.
+                    logger.exception("Fast-path lead capture failed")
+                    return {
+                        "response": (
+                            "I have your details, but I couldn't submit them "
+                            "right now. Please try again in a moment."
+                        ),
+                        "citation_footer": None,
+                        "plan": {
+                            "intent": "lead_or_next_step",
+                            "use_knowledge": False,
+                            "capture_lead": False,
+                            "next_action": "capture_lead",
+                            "confidence": 1.0,
+                            "reason": "lead capture failed safely",
+                        },
+                        "lead": None,
+                        "lead_captured": False,
+                        "used_knowledge": False,
+                        "intent": "lead_or_next_step",
+                    }
+
+            # Public/anonymous chat cannot create an owner-scoped lead.
+            return {
+                "response": (
+                    "Thanks! 👋 I have your contact details. "
+                    "Please use the contact option on this chatbot so the team "
+                    "can receive them."
+                ),
+                "citation_footer": None,
+                "plan": {
+                    "intent": "lead_or_next_step",
+                    "use_knowledge": False,
+                    "capture_lead": False,
+                    "next_action": "capture_lead",
+                    "confidence": 1.0,
+                    "reason": "no owner-scoped lead service available",
+                },
+                "lead": None,
+                "lead_captured": False,
+                "used_knowledge": False,
+                "intent": "lead_or_next_step",
+            }
+
         # ---------------------------------------------------------------
         # 1. UNDERSTAND + PLAN
         # ---------------------------------------------------------------
@@ -456,6 +669,74 @@ CURRENT USER MESSAGE:
             "confidence": confidence,
             "reason": str(parsed.get("reason", "")),
         }
+
+    # ===================================================================
+    # DETERMINISTIC FAST INTENT HELPERS
+    # ===================================================================
+
+    @staticmethod
+    def _is_simple_greeting(message: str) -> bool:
+        lower = re.sub(r"[^a-z\\s]", " ", (message or "").lower()).strip()
+        return lower in {
+            "hi",
+            "hello",
+            "hey",
+            "hii",
+            "helo",
+            "heyy",
+            "good morning",
+            "good afternoon",
+            "good evening",
+            "good night",
+        }
+
+    @staticmethod
+    def _is_lead_intent(message: str) -> bool:
+        lower = (message or "").lower()
+
+        lead_phrases = (
+            "demo",
+            "book a demo",
+            "schedule a demo",
+            "request a demo",
+            "contact me",
+            "contact us",
+            "call me",
+            "give me a call",
+            "someone contact",
+            "want to enroll",
+            "want to join",
+            "want to register",
+            "want to apply",
+            "want to buy",
+            "want to purchase",
+            "interested in enrolling",
+            "interested in joining",
+            "interested in the course",
+            "enroll",
+            "enrollment",
+            "register",
+            "registration",
+            "apply",
+            "application",
+            "purchase",
+            "buy",
+            "sales",
+            "talk to someone",
+            "speak to someone",
+            "speak with someone",
+        )
+
+        return any(phrase in lower for phrase in lead_phrases)
+
+    @staticmethod
+    def _has_contact_detail(message: str) -> bool:
+        if not message:
+            return False
+        return bool(
+            AgentService._extract_phone(message)
+            or AgentService._extract_name(message)
+        )
 
     # ===================================================================
     # DETERMINISTIC FALLBACK
