@@ -569,3 +569,4 @@ RULES:
             "used_knowledge": used_knowledge,
             "intent": intent,
         }
+        
