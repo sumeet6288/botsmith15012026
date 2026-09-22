@@ -1,6 +1,6 @@
 /**
  * Supabase OAuth Callback Page
- * 
+ *
  * This page handles the redirect after successful Google OAuth authentication.
  * It extracts the session from URL, syncs with backend, and redirects to dashboard.
  */
@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase, isSupabaseConfigured } from '../lib/supabaseClient';
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
+import Loader from '../components/BotSmithLoader';
 
 const SupabaseCallback = () => {
   const navigate = useNavigate();
@@ -32,7 +33,10 @@ const SupabaseCallback = () => {
       setStatus('Verifying your credentials...');
 
       // Get the session from Supabase
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error: sessionError
+      } = await supabase.auth.getSession();
 
       if (sessionError) {
         throw new Error(`Session error: ${sessionError.message}`);
@@ -70,7 +74,10 @@ const SupabaseCallback = () => {
 
         // Store our app's JWT token and user data
         localStorage.setItem('botsmith_token', response.data.access_token);
-        localStorage.setItem('botsmith_user', JSON.stringify(response.data.user));
+        localStorage.setItem(
+          'botsmith_user',
+          JSON.stringify(response.data.user)
+        );
 
         setStatus('Success! Redirecting to dashboard...');
         toast.success('Successfully signed in!');
@@ -84,7 +91,11 @@ const SupabaseCallback = () => {
       }
     } catch (err) {
       console.error('❌ Authentication callback error:', err);
-      const errorMessage = err.response?.data?.detail || err.message || 'Authentication failed';
+      const errorMessage =
+        err.response?.data?.detail ||
+        err.message ||
+        'Authentication failed';
+
       setError(errorMessage);
       toast.error(errorMessage);
 
@@ -99,6 +110,7 @@ const SupabaseCallback = () => {
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center">
@@ -141,6 +153,7 @@ const SupabaseCallback = () => {
                       d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
+
                   <div>
                     <h3 className="text-sm font-semibold text-red-900 mb-1">
                       Authentication Failed
@@ -149,23 +162,25 @@ const SupabaseCallback = () => {
                   </div>
                 </div>
               </div>
+
               <p className="text-sm text-gray-600 text-center">
                 Redirecting to sign in page...
               </p>
             </div>
           ) : (
             <div className="space-y-6">
-              {/* Loading Spinner */}
-              <div className="flex justify-center">
-                <div className="w-16 h-16 relative">
-                  <div className="absolute inset-0 border-4 border-purple-200 rounded-full"></div>
-                  <div className="absolute inset-0 border-4 border-transparent border-t-purple-600 rounded-full animate-spin"></div>
-                </div>
+
+              {/* NEW 3D LOADER */}
+              <div className="flex justify-center items-center">
+                <Loader />
               </div>
 
               {/* Status Message */}
               <div className="text-center space-y-2">
-                <p className="text-lg font-medium text-gray-900">{status}</p>
+                <p className="text-lg font-medium text-gray-900">
+                  {status}
+                </p>
+
                 <p className="text-sm text-gray-600">
                   Please wait while we complete the sign-in process
                 </p>
@@ -175,17 +190,41 @@ const SupabaseCallback = () => {
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600">Google authentication</span>
+                  <span className="text-sm text-gray-600">
+                    Google authentication
+                  </span>
                 </div>
+
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${status.includes('backend') || status.includes('Success') ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                  <span className="text-sm text-gray-600">Account verification</span>
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      status.includes('backend') ||
+                      status.includes('Success')
+                        ? 'bg-green-500'
+                        : 'bg-gray-300'
+                    }`}
+                  ></div>
+
+                  <span className="text-sm text-gray-600">
+                    Account verification
+                  </span>
                 </div>
+
                 <div className="flex items-center gap-3">
-                  <div className={`w-2 h-2 rounded-full ${status.includes('Success') ? 'bg-green-500' : 'bg-gray-300'}`}></div>
-                  <span className="text-sm text-gray-600">Setting up your dashboard</span>
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      status.includes('Success')
+                        ? 'bg-green-500'
+                        : 'bg-gray-300'
+                    }`}
+                  ></div>
+
+                  <span className="text-sm text-gray-600">
+                    Setting up your dashboard
+                  </span>
                 </div>
               </div>
+
             </div>
           )}
         </div>
