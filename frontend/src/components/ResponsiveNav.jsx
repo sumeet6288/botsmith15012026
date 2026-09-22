@@ -42,7 +42,7 @@ const ResponsiveNav = ({ user, onLogout }) => {
                 <span className="text-[9px] font-bold text-purple-600 bg-purple-100 px-1.5 py-0.5 rounded-md">AI</span>
               </div>
               <span className="text-[10px] font-semibold text-gray-400 tracking-wider uppercase">
-                Powered by Jyosha Solutions
+                Powered by JYT Solutions
               </span>
             </div>
           </div>
