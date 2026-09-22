@@ -49,7 +49,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
             </div>
           </div>
           <span className="text-[9px] font-semibold text-gray-400 tracking-wider uppercase block ml-10">
-            Powered by Jyosha Solutions
+            Powered by JYT Solutions
           </span>
         </div>
       </div>
