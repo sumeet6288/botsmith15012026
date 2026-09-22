@@ -1223,7 +1223,7 @@ const LandingPage = () => {
               <Button
                 variant="outline"
                 className="h-11 rounded-xl border-white/30 bg-transparent px-7 text-sm font-medium text-white hover:bg-white/[0.06] hover:text-white"
-                onClick={() => navigate('/enterprise')}
+                onClick={() => window.open('https://calendly.com/sumeetemail26/30min', '_blank', 'noopener,noreferrer')}
               >
                 Book a Demo
               </Button>
