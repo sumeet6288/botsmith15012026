@@ -226,15 +226,15 @@ function AppContent() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/auth/callback" element={<SupabaseCallback />} />
             <Route path="/direct-login" element={<DirectLogin />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/subscription" element={<Subscription />} />
-            <Route path="/leads" element={<LeadsManagement />} />
-            <Route path="/account-settings" element={<AccountSettings />} />
-            <Route path="/notification-preferences" element={<NotificationPreferences />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/notification-debug" element={<NotificationDebug />} />
-            <Route path="/chatbot/:id" element={<ChatbotBuilder />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/subscription" element={<ProtectedRoute><Subscription /></ProtectedRoute>} />
+            <Route path="/leads" element={<ProtectedRoute><LeadsManagement /></ProtectedRoute>} />
+            <Route path="/account-settings" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+            <Route path="/notification-preferences" element={<ProtectedRoute><NotificationPreferences /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+            <Route path="/notification-debug" element={<ProtectedRoute><NotificationDebug /></ProtectedRoute>} />
+            <Route path="/chatbot/:id" element={<ProtectedRoute><ChatbotBuilder /></ProtectedRoute>} />
             <Route path="/embed/:id" element={<EmbedChat />} />
             <Route path="/chat/:id" element={<ChatPage />} />
             <Route path="/public-chat/:chatbotId" element={<PublicChat />} />

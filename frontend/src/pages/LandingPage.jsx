@@ -3,25 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/button';
 import { MessageSquare, Zap, BarChart3, Globe, Shield, Sparkles, ChevronRight, Menu, X, Star, ArrowRight, Check, Upload, Brain, Palette, Rocket, ShoppingCart, GraduationCap, Heart, Briefcase, Users, TrendingUp, Clock, Award } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { useAuth } from '../contexts/AuthContext';
 import BotSmithLogo from '../components/BotSmithLogo';
 import heroClouds from '../assets/herocloud.png';
 
-const hasValidAuthToken = () => {
-  const token = localStorage.getItem('botsmith_token');
-  if (!token) return false;
 
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')));
-    if (payload.exp && payload.exp * 1000 <= Date.now()) {
-      localStorage.removeItem('botsmith_token');
-      return false;
-    }
-  } catch (error) {
-    // Keep the session visible for tokens that cannot be decoded client-side.
-  }
-
-  return true;
-};
 
 
 
@@ -68,7 +54,7 @@ const FooterColumn = ({ title, links }) => (
 
 const LandingPage = () => {
   const navigate = useNavigate();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => hasValidAuthToken());
+  const { user, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cookieConsent, setCookieConsent] = useState(null);
 
@@ -85,14 +71,7 @@ const LandingPage = () => {
   const testimonialsVisible = true;
 
   // Scroll to top on mount to fix reload issue
-  useEffect(() => {
-    const syncAuthState = () => setIsAuthenticated(hasValidAuthToken());
-
-    syncAuthState();
-    window.addEventListener('storage', syncAuthState);
-
-    return () => window.removeEventListener('storage', syncAuthState);
-  }, []);
+  
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -377,7 +356,7 @@ const LandingPage = () => {
           
           {/* Desktop Action Buttons */}
           <div className="hidden sm:flex items-center gap-2 sm:gap-4">
-            {isAuthenticated ? (
+            {!loading && user ? (
               <Button
                 className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30 transform hover:scale-105 transition-all duration-300 text-sm sm:text-base px-3 sm:px-4"
                 onClick={() => navigate('/dashboard')}
@@ -417,7 +396,7 @@ const LandingPage = () => {
                 Learn
               </button>
               <div className="pt-3 border-t border-gray-200 space-y-2">
-                {isAuthenticated ? (
+                {!loading && user ? (
                   <Button
                     className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white rounded-lg shadow-lg shadow-purple-500/30"
                     onClick={() => { navigate('/dashboard'); setMobileMenuOpen(false); }}
