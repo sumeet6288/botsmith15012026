@@ -22,15 +22,19 @@ const AddSourceModal = ({ isOpen, onClose, chatbotId, onSuccess, onUpgradeRequir
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Check file size (max 100MB)
-      if (file.size > 100 * 1024 * 1024) {
+      // Client-side safeguard: no single file can exceed the
+      // agent's 20MB total file-storage quota.
+      // The backend enforces the actual aggregate 20MB limit.
+      const MAX_AGENT_STORAGE = 20 * 1024 * 1024; // 20MB in bytes
+      if (file.size > MAX_AGENT_STORAGE) {
         toast({ 
           title: 'Error', 
-          description: 'File size must be less than 100MB', 
+          description: 'This file is larger than the 20MB total storage limit per agent.', 
           variant: 'destructive' 
         });
         return;
       }
+
       setFileData(file);
     }
   };
@@ -232,7 +236,7 @@ const AddSourceModal = ({ isOpen, onClose, chatbotId, onSuccess, onUpgradeRequir
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>Add Training Source</DialogTitle>
-          <DialogDescription>Add data to train your AI chatbot</DialogDescription>
+          <DialogDescription>Add data to train your AI Agent</DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="file" className="w-full">
@@ -255,7 +259,7 @@ const AddSourceModal = ({ isOpen, onClose, chatbotId, onSuccess, onUpgradeRequir
                   accept=".pdf,.docx,.doc,.txt,.xlsx,.xls,.csv"
                 />
               </Label>
-              <p className="text-xs text-gray-500 mt-2">Supported: PDF, DOCX, TXT, XLSX, CSV (Max 10MB)</p>
+              <p className="text-xs text-gray-500 mt-2">Supported: PDF, DOCX, TXT, XLSX, CSV (20MB total storage per agent)</p>
               {fileData && (
                 <p className="text-sm text-gray-700 mt-4 font-medium">Selected: {fileData.name}</p>
               )}

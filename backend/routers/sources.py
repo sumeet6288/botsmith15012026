@@ -70,7 +70,7 @@ async def upload_file_source(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user)
 ):
-    """Upload a file as a training source (max 100MB)"""
+    """Upload a file as a training source (20MB total storage per agent)"""
     try:
         # Check plan limits for file uploads
         limit_check = await plan_service.check_limit(current_user.id, "file_uploads")
@@ -91,26 +91,82 @@ async def upload_file_source(
         # Read file content
         file_content = await file.read()
         file_size = len(file_content)
-        
-        # Check file size limit (100MB)
-        MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB in bytes
-        if file_size > MAX_FILE_SIZE:
+
+        # Enforce a 20 MB TOTAL file-storage limit per agent/chatbot.
+        MAX_AGENT_STORAGE = 20 * 1024 * 1024  # 20 MiB in bytes
+
+        # Calculate storage already used by this chatbot's file sources.
+        # New uploads store the exact byte count in file_size.
+        # Legacy sources may not have file_size, so fall back to parsing
+        # their existing formatted size value when available.
+        existing_sources = await db_instance.sources.find(
+            {
+                "chatbot_id": chatbot_id,
+                "type": "file"
+            },
+            {
+                "file_size": 1,
+                "size": 1
+            }
+        ).to_list(length=None)
+
+        existing_storage = 0
+
+        for existing_source in existing_sources:
+            stored_size = existing_source.get("file_size")
+
+            if isinstance(stored_size, (int, float)) and stored_size >= 0:
+                existing_storage += int(stored_size)
+                continue
+
+            # Backward compatibility for older records that only have
+            # a formatted size such as "5.2 MB".
+            formatted_size = existing_source.get("size")
+            if isinstance(formatted_size, str):
+                try:
+                    parts = formatted_size.strip().split()
+                    if len(parts) == 2:
+                        value = float(parts[0])
+                        unit = parts[1].upper()
+                        multipliers = {
+                            "B": 1,
+                            "KB": 1024,
+                            "MB": 1024 ** 2,
+                            "GB": 1024 ** 3,
+                            "TB": 1024 ** 4
+                        }
+                        if unit in multipliers and value >= 0:
+                            existing_storage += int(value * multipliers[unit])
+                except (ValueError, TypeError):
+                    pass
+
+        new_total = existing_storage + file_size
+
+        if new_total > MAX_AGENT_STORAGE:
+            remaining_storage = max(0, MAX_AGENT_STORAGE - existing_storage)
             raise HTTPException(
                 status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail=f"File size exceeds maximum allowed size of 100MB. Current size: {DocumentProcessor.format_size(file_size)}"
+                detail=(
+                    f"Agent file storage limit of 20MB exceeded. "
+                    f"Current storage: {DocumentProcessor.format_size(existing_storage)}, "
+                    f"file size: {DocumentProcessor.format_size(file_size)}, "
+                    f"remaining: {DocumentProcessor.format_size(remaining_storage)}, "
+                    f"maximum: 20MB total per agent."
+                )
             )
-        
+
         # Create source entry
         source = Source(
             chatbot_id=chatbot_id,
             type="file",
             name=file.filename,
+            file_size=file_size,
             size=DocumentProcessor.format_size(file_size),
             status="processing"
         )
-        
+
         await db_instance.sources.insert_one(source.model_dump())
-        
+
         # Increment usage count
         await plan_service.increment_usage(current_user.id, "file_uploads")
         

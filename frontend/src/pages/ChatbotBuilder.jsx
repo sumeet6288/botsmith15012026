@@ -49,7 +49,34 @@ const ChatbotBuilder = () => {
   const [copied, setCopied] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEnabled, setWebhookEnabled] = useState(false);
-  const [iframeKey, setIframeKey] = useState(0);
+
+  const fileStorageUsedMB = sources
+    .filter((source) => source.type === 'file')
+    .reduce((total, source) => {
+      if (typeof source.file_size === 'number') {
+        return total + (source.file_size / 1000000);
+      }
+
+      if (typeof source.size === 'string') {
+        const parts = source.size.trim().split(/\\s+/);
+        if (parts.length === 2) {
+          const value = parseFloat(parts[0]);
+          const unit = parts[1].toUpperCase();
+          const multipliers = {
+            B: 1 / (1024 * 1024),
+            KB: 1 / 1024,
+            MB: 1,
+            GB: 1024
+          };
+
+          if (!Number.isNaN(value) && multipliers[unit]) {
+            return total + (value * multipliers[unit]);
+          }
+        }
+      }
+
+      return total;
+    }, 0);
 
   // Hide BotSmith's global assistant widget while inside the Chatbot Builder.
   // The real chatbot preview lives inside the iframe, so this only removes
@@ -71,32 +98,6 @@ const ChatbotBuilder = () => {
       style.remove();
     };
   }, []);
-
-  // Keep the real widget preview synchronized with the chatbot's
-  // current saved appearance/settings without changing any API logic.
-  useEffect(() => {
-    if (!chatbot) return;
-
-    setIframeKey((prev) => prev + 1);
-  }, [
-    chatbot?.primary_color,
-    chatbot?.secondary_color,
-    chatbot?.accent_color,
-    chatbot?.logo_url,
-    chatbot?.avatar_url,
-    chatbot?.welcome_message,
-    chatbot?.welcome_screen_message,
-    chatbot?.widget_position,
-    chatbot?.widget_theme,
-    chatbot?.widget_size,
-    chatbot?.widget_button_icon,
-    chatbot?.widget_button_color,
-    chatbot?.widget_button_size,
-    chatbot?.widget_button_text,
-    chatbot?.bubble_style,
-    chatbot?.powered_by_text,
-    chatbot?.name
-  ]);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('botsmith-chatbot-builder-sidebar-collapsed');
@@ -553,13 +554,18 @@ const ChatbotBuilder = () => {
                   </p>
                 </div>
 
-                <Button
-                  onClick={() => setIsAddSourceModalOpen(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-none"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Source
-                </Button>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-medium text-gray-500 whitespace-nowrap">
+                    {fileStorageUsedMB.toFixed(2)} MB / 20 MB
+                  </span>
+                  <Button
+                    onClick={() => setIsAddSourceModalOpen(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-none"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Source
+                  </Button>
+                </div>
               </div>
 
               {/* Source List */}
@@ -1470,62 +1476,6 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                 </div>
               </section>
 
-              {/* Live Preview Module */}
-              <section className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-200">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-semibold text-gray-950">Live Preview</h3>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                          Live
-                        </span>
-                      </div>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Preview uses your current chatbot settings and appearance.
-                      </p>
-                    </div>
-
-                    <Button
-                      onClick={() => setIframeKey(prev => prev + 1)}
-                      variant="outline"
-                      size="sm"
-                      className="h-9 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
-                    >
-                      <span className="mr-2">↻</span>
-                      Refresh
-                    </Button>
-                  </div>
-                </div>
-
-                <div className="p-4 sm:p-5 bg-gray-50">
-                  <div
-                    className="relative w-full overflow-hidden rounded-lg border border-gray-200 bg-white"
-                    style={{ height: '620px' }}
-                  >
-                    <iframe
-                      key={`embed-${chatbot.id}-${iframeKey}`}
-                      src={`${window.location.origin}/embed/${chatbot.id}`}
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      title="Live Chatbot Widget Preview"
-                      className="block w-full h-full bg-white"
-                    />
-                  </div>
-
-                  <div className="mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs text-gray-500">
-                    <span>
-                      Changes saved in Settings and Appearance are reflected here automatically.
-                    </span>
-                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Widget connected
-                    </span>
-                  </div>
-                </div>
-              </section>
             </div>
           </TabsContent>
 
