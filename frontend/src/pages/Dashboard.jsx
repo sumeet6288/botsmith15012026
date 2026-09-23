@@ -21,7 +21,7 @@ const dashboardGridStyle = {
 const DashboardRedesigned = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, logout, refreshUser } = useAuth();
+  const { user, logout } = useAuth();
   const [chatbots, setChatbots] = useState([]);
   const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -31,7 +31,6 @@ const DashboardRedesigned = () => {
 
   useEffect(() => {
     loadData();
-    refreshUser();
   }, []);
 
   const loadData = async (silent = false) => {
