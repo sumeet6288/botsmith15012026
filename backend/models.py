@@ -523,7 +523,7 @@ class Chatbot(BaseModel):
     name: str
     description: Optional[str] = None
     model: str = "gpt-4o-mini"
-    provider: Literal["openai", "anthropic", "google"] = "openai"
+    provider: Literal["openai", "anthropic", "google", "meta", "mistral", "perplexity"] = "openai"
     temperature: float = 0.7
     max_tokens: int = 500
     system_message: str = """### ROLE AND PRIMARY OBJECTIVE
@@ -923,7 +923,7 @@ class ChatbotCreate(BaseModel):
     name: str
     description: Optional[str] = None
     model: str = "gpt-4o-mini"
-    provider: Literal["openai", "anthropic", "google"] = "openai"
+    provider: Literal["openai", "anthropic", "google", "meta", "mistral", "perplexity"] = "openai"
     temperature: float = 0.7
     max_tokens: int = 500
     system_message: str = """### ROLE AND PRIMARY OBJECTIVE
@@ -1286,7 +1286,7 @@ class ChatbotUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     model: Optional[str] = None
-    provider: Optional[Literal["openai", "anthropic", "google"]] = None
+    provider: Optional[Literal["openai", "anthropic", "google", "meta", "mistral", "perplexity"]] = None
     temperature: Optional[float] = None
     max_tokens: Optional[int] = None
     system_message: Optional[str] = None
