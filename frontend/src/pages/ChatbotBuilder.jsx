@@ -430,7 +430,7 @@ const ChatbotBuilder = () => {
           {/* Full-height modular sidebar + workspace */}
           <div className="flex flex-col lg:flex-row items-stretch min-h-[calc(100vh-80px)]">
             <aside
-              className={`w-full ${isSidebarCollapsed ? 'lg:w-[72px]' : 'lg:w-[272px]'} lg:flex-shrink-0 bg-white border-r border-gray-200 transition-[width] duration-200`}
+              className={`w-full ${isSidebarCollapsed ? 'lg:w-[72px]' : 'lg:w-[240px]'} lg:flex-shrink-0 bg-white border-r border-gray-200 transition-[width] duration-200`}
             >
               <div className="lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] flex flex-col">
                 <div className="flex-1 overflow-y-auto p-3">
