@@ -1795,11 +1795,14 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
           </TabsContent>
 
           {/* Appearance Tab */}
-          <TabsContent value="appearance" className="m-0 animate-fade-in-up">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Customize Appearance</h2>
-              <AppearanceTab chatbot={chatbot} onUpdate={refreshChatbot} />
-            </div>
+          <TabsContent
+            value="appearance"
+            className="m-0 h-full min-h-0 p-0 animate-fade-in-up"
+          >
+            <AppearanceTab
+              chatbot={chatbot}
+              onUpdate={refreshChatbot}
+              />
           </TabsContent>
 
           {/* Advanced Analytics Tab */}
