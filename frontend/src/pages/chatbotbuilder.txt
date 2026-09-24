@@ -42,12 +42,41 @@ const ChatbotBuilder = () => {
   const [messages, setMessages] = useState([]);
   const [loadingConversations, setLoadingConversations] = useState(false);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [analyticsSearch, setAnalyticsSearch] = useState('');
+  const [analyticsStatus, setAnalyticsStatus] = useState('all');
   const [activeTab, setActiveTab] = useState('sources');
   const [publicAccess, setPublicAccess] = useState(true); // Always on by default
   const [copied, setCopied] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEnabled, setWebhookEnabled] = useState(false);
-  const [iframeKey, setIframeKey] = useState(0);
+
+  const fileStorageUsedMB = sources
+    .filter((source) => source.type === 'file')
+    .reduce((total, source) => {
+      if (typeof source.file_size === 'number') {
+        return total + (source.file_size / 1000000);
+      }
+
+      if (typeof source.size === 'string') {
+        const parts = source.size.trim().split(/\\s+/);
+        if (parts.length === 2) {
+          const value = parseFloat(parts[0]);
+          const unit = parts[1].toUpperCase();
+          const multipliers = {
+            B: 1 / (1024 * 1024),
+            KB: 1 / 1024,
+            MB: 1,
+            GB: 1024
+          };
+
+          if (!Number.isNaN(value) && multipliers[unit]) {
+            return total + (value * multipliers[unit]);
+          }
+        }
+      }
+
+      return total;
+    }, 0);
 
   // Hide BotSmith's global assistant widget while inside the Chatbot Builder.
   // The real chatbot preview lives inside the iframe, so this only removes
@@ -69,32 +98,6 @@ const ChatbotBuilder = () => {
       style.remove();
     };
   }, []);
-
-  // Keep the real widget preview synchronized with the chatbot's
-  // current saved appearance/settings without changing any API logic.
-  useEffect(() => {
-    if (!chatbot) return;
-
-    setIframeKey((prev) => prev + 1);
-  }, [
-    chatbot?.primary_color,
-    chatbot?.secondary_color,
-    chatbot?.accent_color,
-    chatbot?.logo_url,
-    chatbot?.avatar_url,
-    chatbot?.welcome_message,
-    chatbot?.welcome_screen_message,
-    chatbot?.widget_position,
-    chatbot?.widget_theme,
-    chatbot?.widget_size,
-    chatbot?.widget_button_icon,
-    chatbot?.widget_button_color,
-    chatbot?.widget_button_size,
-    chatbot?.widget_button_text,
-    chatbot?.bubble_style,
-    chatbot?.powered_by_text,
-    chatbot?.name
-  ]);
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     const saved = localStorage.getItem('botsmith-chatbot-builder-sidebar-collapsed');
@@ -427,7 +430,7 @@ const ChatbotBuilder = () => {
           {/* Full-height modular sidebar + workspace */}
           <div className="flex flex-col lg:flex-row items-stretch min-h-[calc(100vh-80px)]">
             <aside
-              className={`w-full ${isSidebarCollapsed ? 'lg:w-[72px]' : 'lg:w-[272px]'} lg:flex-shrink-0 bg-white border-r border-gray-200 transition-[width] duration-200`}
+              className={`w-full ${isSidebarCollapsed ? 'lg:w-[72px]' : 'lg:w-[240px]'} lg:flex-shrink-0 bg-white border-r border-gray-200 transition-[width] duration-200`}
             >
               <div className="lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] flex flex-col">
                 <div className="flex-1 overflow-y-auto p-3">
@@ -551,13 +554,18 @@ const ChatbotBuilder = () => {
                   </p>
                 </div>
 
-                <Button
-                  onClick={() => setIsAddSourceModalOpen(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-none"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Source
-                </Button>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs font-medium text-gray-500 whitespace-nowrap">
+                    {fileStorageUsedMB.toFixed(2)} MB / 20 MB
+                  </span>
+                  <Button
+                    onClick={() => setIsAddSourceModalOpen(true)}
+                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-none"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Source
+                  </Button>
+                </div>
               </div>
 
               {/* Source List */}
@@ -1124,44 +1132,60 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
           </TabsContent>
 
           {/* Widget Tab */}
-          <TabsContent value="widget" className="m-0 animate-fade-in-up">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Configuration Panel */}
-              <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-6 shadow-xl space-y-6">
-                {/* Public Access Toggle - Always ON */}
-                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-5 border-2 border-green-300 shadow-lg">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow-lg shadow-green-500/30">
-                        <Globe className="w-6 h-6 text-white" />
+          <TabsContent value="widget" className="m-0">
+            <div className="p-5 sm:p-6 lg:p-8 space-y-6">
+              {/* Widget Header */}
+              <div>
+                <h2 className="text-2xl font-semibold tracking-tight text-gray-950">Widget</h2>
+                <p className="text-sm text-gray-500 mt-1">
+                  Configure how your agent is published and embedded.
+                </p>
+              </div>
+
+              {/* Public Access Module */}
+              <section className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-200">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+                        <Globe className="w-5 h-5 text-gray-600" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-gray-900">Public Access</h3>
-                        <p className="text-sm text-gray-600">Your agent is publicly accessible</p>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-semibold text-gray-950">Public Access</h3>
+                          <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Always ON
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">
+                          Your agent is publicly accessible.
+                        </p>
                       </div>
                     </div>
-                    <div className="px-4 py-2 bg-green-500 text-white rounded-full font-semibold text-sm shadow-lg">
-                      Always ON
-                    </div>
                   </div>
-                  
-                  {/* Public Chat Link */}
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2 text-sm font-medium text-gray-700">
-                      <Link2 className="w-4 h-4 text-green-600" />
-                      <span>Share this link:</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
+                </div>
+
+                <div className="p-5 space-y-4">
+                  <div>
+                    <label className="flex items-center gap-2 text-sm font-medium text-gray-700 mb-2">
+                      <Link2 className="w-4 h-4 text-gray-500" />
+                      Share this link
+                    </label>
+                    <div className="flex items-center gap-2">
                       <input
                         type="text"
                         value={publicChatUrl}
                         readOnly
-                        className="flex-1 px-3 py-2 bg-white border-2 border-green-200 rounded-lg text-sm font-mono"
+                        className="min-w-0 flex-1 h-9 px-3 bg-white border border-gray-300 rounded-lg text-sm font-mono text-gray-700 focus:outline-none"
                       />
                       <Button
                         onClick={() => copyToClipboard(publicChatUrl, 'link')}
-                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30"
+                        variant="outline"
                         size="sm"
+                        className="h-9 w-9 p-0 border-gray-300 text-gray-600 hover:bg-gray-50"
+                        aria-label="Copy public chat link"
+                        title="Copy link"
                       >
                         {copied === 'link' ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                       </Button>
@@ -1169,55 +1193,66 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                         href={publicChatUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="p-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
+                        aria-label="Open public chat link"
+                        title="Open link"
                       >
                         <ExternalLink className="w-4 h-4" />
                       </a>
                     </div>
                   </div>
 
-                  {/* Quick Actions */}
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <Button
                       onClick={() => handleExport('json')}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-green-300 hover:bg-green-50"
+                      className="h-9 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
                     >
-                      <Download className="w-3 h-3 mr-1" />
+                      <Download className="w-4 h-4 mr-2" />
                       Export JSON
                     </Button>
                     <Button
                       onClick={() => handleExport('csv')}
                       variant="outline"
                       size="sm"
-                      className="flex-1 border-green-300 hover:bg-green-50"
+                      className="h-9 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
                     >
-                      <Download className="w-3 h-3 mr-1" />
+                      <Download className="w-4 h-4 mr-2" />
                       Export CSV
                     </Button>
                   </div>
                 </div>
+              </section>
 
-                <div>
-                  <h2 className="text-2xl font-bold mb-2 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Embed Your agent</h2>
-                  <p className="text-gray-600 text-sm">Choose how you want to integrate the agent into your website</p>
+              {/* Embed Methods */}
+              <section className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-200">
+                  <h3 className="text-base font-semibold text-gray-950">Embed your agent</h3>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Choose how you want to integrate the agent into your website.
+                  </p>
                 </div>
 
-                {/* Embed Options */}
-                <div className="space-y-4">
-                  {/* Chat Bubble Widget - NEW */}
-                  <div className="group p-5 border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-xl hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-blue-500/30 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                <div className="p-5 space-y-4">
+                  {/* Chat Bubble Widget */}
+                  <div className="rounded-lg border border-gray-200 bg-white">
+                    <div className="flex flex-col lg:flex-row lg:items-start gap-4 p-5">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-sm font-semibold text-gray-700">
                         1
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h3 className="font-semibold text-gray-900">Chat Bubble Widget</h3>
-                          <span className="px-2 py-0.5 text-xs font-semibold bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-full shadow-sm">Recommended</span>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="font-semibold text-gray-950">Chat Bubble Widget</h4>
+                          <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                            Recommended
+                          </span>
                         </div>
-                        <p className="text-sm text-gray-600 mb-3">Add a floating chat bubble to your website. Works on all pages and devices.</p>
+                        <p className="text-sm text-gray-500 mt-1 mb-3">
+                          Add a floating chat bubble to your website. Works on all pages and devices.
+                        </p>
+
                         <Textarea
                           value={`<script
   src="${window.location.origin}/embed.js"
@@ -1226,70 +1261,78 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
 </script>`}
                           readOnly
                           rows={8}
-                          className="font-mono text-xs bg-white"
+                          className="font-mono text-xs bg-gray-50 border-gray-200 resize-none"
                         />
-                        <Button 
-                          className="mt-2 w-full bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white shadow-lg shadow-blue-500/30 transform hover:scale-105 transition-all duration-300" 
-                          onClick={async () => {
-                            const widgetScript = `<script
+
+                        <div className="flex flex-col sm:flex-row gap-2 mt-3">
+                          <Button
+                            className="h-9 bg-gray-900 hover:bg-gray-800 text-white shadow-none"
+                            onClick={async () => {
+                              const widgetScript = `<script
   src="${window.location.origin}/embed.js"
   data-botsmith-id="${chatbot.id}"
   async>
 </script>`;
-                            try {
-                              // Try modern clipboard API first
-                              await navigator.clipboard.writeText(widgetScript);
-                              toast({ title: 'Copied!', description: 'Widget script copied to clipboard' });
-                            } catch (err) {
-                              // Fallback to textarea method for older browsers or permission issues
-                              const textarea = document.createElement('textarea');
-                              textarea.value = widgetScript;
-                              textarea.style.position = 'fixed';
-                              textarea.style.opacity = '0';
-                              document.body.appendChild(textarea);
-                              textarea.select();
                               try {
-                                document.execCommand('copy');
+                                await navigator.clipboard.writeText(widgetScript);
                                 toast({ title: 'Copied!', description: 'Widget script copied to clipboard' });
-                              } catch (execErr) {
-                                toast({ 
-                                  title: 'Copy Failed', 
-                                  description: 'Please manually copy the script above', 
-                                  variant: 'destructive' 
-                                });
+                              } catch (err) {
+                                const textarea = document.createElement('textarea');
+                                textarea.value = widgetScript;
+                                textarea.style.position = 'fixed';
+                                textarea.style.opacity = '0';
+                                document.body.appendChild(textarea);
+                                textarea.select();
+                                try {
+                                  document.execCommand('copy');
+                                  toast({ title: 'Copied!', description: 'Widget script copied to clipboard' });
+                                } catch (execErr) {
+                                  toast({
+                                    title: 'Copy Failed',
+                                    description: 'Please manually copy the script above',
+                                    variant: 'destructive'
+                                  });
+                                }
+                                document.body.removeChild(textarea);
                               }
-                              document.body.removeChild(textarea);
-                            }
-                          }}
-                        >
-                          <MessageSquare className="w-4 h-4 mr-2" />
-                          Copy Widget Script
-                        </Button>
-                        <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                          <p className="text-xs text-blue-800">
-                            <strong>💡 Tip:</strong> Paste this code anywhere in your website's HTML. BotSmith will automatically load the chat widget.
+                            }}
+                          >
+                            <MessageSquare className="w-4 h-4 mr-2" />
+                            Copy Widget Script
+                          </Button>
+                        </div>
+
+                        <div className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
+                          <p className="text-xs text-gray-600">
+                            <strong className="font-medium text-gray-800">Tip:</strong> Paste this code anywhere in your website's HTML. BotSmith will automatically load the chat widget.
                           </p>
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="group p-5 border-2 border-indigo-300 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl hover:border-indigo-500 hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-indigo-500/30 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                  {/* Iframe Embed */}
+                  <div className="rounded-lg border border-gray-200 bg-white">
+                    <div className="flex flex-col lg:flex-row lg:items-start gap-4 p-5">
+                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-sm font-semibold text-gray-700">
                         2
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-2">Iframe Embed</h3>
-                        <p className="text-sm text-gray-600 mb-3">Add this code to your HTML to embed the chatbot as an iframe</p>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-950">Iframe Embed</h4>
+                        <p className="text-sm text-gray-500 mt-1 mb-3">
+                          Add this code to your HTML to embed the chatbot as an iframe.
+                        </p>
+
                         <Textarea
                           value={embedCode}
                           readOnly
                           rows={3}
-                          className="font-mono text-xs bg-white"
+                          className="font-mono text-xs bg-gray-50 border-gray-200 resize-none"
                         />
-                        <Button 
-                          className="mt-2 w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-500/30 transform hover:scale-105 transition-all duration-300" 
+
+                        <Button
+                          className="mt-3 h-9 bg-gray-900 hover:bg-gray-800 text-white shadow-none"
                           onClick={async () => {
                             try {
                               await navigator.clipboard.writeText(embedCode);
@@ -1311,340 +1354,455 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                             }
                           }}
                         >
+                          <Copy className="w-4 h-4 mr-2" />
                           Copy Iframe Code
                         </Button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="group p-5 border-2 border-purple-300 bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl hover:border-purple-500 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-purple-500/30 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        3
+                  {/* Direct Link + Embed URL */}
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div className="rounded-lg border border-gray-200 bg-white p-5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-sm font-semibold text-gray-700">
+                          3
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-950">Direct Link</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">Share this link to let users chat directly.</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-2">Direct Link</h3>
-                        <p className="text-sm text-gray-600 mb-3">Share this link to let users chat directly</p>
-                        <Input
-                          value={`${window.location.origin}/chat/${chatbot.id}`}
-                          readOnly
-                          className="font-mono text-xs mb-2"
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button 
-                            variant="outline"
-                            className="w-full" 
-                            onClick={async () => {
-                              const link = `${window.location.origin}/chat/${chatbot.id}`;
+
+                      <Input
+                        value={`${window.location.origin}/chat/${chatbot.id}`}
+                        readOnly
+                        className="font-mono text-xs h-9 border-gray-300 mb-3"
+                      />
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          className="w-full h-9 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
+                          onClick={async () => {
+                            const link = `${window.location.origin}/chat/${chatbot.id}`;
+                            try {
+                              await navigator.clipboard.writeText(link);
+                              toast({ title: 'Copied!', description: 'Link copied to clipboard' });
+                            } catch (err) {
+                              const textarea = document.createElement('textarea');
+                              textarea.value = link;
+                              textarea.style.position = 'fixed';
+                              textarea.style.opacity = '0';
+                              document.body.appendChild(textarea);
+                              textarea.select();
                               try {
-                                await navigator.clipboard.writeText(link);
+                                document.execCommand('copy');
                                 toast({ title: 'Copied!', description: 'Link copied to clipboard' });
-                              } catch (err) {
-                                const textarea = document.createElement('textarea');
-                                textarea.value = link;
-                                textarea.style.position = 'fixed';
-                                textarea.style.opacity = '0';
-                                document.body.appendChild(textarea);
-                                textarea.select();
-                                try {
-                                  document.execCommand('copy');
-                                  toast({ title: 'Copied!', description: 'Link copied to clipboard' });
-                                } catch (execErr) {
-                                  toast({ title: 'Copy Failed', description: 'Please manually copy the link above', variant: 'destructive' });
-                                }
-                                document.body.removeChild(textarea);
+                              } catch (execErr) {
+                                toast({ title: 'Copy Failed', description: 'Please manually copy the link above', variant: 'destructive' });
                               }
-                            }}
-                          >
-                            Copy Link
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            className="w-full" 
-                            onClick={() => window.open(`${window.location.origin}/chat/${chatbot.id}`, '_blank')}
-                          >
-                            Test Link
-                          </Button>
-                        </div>
+                              document.body.removeChild(textarea);
+                            }
+                          }}
+                        >
+                          Copy Link
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full h-9 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
+                          onClick={() => window.open(`${window.location.origin}/chat/${chatbot.id}`, '_blank')}
+                        >
+                          Test Link
+                        </Button>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="group p-5 border-2 border-green-300 bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl hover:border-green-500 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 transform hover:-translate-y-1">
-                    <div className="flex items-start gap-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center text-white font-bold flex-shrink-0 shadow-lg shadow-green-500/30 transform group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                        4
+                    <div className="rounded-lg border border-gray-200 bg-white p-5">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-sm font-semibold text-gray-700">
+                          4
+                        </div>
+                        <div>
+                          <h4 className="font-semibold text-gray-950">Embed URL</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">Use this URL in your iframe or embed tools.</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-gray-900 mb-2">Embed URL</h3>
-                        <p className="text-sm text-gray-600 mb-3">Use this URL in your iframe or embed tools</p>
-                        <Input
-                          value={`${window.location.origin}/embed/${chatbot.id}`}
-                          readOnly
-                          className="font-mono text-xs mb-2"
-                        />
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button 
-                            variant="outline"
-                            className="w-full" 
-                            onClick={async () => {
-                              const embedUrl = `${window.location.origin}/embed/${chatbot.id}`;
+
+                      <Input
+                        value={`${window.location.origin}/embed/${chatbot.id}`}
+                        readOnly
+                        className="font-mono text-xs h-9 border-gray-300 mb-3"
+                      />
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Button
+                          variant="outline"
+                          className="w-full h-9 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
+                          onClick={async () => {
+                            const embedUrl = `${window.location.origin}/embed/${chatbot.id}`;
+                            try {
+                              await navigator.clipboard.writeText(embedUrl);
+                              toast({ title: 'Copied!', description: 'Embed URL copied to clipboard' });
+                            } catch (err) {
+                              const textarea = document.createElement('textarea');
+                              textarea.value = embedUrl;
+                              textarea.style.position = 'fixed';
+                              textarea.style.opacity = '0';
+                              document.body.appendChild(textarea);
+                              textarea.select();
                               try {
-                                await navigator.clipboard.writeText(embedUrl);
+                                document.execCommand('copy');
                                 toast({ title: 'Copied!', description: 'Embed URL copied to clipboard' });
-                              } catch (err) {
-                                const textarea = document.createElement('textarea');
-                                textarea.value = embedUrl;
-                                textarea.style.position = 'fixed';
-                                textarea.style.opacity = '0';
-                                document.body.appendChild(textarea);
-                                textarea.select();
-                                try {
-                                  document.execCommand('copy');
-                                  toast({ title: 'Copied!', description: 'Embed URL copied to clipboard' });
-                                } catch (execErr) {
-                                  toast({ title: 'Copy Failed', description: 'Please manually copy the URL above', variant: 'destructive' });
-                                }
-                                document.body.removeChild(textarea);
+                              } catch (execErr) {
+                                toast({ title: 'Copy Failed', description: 'Please manually copy the URL above', variant: 'destructive' });
                               }
-                            }}
-                          >
-                            Copy URL
-                          </Button>
-                          <Button 
-                            variant="outline"
-                            className="w-full" 
-                            onClick={() => window.open(`${window.location.origin}/embed/${chatbot.id}`, '_blank')}
-                          >
-                            Preview
-                          </Button>
-                        </div>
+                              document.body.removeChild(textarea);
+                            }
+                          }}
+                        >
+                          Copy URL
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="w-full h-9 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
+                          onClick={() => window.open(`${window.location.origin}/embed/${chatbot.id}`, '_blank')}
+                        >
+                          Preview
+                        </Button>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
-              {/* Live Preview */}
-              <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <div className="px-5 py-4 border-b border-gray-200 bg-white flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-lg font-semibold text-gray-900">Live Preview</h3>
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Live
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      Preview uses your current chatbot settings and appearance.
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={() => setIframeKey(prev => prev + 1)}
-                    variant="outline"
-                    size="sm"
-                    className="h-9 border-gray-300 text-gray-700 hover:bg-gray-50"
-                  >
-                    🔄 Refresh
-                  </Button>
-                </div>
-
-                <div className="p-4 sm:p-5 bg-gray-50">
-                  <div
-                    className="relative w-full overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
-                    style={{ height: '620px' }}
-                  >
-                    <iframe
-                      key={`embed-${chatbot.id}-${iframeKey}`}
-                      src={`${window.location.origin}/embed/${chatbot.id}`}
-                      width="100%"
-                      height="100%"
-                      frameBorder="0"
-                      title="Live Chatbot Widget Preview"
-                      className="block w-full h-full bg-white"
-                    />
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between gap-3 text-xs text-gray-500">
-                    <span>
-                      Changes saved in Settings and Appearance are reflected here automatically.
-                    </span>
-                    <span className="hidden sm:inline-flex items-center gap-1.5 whitespace-nowrap">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      Widget connected
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </TabsContent>
 
           {/* Analytics Tab */}
-          <TabsContent value="analytics" className="m-0 animate-fade-in-up">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl mb-6">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Agent Analytics</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="group p-6 border-2 border-purple-200/50 rounded-xl hover:border-purple-400 hover:shadow-xl hover:shadow-purple-500/20 transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-r from-white to-purple-50/30">
-                  <p className="text-gray-600 text-sm font-medium mb-2">Total Conversations</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{chatbot.conversations_count || 0}</p>
-                </div>
-                <div className="group p-6 border-2 border-blue-200/50 rounded-xl hover:border-blue-400 hover:shadow-xl hover:shadow-blue-500/20 transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-r from-white to-blue-50/30">
-                  <p className="text-gray-600 text-sm font-medium mb-2">Total Messages</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">{chatbot.messages_count || 0}</p>
-                </div>
-                <div className="group p-6 border-2 border-green-200/50 rounded-xl hover:border-green-400 hover:shadow-xl hover:shadow-green-500/20 transition-all duration-500 transform hover:-translate-y-2 bg-gradient-to-r from-white to-green-50/30">
-                  <p className="text-gray-600 text-sm font-medium mb-2">Training Sources</p>
-                  <p className="text-4xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent">{sources.length}</p>
+          <TabsContent value="analytics" className="m-0">
+            <div className="p-5 sm:p-6 lg:p-8 space-y-6">
+              {/* Analytics Header */}
+              <div className="flex flex-col gap-2">
+                <div>
+                  <h2 className="text-2xl font-semibold tracking-tight text-gray-950">Analytics</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    Monitor conversations and review how users are interacting with your agent.
+                  </p>
                 </div>
               </div>
-            </div>
 
-            {/* Chat Logs Section */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Chat Logs</h2>
-                <Button
-                  onClick={loadConversations}
-                  disabled={loadingConversations}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
-                >
-                  {loadingConversations ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Loading...
-                    </>
-                  ) : (
-                    <>
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      Refresh Chat Logs
-                    </>
-                  )}
-                </Button>
-              </div>
-
-              {conversations.length === 0 && !loadingConversations && (
-                <div className="text-center py-16">
-                  <div className="w-20 h-20 bg-gradient-to-br from-purple-100 to-pink-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <MessageSquare className="w-10 h-10 text-purple-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">No conversations yet</h3>
-                  <p className="text-gray-600">Chat logs will appear here once users start conversations</p>
-                </div>
-              )}
-
-              {conversations.length > 0 && (
-                <div className="space-y-4">
-                  {conversations.map((conversation) => (
-                    <div
-                      key={conversation.id}
-                      className="border-2 border-gray-200 rounded-xl overflow-hidden hover:border-purple-300 transition-all duration-300"
-                    >
-                      {/* Conversation Header */}
-                      <div
-                        onClick={() => toggleConversation(conversation.id)}
-                        className="flex items-center justify-between p-4 bg-gradient-to-r from-white to-purple-50/30 cursor-pointer hover:from-purple-50/50 hover:to-pink-50/50 transition-all"
-                      >
-                        <div className="flex items-center gap-4 flex-1">
-                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                            <User className="w-6 h-6 text-white" />
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                              <h3 className="font-semibold text-gray-900">
-                                {conversation.user_name || 'Anonymous User'}
-                              </h3>
-                              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                                conversation.status === 'active' 
-                                  ? 'bg-green-100 text-green-700' 
-                                  : conversation.status === 'resolved'
-                                  ? 'bg-blue-100 text-blue-700'
-                                  : 'bg-orange-100 text-orange-700'
-                              }`}>
-                                {conversation.status}
-                              </span>
-                            </div>
-                            {conversation.user_email && (
-                              <p className="text-sm text-gray-500 mt-1">{conversation.user_email}</p>
-                            )}
-                            <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                              <span className="flex items-center gap-1">
-                                <MessageSquare className="w-4 h-4" />
-                                {conversation.message_count || 0} messages
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
-                                {formatDate(conversation.updated_at)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="ml-4">
-                          {selectedConversation === conversation.id ? (
-                            <ChevronUp className="w-5 h-5 text-purple-600" />
-                          ) : (
-                            <ChevronDown className="w-5 h-5 text-gray-400" />
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Messages - Expanded View */}
-                      {selectedConversation === conversation.id && (
-                        <div className="border-t-2 border-gray-200 p-6 bg-gray-50/50">
-                          {loadingMessages ? (
-                            <div className="flex items-center justify-center py-8">
-                              <Loader2 className="w-6 h-6 animate-spin text-purple-600" />
-                            </div>
-                          ) : messages.length === 0 ? (
-                            <p className="text-center text-gray-500 py-4">No messages in this conversation</p>
-                          ) : (
-                            <div className="space-y-4">
-                              {messages.map((message) => (
-                                <div
-                                  key={message.id}
-                                  className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
-                                >
-                                  <div
-                                    className={`max-w-[70%] rounded-2xl p-4 ${
-                                      message.role === 'user'
-                                        ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
-                                        : 'bg-white border-2 border-gray-200 text-gray-900'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <span className={`text-xs font-semibold ${
-                                        message.role === 'user' ? 'text-purple-100' : 'text-gray-500'
-                                      }`}>
-                                        {message.role === 'user' ? 'User' : 'Assistant'}
-                                      </span>
-                                      <span className={`text-xs ${
-                                        message.role === 'user' ? 'text-purple-100' : 'text-gray-400'
-                                      }`}>
-                                        {formatDate(message.timestamp)}
-                                      </span>
-                                    </div>
-                                    <p className="whitespace-pre-wrap break-words">{message.content}</p>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
+              {/* KPI Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Total conversations</p>
+                      <p className="mt-2 text-3xl font-semibold tracking-tight text-gray-950">
+                        {chatbot.conversations_count || 0}
+                      </p>
                     </div>
-                  ))}
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                      <MessageSquare className="w-4 h-4" />
+                    </div>
+                  </div>
                 </div>
-              )}
+
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Total messages</p>
+                      <p className="mt-2 text-3xl font-semibold tracking-tight text-gray-950">
+                        {chatbot.messages_count || 0}
+                      </p>
+                    </div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                      <BarChart3 className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-gray-200 bg-white p-5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-sm font-medium text-gray-500">Training sources</p>
+                      <p className="mt-2 text-3xl font-semibold tracking-tight text-gray-950">
+                        {sources.length}
+                      </p>
+                    </div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conversations Module */}
+              <section className="rounded-xl border border-gray-200 bg-white overflow-hidden">
+                <div className="px-5 py-4 border-b border-gray-200">
+                  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div>
+                      <h3 className="text-base font-semibold text-gray-950">Conversations</h3>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Review recent conversations and open any thread for its full message history.
+                      </p>
+                    </div>
+
+                    <Button
+                      onClick={loadConversations}
+                      disabled={loadingConversations}
+                      variant="outline"
+                      className="h-9 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
+                    >
+                      {loadingConversations ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Refreshing
+                        </>
+                      ) : (
+                        <>
+                          <MessageSquare className="w-4 h-4 mr-2" />
+                          Refresh
+                        </>
+                      )}
+                    </Button>
+                  </div>
+
+                  {/* Table Controls */}
+                  <div className="mt-4 flex flex-col sm:flex-row gap-3">
+                    <Input
+                      value={analyticsSearch}
+                      onChange={(e) => setAnalyticsSearch(e.target.value)}
+                      placeholder="Search by name or email..."
+                      className="h-9 flex-1 border-gray-300 focus-visible:ring-1 focus-visible:ring-gray-400"
+                    />
+
+                    <Select value={analyticsStatus} onValueChange={setAnalyticsStatus}>
+                      <SelectTrigger className="h-9 w-full sm:w-[150px] border-gray-300">
+                        <SelectValue placeholder="All statuses" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All statuses</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="resolved">Resolved</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {conversations.length === 0 && !loadingConversations ? (
+                  <div className="px-6 py-16 text-center">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+                      <MessageSquare className="w-5 h-5 text-gray-500" />
+                    </div>
+                    <h3 className="mt-4 text-sm font-semibold text-gray-950">No conversations yet</h3>
+                    <p className="mt-1 text-sm text-gray-500">
+                      Chat logs will appear here once users start conversations.
+                    </p>
+                  </div>
+                ) : (
+                  (() => {
+                    const normalizedSearch = analyticsSearch.trim().toLowerCase();
+
+                    const filteredConversations = conversations.filter((conversation) => {
+                      const name = (conversation.user_name || 'Anonymous User').toLowerCase();
+                      const email = (conversation.user_email || '').toLowerCase();
+                      const status = (conversation.status || '').toLowerCase();
+
+                      const matchesSearch =
+                        !normalizedSearch ||
+                        name.includes(normalizedSearch) ||
+                        email.includes(normalizedSearch);
+
+                      const matchesStatus =
+                        analyticsStatus === 'all' || status === analyticsStatus;
+
+                      return matchesSearch && matchesStatus;
+                    });
+
+                    if (filteredConversations.length === 0) {
+                      return (
+                        <div className="px-6 py-14 text-center">
+                          <p className="text-sm font-medium text-gray-900">No matching conversations</p>
+                          <p className="mt-1 text-sm text-gray-500">
+                            Try changing the search or status filter.
+                          </p>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="overflow-x-auto">
+                        <table className="w-full min-w-[760px] text-sm">
+                          <thead className="border-b border-gray-200 bg-gray-50">
+                            <tr className="text-left text-xs font-medium uppercase tracking-wide text-gray-500">
+                              <th className="px-5 py-3">User</th>
+                              <th className="px-5 py-3">Status</th>
+                              <th className="px-5 py-3">Messages</th>
+                              <th className="px-5 py-3">Last activity</th>
+                              <th className="px-5 py-3 text-right">Action</th>
+                            </tr>
+                          </thead>
+
+                          <tbody className="divide-y divide-gray-200">
+                            {filteredConversations.map((conversation) => {
+                              const status = (conversation.status || 'unknown').toLowerCase();
+
+                              return (
+                                <React.Fragment key={conversation.id}>
+                                  <tr
+                                    onClick={() => toggleConversation(conversation.id)}
+                                    className="cursor-pointer bg-white hover:bg-gray-50"
+                                  >
+                                    <td className="px-5 py-4">
+                                      <div className="flex items-center gap-3 min-w-0">
+                                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-600">
+                                          <User className="w-4 h-4" />
+                                        </div>
+                                        <div className="min-w-0">
+                                          <p className="font-medium text-gray-900 truncate">
+                                            {conversation.user_name || 'Anonymous User'}
+                                          </p>
+                                          {conversation.user_email && (
+                                            <p className="mt-0.5 text-xs text-gray-500 truncate">
+                                              {conversation.user_email}
+                                            </p>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </td>
+
+                                    <td className="px-5 py-4">
+                                      <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium capitalize text-gray-700">
+                                        <span
+                                          className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
+                                            status === 'active'
+                                              ? 'bg-emerald-500'
+                                              : status === 'resolved'
+                                              ? 'bg-blue-500'
+                                              : 'bg-gray-400'
+                                          }`}
+                                        />
+                                        {status}
+                                      </span>
+                                    </td>
+
+                                    <td className="px-5 py-4 text-gray-700">
+                                      {conversation.message_count || 0}
+                                    </td>
+
+                                    <td className="px-5 py-4 text-gray-500 whitespace-nowrap">
+                                      {formatDate(conversation.updated_at)}
+                                    </td>
+
+                                    <td className="px-5 py-4 text-right">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          toggleConversation(conversation.id);
+                                        }}
+                                        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+                                        aria-label={
+                                          selectedConversation === conversation.id
+                                            ? 'Collapse conversation'
+                                            : 'Open conversation'
+                                        }
+                                      >
+                                        {selectedConversation === conversation.id ? (
+                                          <ChevronUp className="w-4 h-4" />
+                                        ) : (
+                                          <ChevronDown className="w-4 h-4" />
+                                        )}
+                                      </button>
+                                    </td>
+                                  </tr>
+
+                                  {selectedConversation === conversation.id && (
+                                    <tr>
+                                      <td colSpan="5" className="bg-gray-50 px-5 py-5">
+                                        <div className="rounded-lg border border-gray-200 bg-white">
+                                          <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+                                            <div>
+                                              <p className="text-sm font-semibold text-gray-900">
+                                                Conversation details
+                                              </p>
+                                              <p className="text-xs text-gray-500 mt-0.5">
+                                                {conversation.user_name || 'Anonymous User'}
+                                              </p>
+                                            </div>
+                                            <span className="text-xs text-gray-500">
+                                              {conversation.message_count || 0} messages
+                                            </span>
+                                          </div>
+
+                                          {loadingMessages ? (
+                                            <div className="flex items-center justify-center py-10">
+                                              <Loader2 className="w-5 h-5 animate-spin text-gray-500" />
+                                            </div>
+                                          ) : messages.length === 0 ? (
+                                            <p className="px-4 py-8 text-center text-sm text-gray-500">
+                                              No messages in this conversation.
+                                            </p>
+                                          ) : (
+                                            <div className="max-h-[520px] overflow-y-auto p-4 space-y-3">
+                                              {messages.map((message) => (
+                                                <div
+                                                  key={message.id}
+                                                  className={`flex ${
+                                                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                                                  }`}
+                                                >
+                                                  <div
+                                                    className={`max-w-[78%] rounded-lg border px-4 py-3 ${
+                                                      message.role === 'user'
+                                                        ? 'border-gray-300 bg-gray-100 text-gray-900'
+                                                        : 'border-gray-200 bg-white text-gray-900'
+                                                    }`}
+                                                  >
+                                                    <div className="flex items-center gap-2 mb-1.5">
+                                                      <span className="text-xs font-semibold text-gray-600">
+                                                        {message.role === 'user' ? 'User' : 'Assistant'}
+                                                      </span>
+                                                      <span className="text-xs text-gray-400">
+                                                        {formatDate(message.timestamp)}
+                                                      </span>
+                                                    </div>
+                                                    <p className="whitespace-pre-wrap break-words text-sm leading-6">
+                                                      {message.content}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          )}
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </React.Fragment>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })()
+                )}
+              </section>
             </div>
           </TabsContent>
 
           {/* Appearance Tab */}
-          <TabsContent value="appearance" className="m-0 animate-fade-in-up">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
-              <h2 className="text-2xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-purple-600 bg-clip-text text-transparent">Customize Appearance</h2>
-              <AppearanceTab chatbot={chatbot} onUpdate={refreshChatbot} />
-            </div>
+          <TabsContent
+            value="appearance"
+            className="m-0 h-full min-h-0 p-0 animate-fade-in-up"
+          >
+            <AppearanceTab
+              chatbot={chatbot}
+              onUpdate={refreshChatbot}
+              />
           </TabsContent>
 
           {/* Advanced Analytics Tab */}
