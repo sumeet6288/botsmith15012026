@@ -151,10 +151,9 @@ async def connect_calendly(
 
         authorization_url = f"{CALENDLY_AUTHORIZE_URL}?{urlencode(params)}"
 
-        return RedirectResponse(
-            url=authorization_url,
-            status_code=302,
-        )
+        return {
+            "authorization_url": authorization_url
+        }
     finally:
         client.close()
 
