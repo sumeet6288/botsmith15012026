@@ -967,3 +967,4 @@ CURRENT USER MESSAGE:
             return parsed if isinstance(parsed, dict) else None
         except json.JSONDecodeError:
             return None
+            
