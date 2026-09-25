@@ -1,7 +1,9 @@
 """Small, tenant-scoped Calendly API client."""
 
 from __future__ import annotations
+
 from typing import Any, Dict, Optional
+
 import httpx
 
 
@@ -43,13 +45,19 @@ class CalendlyService:
                 detail = response.json()
             except Exception:
                 detail = response.text
+
             raise RuntimeError(
                 f"Calendly API request failed ({response.status_code}): {detail}"
             )
 
         if not response.content:
             return {}
+
         return response.json()
+
+    async def get_current_user(self) -> Dict[str, Any]:
+        """Return the Calendly user associated with the OAuth token."""
+        return await self._request("GET", "/users/me")
 
     async def get_event_types(
         self,
@@ -59,17 +67,40 @@ class CalendlyService:
         active: Optional[bool] = True,
         count: int = 20,
     ) -> Dict[str, Any]:
-        params: Dict[str, Any] = {"count": max(1, min(count, 100))}
+        params: Dict[str, Any] = {
+            "count": max(1, min(count, 100))
+        }
+
         if organization:
             params["organization"] = organization
-        if user:
+        elif user:
             params["user"] = user
+        else:
+            current_user = await self.get_current_user()
+            current_user_uri = current_user.get("resource", {}).get("uri")
+
+            if not current_user_uri:
+                raise RuntimeError(
+                    "Calendly current user URI was not returned"
+                )
+
+            params["user"] = current_user_uri
+
         if active is not None:
             params["active"] = active
-        return await self._request("GET", "/event_types", params=params)
+
+        return await self._request(
+            "GET",
+            "/event_types",
+            params=params,
+        )
 
     async def get_available_times(
-        self, *, event_type: str, start_time: str, end_time: str
+        self,
+        *,
+        event_type: str,
+        start_time: str,
+        end_time: str,
     ) -> Dict[str, Any]:
         return await self._request(
             "GET",
@@ -82,7 +113,11 @@ class CalendlyService:
         )
 
     async def book_meeting(
-        self, *, event_type: str, start_time: str, invitee: Dict[str, Any]
+        self,
+        *,
+        event_type: str,
+        start_time: str,
+        invitee: Dict[str, Any],
     ) -> Dict[str, Any]:
         return await self._request(
             "POST",
