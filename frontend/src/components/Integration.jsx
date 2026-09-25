@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, ExternalLink, Loader2, CheckCircle2, Unplug } from 'lucide-react';
-import axios from 'axios';
+import {
+  CalendarDays,
+  ExternalLink,
+  Loader2,
+  CheckCircle2,
+  Unplug,
+} from 'lucide-react';
+import api from '../utils/api';
 
 const Integration = ({ chatbotId }) => {
   const [connected, setConnected] = useState(false);
@@ -8,10 +14,6 @@ const Integration = ({ chatbotId }) => {
   const [connecting, setConnecting] = useState(false);
   const [disconnecting, setDisconnecting] = useState(false);
   const [error, setError] = useState('');
-
-  const api = axios.create({
-    baseURL: process.env.REACT_APP_BACKEND_URL || '',
-  });
 
   const checkCalendlyStatus = async () => {
     if (!chatbotId) {
@@ -24,7 +26,12 @@ const Integration = ({ chatbotId }) => {
       setError('');
 
       const response = await api.get(
-        `/api/integrations/calendly/status?chatbot_id=${encodeURIComponent(chatbotId)}`
+        '/integrations/calendly/status',
+        {
+          params: {
+            chatbot_id: chatbotId,
+          },
+        }
       );
 
       setConnected(response.data?.connected === true);
@@ -40,16 +47,47 @@ const Integration = ({ chatbotId }) => {
     checkCalendlyStatus();
   }, [chatbotId]);
 
-  const handleConnect = () => {
+  const handleConnect = async () => {
     if (!chatbotId || connecting) return;
 
-    setConnecting(true);
-    setError('');
+    try {
+      setConnecting(true);
+      setError('');
 
-    const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+      // Uses the existing authenticated Axios instance.
+      // api.js automatically adds:
+      // Authorization: Bearer <botsmith_token>
+      const response = await api.get(
+        '/integrations/calendly/connect',
+        {
+          params: {
+            chatbot_id: chatbotId,
+          },
+        }
+      );
 
-    window.location.href =
-      `${backendUrl}/api/integrations/calendly/connect?chatbot_id=${encodeURIComponent(chatbotId)}`;
+      const authorizationUrl =
+        response.data?.authorization_url;
+
+      if (!authorizationUrl) {
+        throw new Error(
+          'Calendly authorization URL was not returned.'
+        );
+      }
+
+      // Now redirect to Calendly itself.
+      window.location.href = authorizationUrl;
+    } catch (err) {
+      console.error('Calendly connect error:', err);
+
+      setError(
+        err.response?.data?.detail ||
+        err.message ||
+        'Unable to connect Calendly.'
+      );
+
+      setConnecting(false);
+    }
   };
 
   const handleDisconnect = async () => {
@@ -66,13 +104,25 @@ const Integration = ({ chatbotId }) => {
       setError('');
 
       await api.delete(
-        `/api/integrations/calendly/disconnect?chatbot_id=${encodeURIComponent(chatbotId)}`
+        '/integrations/calendly/disconnect',
+        {
+          params: {
+            chatbot_id: chatbotId,
+          },
+        }
       );
 
       setConnected(false);
     } catch (err) {
-      console.error('Failed to disconnect Calendly:', err);
-      setError('Failed to disconnect Calendly. Please try again.');
+      console.error(
+        'Failed to disconnect Calendly:',
+        err
+      );
+
+      setError(
+        err.response?.data?.detail ||
+        'Failed to disconnect Calendly. Please try again.'
+      );
     } finally {
       setDisconnecting(false);
     }
