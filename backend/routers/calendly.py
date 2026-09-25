@@ -293,7 +293,7 @@ async def calendly_callback(
 
         redirect_url = (
             f"{frontend_url.rstrip('/')}"
-            f"/chatbots/{oauth_state['chatbot_id']}"
+            f"/chatbot/{oauth_state['chatbot_id']}"
             f"?tab=integration&calendly=connected"
         )
 
