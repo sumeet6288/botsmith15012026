@@ -1,7 +1,10 @@
 """Structured Calendly tools for BotSmith."""
 
 from __future__ import annotations
+
 from typing import Any, Dict
+from pydantic import PrivateAttr
+
 from ..base import Tool
 from .service import CalendlyService
 
@@ -18,13 +21,10 @@ class CalendlyGetEventTypesTool(Tool):
     }
     risk_level: str = "low"
     timeout: float = 15.0
+    _service: Any = PrivateAttr()
 
     def __init__(self, service: CalendlyService):
-        super().__init__(
-            name=self.name, description=self.description,
-            input_schema=self.input_schema,
-            risk_level=self.risk_level, timeout=self.timeout
-        )
+        super().__init__()
         self._service = service
 
     async def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -50,13 +50,10 @@ class CalendlyGetAvailableTimesTool(Tool):
     }
     risk_level: str = "low"
     timeout: float = 15.0
+    _service: Any = PrivateAttr()
 
     def __init__(self, service: CalendlyService):
-        super().__init__(
-            name=self.name, description=self.description,
-            input_schema=self.input_schema,
-            risk_level=self.risk_level, timeout=self.timeout
-        )
+        super().__init__()
         self._service = service
 
     async def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
@@ -104,13 +101,10 @@ class CalendlyBookMeetingTool(Tool):
     }
     risk_level: str = "high"
     timeout: float = 15.0
+    _service: Any = PrivateAttr()
 
     def __init__(self, service: CalendlyService):
-        super().__init__(
-            name=self.name, description=self.description,
-            input_schema=self.input_schema,
-            risk_level=self.risk_level, timeout=self.timeout
-        )
+        super().__init__()
         self._service = service
 
     async def execute(self, arguments: Dict[str, Any]) -> Dict[str, Any]:
