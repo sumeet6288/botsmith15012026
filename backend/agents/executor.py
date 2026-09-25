@@ -37,11 +37,18 @@ class Executor:
             }
 
         if decision.action == "tool":
-            if self._tool_registry is None:
-                raise RuntimeError("Tool registry is not configured")
-
             if not decision.tool_name:
                 raise ValueError("Tool name is required for a tool decision")
+
+            # If the requested tool is not registered, fall back to the
+            # existing BotSmith agent instead of crashing the runtime.
+            if self._tool_registry is None:
+                return await self._legacy_runner(**request)
+
+            try:
+                tool = self._tool_registry.get(decision.tool_name)
+            except KeyError:
+                return await self._legacy_runner(**request)
 
             arguments = decision.arguments or {}
 
@@ -52,8 +59,6 @@ class Executor:
                 raise ValueError(
                     f"Invalid arguments for tool: {decision.tool_name}"
                 )
-
-            tool = self._tool_registry.get(decision.tool_name)
 
             result = await tool.execute(arguments)
 
