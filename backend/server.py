@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import os
 import logging
 from pathlib import Path
-from routers import auth_router, user_router, chatbots, sources, chat, analytics, plans, advanced_analytics, public_chat, razorpay, admin, admin_users, admin_users_enhanced, admin_chatbots, notifications, integrations, password_reset, telegram, slack, discord, msteams, instagram, admin_leads, leads, tech_management, whatsapp, messenger, payment_settings, admin_settings, admin_direct_login, admin_subscriptions, zapier, supabase_auth, billing_audit, widget_version, twilio
+from routers import auth_router, user_router, chatbots, sources, chat, analytics, plans, advanced_analytics, public_chat, razorpay, admin, admin_users, admin_users_enhanced, admin_chatbots, notifications, integrations, password_reset, telegram, slack, discord, msteams, instagram, admin_leads, leads, tech_management, whatsapp, messenger, payment_settings, admin_settings, admin_direct_login, admin_subscriptions, zapier, supabase_auth, billing_audit, widget_version, twilio, calendly
 import auth
 from services.plan_service import plan_service
 from typing import Dict
@@ -160,6 +160,7 @@ api_router.include_router(admin_leads.router, prefix="/admin", tags=["Admin Lead
 api_router.include_router(leads.router, tags=["Leads"])
 api_router.include_router(notifications.router)
 api_router.include_router(integrations.router)
+api_router.include_router(calendly.router)
 api_router.include_router(password_reset.router)
 api_router.include_router(telegram.router)
 api_router.include_router(twilio.router)

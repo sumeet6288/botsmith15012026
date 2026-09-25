@@ -17,6 +17,7 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import AppearanceTab from '../components/AppearanceTab';
 import AdvancedAnalytics from '../components/AdvancedAnalytics';
 import ChatbotIntegrations from '../components/ChatbotIntegrations';
+import Integration from '../components/Integration';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
 import { chatbotAPI, sourceAPI, chatAPI } from '../utils/api';
@@ -515,7 +516,16 @@ const ChatbotBuilder = () => {
                       className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
                     >
                       <Zap className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
-                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Integrations</span>
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Channels</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="integration"
+                      title="Integration"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <Link2 className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Integration</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -1843,6 +1853,11 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl border-2 border-purple-200/50 p-8 shadow-xl">
               <ChatbotIntegrations chatbot={chatbot} />
             </div>
+          </TabsContent>
+
+          {/* Integration Tab */}
+          <TabsContent value="integration" className="m-0 animate-fade-in-up">
+            <Integration chatbotId={id} />
           </TabsContent>
 
           {/* Lead Captured Tab */}
