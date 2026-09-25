@@ -45,7 +45,10 @@ const ChatbotBuilder = () => {
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [analyticsSearch, setAnalyticsSearch] = useState('');
   const [analyticsStatus, setAnalyticsStatus] = useState('all');
-  const [activeTab, setActiveTab] = useState('sources');
+  const [activeTab, setActiveTab] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tab') || 'sources';
+  });
   const [publicAccess, setPublicAccess] = useState(true); // Always on by default
   const [copied, setCopied] = useState('');
   const [webhookUrl, setWebhookUrl] = useState('');
