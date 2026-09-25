@@ -695,10 +695,10 @@ const ChatbotIntegrations = ({ chatbot }) => {
       <div className="flex flex-col gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-purple-600">
-            Workspace Integrations
+            Workspace Channels
           </p>
           <h2 className="mt-1.5 text-[28px] font-semibold leading-tight tracking-[-0.025em] text-gray-950">
-            Platform Integrations
+            Platform Channels
           </h2>
           <p className="mt-1.5 text-xs text-gray-500">
             Connect your agent to platforms and channels.
@@ -729,7 +729,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
               Integration Credentials
             </h3>
             <p className="mt-1 text-xs leading-5 text-gray-500">
-              Use these credentials to connect your chatbot to external platforms.
+              Use these credentials to connect your agent to external platforms.
             </p>
           </div>
         </div>
