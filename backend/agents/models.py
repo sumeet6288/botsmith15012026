@@ -9,7 +9,7 @@ class ExecutionLimits(BaseModel):
     """Hard limits that prevent an execution from becoming unbounded."""
 
     max_steps: int = Field(default=1, ge=1, le=20)
-    max_tool_calls: int = Field(default=0, ge=0, le=20)
+    max_tool_calls: int = Field(default=1, ge=0, le=20)
     max_runtime_seconds: float = Field(default=30.0, gt=0, le=300)
     max_retries: int = Field(default=0, ge=0, le=3)
 
@@ -40,8 +40,10 @@ class AgentStep(BaseModel):
 class PlanDecision(BaseModel):
     """Validated decision produced by the initial planner."""
 
-    action: Literal["delegate", "stop"] = "delegate"
+    action: Literal["delegate", "tool", "stop"] = "delegate"
     tool_calls: int = Field(default=0, ge=0)
+    tool_name: Optional[str] = None
+    arguments: Dict[str, Any] = Field(default_factory=dict)
     reason: str = ""
 
 

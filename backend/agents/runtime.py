@@ -10,7 +10,15 @@ from .context import ContextBuilder
 from .executor import Executor, LegacyRunner
 from .models import AgentConfig, AgentResult, ExecutionLimits
 from .planner import Planner
+from .registry import ToolRegistry
 from .state import AgentState
+from .tools.calendly import (
+    CalendlyBookMeetingTool,
+    CalendlyGetAvailableTimesTool,
+    CalendlyGetEventTypesTool,
+    CalendlyService,
+)
+from .tools.calendly.credentials import CalendlyCredentialResolver
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +41,37 @@ class AgentRuntime:
         legacy_runner: LegacyRunner,
         limits: Optional[ExecutionLimits] = None,
     ):
-        self._executor = Executor(legacy_runner)
+        self._legacy_runner = legacy_runner
         self._limits = limits or ExecutionLimits()
+        self._calendly_credentials = CalendlyCredentialResolver()
+
+    async def _build_tool_registry(
+        self,
+        *,
+        chatbot_id: str,
+        user_id: Optional[str],
+    ) -> ToolRegistry:
+        """Build a request-scoped registry using the authenticated tenant's tools."""
+        registry = ToolRegistry()
+
+        if not user_id:
+            return registry
+
+        access_token = await self._calendly_credentials.get_access_token(
+            chatbot_id=chatbot_id,
+            user_id=user_id,
+        )
+
+        if not access_token:
+            return registry
+
+        service = CalendlyService(access_token)
+
+        registry.register(CalendlyGetEventTypesTool(service))
+        registry.register(CalendlyGetAvailableTimesTool(service))
+        registry.register(CalendlyBookMeetingTool(service))
+
+        return registry
 
     async def run(self, **request: Any) -> Dict[str, Any]:
         """Build context, make one decision, execute, and return a stable result."""
@@ -75,9 +112,18 @@ class AgentRuntime:
             if len(state.steps) >= config.limits.max_steps + 2:
                 raise RuntimeError("agent step limit reached")
 
+            tool_registry = await self._build_tool_registry(
+                chatbot_id=config.chatbot_id,
+                user_id=config.owner_user_id,
+            )
+            executor = Executor(
+                self._legacy_runner,
+                tool_registry=tool_registry,
+            )
+
             state.record_step("model_called")
             result = await asyncio.wait_for(
-                self._executor.execute(
+                executor.execute(
                     decision=decision,
                     context=context,
                     state=state,
