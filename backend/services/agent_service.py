@@ -18,6 +18,8 @@ import logging
 import re
 from typing import Any, Dict, Optional
 
+from agents.runtime import AgentRuntime, agents_enabled
+
 logger = logging.getLogger(__name__)
 
 EMAIL_RE = re.compile(
@@ -35,8 +37,41 @@ class AgentService:
         self.chat_service = chat_service
         self.rag_service = rag_service
         self.lead_service = lead_service
+        self.runtime = AgentRuntime(self._run_legacy)
 
     async def run(
+        self,
+        *,
+        message: str,
+        session_id: str,
+        chatbot_id: str,
+        owner_user_id: Optional[str],
+        system_message: str,
+        model: str,
+        provider: str,
+        user_name: Optional[str] = None,
+        user_email: Optional[str] = None,
+        conversation_id: Optional[str] = None,
+    ):
+        request = {
+            "message": message,
+            "session_id": session_id,
+            "chatbot_id": chatbot_id,
+            "owner_user_id": owner_user_id,
+            "system_message": system_message,
+            "model": model,
+            "provider": provider,
+            "user_name": user_name,
+            "user_email": user_email,
+            "conversation_id": conversation_id,
+        }
+
+        if agents_enabled():
+            return await self.runtime.run(**request)
+
+        return await self._run_legacy(**request)
+
+    async def _run_legacy(
         self,
         *,
         message: str,
