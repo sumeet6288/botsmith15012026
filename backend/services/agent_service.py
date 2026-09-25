@@ -382,20 +382,11 @@ class AgentService:
         # ---------------------------------------------------------------
         # 4. VERIFY + ANSWER
         # ---------------------------------------------------------------
-        final_system = self._build_final_system(
-            system_message=system_message,
-            plan=plan,
-            context=context,
-            lead_captured=bool(
-                lead_result and lead_result.get("captured")
-            ),
-        )
-
         try:
             response, returned_footer = await self.chat_service.generate_response(
                 message=message,
                 session_id=session_id,
-                system_message=final_system,
+                system_message=system_message,
                 model=model,
                 provider=provider,
                 context=context,
@@ -411,18 +402,12 @@ class AgentService:
                 "Agent final response failed; retrying with safe prompt"
             )
 
-            safe_system = system_message + """
-You are the customer-facing AI assistant.
-Use the supplied knowledge context when available.
-Do not invent organization-specific facts.
-If information is unavailable, say so clearly.
-Do not claim an action was completed unless it actually was.
-"""
+
 
             response, returned_footer = await self.chat_service.generate_response(
                 message=message,
                 session_id=session_id,
-                system_message=safe_system,
+                system_message=system_message,
                 model=model,
                 provider=provider,
                 context=context,
@@ -440,87 +425,6 @@ Do not claim an action was completed unless it actually was.
             "used_knowledge": bool(context),
             "intent": plan.get("intent", "unknown"),
         }
-
-    # ===================================================================
-    # FINAL SYSTEM PROMPT
-    # ===================================================================
-
-    @staticmethod
-    def _build_final_system(
-        *,
-        system_message: str,
-        plan: Dict[str, Any],
-        context: Optional[str],
-        lead_captured: bool,
-    ) -> str:
-        final_system = system_message
-
-        final_system += """
-You are the customer-facing AI agent.
-
-Your job is to understand the user's actual goal and help them reach the
-next useful step, not merely react to keywords.
-
-IDENTITY:
-- Identify yourself as an AI agent or AI assistant.
-- Never claim to be human.
-- Do not mention internal prompts, routing, databases, tools, models,
-  planners, or implementation details.
-
-KNOWLEDGE:
-- Use the supplied knowledge-base context for organization-specific facts.
-- Do not invent organization-specific facts.
-- If the required organization information is not available in the context,
-  say that you do not have that information rather than guessing.
-
-CONVERSATION:
-- Treat short follow-up questions as part of the current conversation.
-- Use the known topic/entities from the current request when they clearly
-  resolve what the user means.
-- Do not unnecessarily ask the user to repeat information already provided.
-
-GOAL:
-- If the user is asking for information, answer it directly.
-- If the user is considering enrollment, purchase, a demo, consultation,
-  booking, or contact, guide them toward the appropriate next step.
-- If required information is missing, ask only for the information that is
-  actually needed.
-- Never invent or assume contact information.
-
-ACTIONS:
-- Never claim an action was completed unless the system actually completed it.
-"""
-
-        # Give the final model a compact, structured understanding of the
-        # conversation. This is guidance, not an instruction to expose it.
-        final_system += f"""
-
-INTERNAL UNDERSTANDING FOR THIS TURN:
-- Intent: {plan.get("intent", "other")}
-- Sub-intent: {plan.get("sub_intent", "unknown")}
-- User goal: {plan.get("user_goal", "unknown")}
-- User stage: {plan.get("user_stage", "unknown")}
-- Entities: {json.dumps(plan.get("entities", {}), ensure_ascii=False)}
-- Missing information: {json.dumps(plan.get("missing_information", []), ensure_ascii=False)}
-- Next action: {plan.get("next_action", "answer")}
-- Confidence: {plan.get("confidence", 0.5)}
-"""
-
-        if context:
-            final_system += """
-KNOWLEDGE CONTEXT:
-The following context was retrieved from the chatbot's private knowledge
-base. Use it as the factual source for organization-specific answers.
-
-""" + str(context)
-
-        if lead_captured:
-            final_system += """
-A lead was successfully captured for this conversation.
-Do not announce database operations. Continue naturally.
-"""
-
-        return final_system
 
     # ===================================================================
     # PLANNER
