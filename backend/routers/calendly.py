@@ -373,20 +373,6 @@ async def disconnect_calendly(
     client, db = _get_db()
 
     try:
-        chatbot = await db.chatbots.find_one(
-            {
-                "id": chatbot_id,
-                "user_id": user.id,
-            },
-            {"_id": 1},
-        )
-
-        if not chatbot:
-            raise HTTPException(
-                status_code=404,
-                detail="Chatbot not found",
-            )
-
         result = await db.calendly_connections.delete_one(
             {
                 "chatbot_id": chatbot_id,
