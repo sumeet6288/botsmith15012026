@@ -1,18 +1,23 @@
-"""Execution adapter for the existing BotSmith agent service."""
+"""Security boundary between planner decisions and real actions."""
+
+from __future__ import annotations
 
 from typing import Any, Awaitable, Callable, Dict, Optional
 
 from .context import AgentContext
 from .models import PlanDecision
-from .registry import ToolRegistry
+from .registry import ToolRegistry, ToolRegistryError
 from .state import AgentState
-
 
 LegacyRunner = Callable[..., Awaitable[Dict[str, Any]]]
 
 
+class AgentExecutionError(RuntimeError):
+    """Safe normalized error from an agent action."""
+
+
 class Executor:
-    """Execute only validated runtime decisions."""
+    """Execute only validated decisions and explicitly registered tools."""
 
     def __init__(
         self,
@@ -32,59 +37,43 @@ class Executor:
     ) -> Dict[str, Any]:
         if decision.action == "stop":
             return {
-                "response": "Please send a message so I can help.",
+                "response": decision.final_response
+                or "Please send a message so I can help.",
                 "status": "completed",
             }
 
-        if decision.action == "tool":
-            if not decision.tool_name:
-                raise ValueError("Tool name is required for a tool decision")
-
-            # If the requested tool is not registered, fall back to the
-            # existing BotSmith agent instead of crashing the runtime.
-            if self._tool_registry is None:
-                return await self._legacy_runner(**request)
-
-            try:
-                tool = self._tool_registry.get(decision.tool_name)
-            except KeyError:
-                return await self._legacy_runner(**request)
-
-            arguments = decision.arguments or {}
-
-            if not self._tool_registry.validate(
-                decision.tool_name,
-                arguments,
-            ):
-                raise ValueError(
-                    f"Invalid arguments for tool: {decision.tool_name}"
-                )
-
-            result = await tool.execute(arguments)
-
+        if decision.action == "delegate":
+            result = await self._legacy_runner(**request)
             if not isinstance(result, dict):
-                raise TypeError(
-                    f"Tool {decision.tool_name} returned an invalid result"
+                raise AgentExecutionError(
+                    "Existing BotSmith agent returned an invalid result"
                 )
+            return result
 
-            state.tool_results.append(
-                {
-                    "tool": decision.tool_name,
-                    "result": result,
-                }
+        if decision.action != "tool" or not decision.tool_name:
+            raise AgentExecutionError("Invalid planner action")
+        if self._tool_registry is None:
+            raise AgentExecutionError("No tools are available for this request")
+        if state.tool_call_count >= state.limits.max_tool_calls:
+            raise AgentExecutionError("Agent tool-call limit reached")
+
+        try:
+            result = await self._tool_registry.execute(
+                decision.tool_name,
+                decision.arguments or {},
             )
+        except ToolRegistryError as exc:
+            raise AgentExecutionError(str(exc)) from exc
+        except Exception as exc:
+            raise AgentExecutionError(
+                f"Tool {decision.tool_name} failed"
+            ) from exc
 
-            return {
-                "response": "",
-                "status": "completed",
-                "tool_result": result,
-                "tool_name": decision.tool_name,
-            }
-
-        # The runner is an internal callable, never model-generated text.
-        result = await self._legacy_runner(**request)
-
-        if not isinstance(result, dict):
-            raise TypeError("Existing agent service returned an invalid result")
-
-        return result
+        state.record_tool_result(decision.tool_name, result)
+        state.pending_action = decision.next_action
+        return {
+            "response": "",
+            "status": "completed",
+            "tool_result": result,
+            "tool_name": decision.tool_name,
+        }

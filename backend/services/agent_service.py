@@ -20,6 +20,13 @@ from typing import Any, Dict, Optional
 
 from agents.runtime import AgentRuntime, agents_enabled
 
+try:
+    # LeadService already owns this application database handle. Reuse it
+    # rather than creating a competing Motor client inside the agent layer.
+    from services.lead_service import _db as _agent_database
+except Exception:
+    _agent_database = None
+
 logger = logging.getLogger(__name__)
 
 EMAIL_RE = re.compile(
@@ -37,7 +44,11 @@ class AgentService:
         self.chat_service = chat_service
         self.rag_service = rag_service
         self.lead_service = lead_service
-        self.runtime = AgentRuntime(self._run_legacy)
+        self.runtime = AgentRuntime(
+            self._run_legacy,
+            chat_service=chat_service,
+            database=_agent_database,
+        )
 
     async def run(
         self,

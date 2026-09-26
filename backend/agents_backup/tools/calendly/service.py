@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-import logging
 from typing import Any, Dict, Optional
 
 import httpx
-
-logger = logging.getLogger(__name__)
 
 
 class CalendlyService:
@@ -44,13 +41,14 @@ class CalendlyService:
             )
 
         if response.status_code >= 400:
-            logger.warning(
-                "Calendly API request failed method=%s path=%s status=%s",
-                method,
-                path,
-                response.status_code,
+            try:
+                detail = response.json()
+            except Exception:
+                detail = response.text
+
+            raise RuntimeError(
+                f"Calendly API request failed ({response.status_code}): {detail}"
             )
-            raise RuntimeError("Calendly API request failed")
 
         if not response.content:
             return {}
