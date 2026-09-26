@@ -7,7 +7,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { Slider } from '../components/ui/slider';
-import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Users, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Plus, FileText, Globe, Trash2, Loader2, MessageSquare, ArrowLeft, Settings, Palette, BarChart3, User, Users, Clock, ChevronDown, ChevronUp, TrendingUp, Zap, Link2, Copy, Check, ExternalLink, Download, Webhook, Code, PanelLeftClose, PanelLeftOpen, WandSparkles } from 'lucide-react';
 import LeadCaptured from '../components/LeadCaptured';
 import { Progress } from '../components/ui/progress';
 import UserProfileDropdown from '../components/UserProfileDropdown';
@@ -18,6 +18,7 @@ import AppearanceTab from '../components/AppearanceTab';
 import AdvancedAnalytics from '../components/AdvancedAnalytics';
 import ChatbotIntegrations from '../components/ChatbotIntegrations';
 import Integration from '../components/Integration';
+import AIActions from './AIActions';
 import { useAuth } from '../contexts/AuthContext';
 import { useToast } from '../hooks/use-toast';
 import { chatbotAPI, sourceAPI, chatAPI } from '../utils/api';
@@ -529,6 +530,15 @@ const ChatbotBuilder = () => {
                     >
                       <Link2 className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
                       <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>Integration</span>
+                    </TabsTrigger>
+
+                    <TabsTrigger
+                      value="ai-actions"
+                      title="AI Actions"
+                      className={`flex-shrink-0 lg:w-full h-[46px] ${isSidebarCollapsed ? 'lg:justify-center lg:px-2' : 'justify-start px-3'} py-2.5 whitespace-nowrap text-[15px] font-medium text-gray-600 rounded-lg shadow-none transition-colors data-[state=active]:bg-gray-100 data-[state=active]:text-gray-950 hover:bg-gray-50 hover:text-gray-950`}
+                    >
+                      <WandSparkles className={`${isSidebarCollapsed ? '' : 'mr-3'} w-[20px] h-[20px] flex-shrink-0`} />
+                      <span className={isSidebarCollapsed ? 'lg:hidden' : ''}>AI Actions</span>
                     </TabsTrigger>
                   </TabsList>
                 </div>
@@ -1861,6 +1871,11 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
           {/* Integration Tab */}
           <TabsContent value="integration" className="m-0 animate-fade-in-up">
             <Integration chatbotId={id} />
+          </TabsContent>
+
+          {/* AI Actions Tab */}
+          <TabsContent value="ai-actions" className="m-0 animate-fade-in-up">
+            <AIActions />
           </TabsContent>
 
           {/* Lead Captured Tab */}
