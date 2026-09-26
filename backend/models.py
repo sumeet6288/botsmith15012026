@@ -918,6 +918,9 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
     webhook_url: Optional[str] = None
     webhook_events: List[str] = []
 
+    # AI Actions
+    ai_actions: Dict[str, Any] = Field(default_factory=dict)
+
 
 class ChatbotCreate(BaseModel):
     name: str
@@ -1314,6 +1317,7 @@ class ChatbotUpdate(BaseModel):
     messages_per_hour: Optional[int] = None
     webhook_url: Optional[str] = None
     webhook_events: Optional[List[str]] = None
+    ai_actions: Optional[Dict[str, Any]] = None
 
 
 class ChatbotResponse(BaseModel):
@@ -1350,6 +1354,7 @@ class ChatbotResponse(BaseModel):
     email_alerts_enabled: bool = False
     email_alert_address: Optional[EmailStr] = None
     powered_by_text: Optional[str] = None  # Custom "Powered by" text for white label
+    ai_actions: Dict[str, Any] = Field(default_factory=dict)
 
 
 # Source Models
@@ -1584,6 +1589,7 @@ class PublicChatbotInfo(BaseModel):
     auto_expand: Optional[bool] = False
     lead_capture_enabled: Optional[bool] = True
     powered_by_text: Optional[str] = None
+    ai_actions: Dict[str, Any] = Field(default_factory=dict)
 
 
 class PublicChatRequest(BaseModel):

@@ -1875,7 +1875,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
 
           {/* AI Actions Tab */}
           <TabsContent value="ai-actions" className="m-0 animate-fade-in-up">
-            <AIActions />
+            <AIActions chatbotId={id} />
           </TabsContent>
 
           {/* Lead Captured Tab */}
