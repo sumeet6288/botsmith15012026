@@ -60,12 +60,7 @@ class Executor:
                     f"Invalid arguments for tool: {decision.tool_name}"
                 )
 
-            # If tool execution fails, fall back to the existing BotSmith
-            # agent instead of allowing the runtime to return a generic error.
-            try:
-                result = await tool.execute(arguments)
-            except Exception:
-                return await self._legacy_runner(**request)
+            result = await tool.execute(arguments)
 
             if not isinstance(result, dict):
                 raise TypeError(
