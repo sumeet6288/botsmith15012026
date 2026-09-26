@@ -60,14 +60,41 @@
       }
     }
   
-  // Get configuration from script tag
+  // Get configuration from the stable BotSmith embed contract first.
+  // Script attributes remain as a backward-compatible fallback.
   const script = document.currentScript;
+  const embedConfig = window.__BOTSMITH_EMBED_CONFIG__ || {};
   const config = {
-    chatbotId: script?.getAttribute('chatbot-id') || window.botsmithConfig?.chatbotId,
-    domain: script?.getAttribute('domain') || window.botsmithConfig?.domain || window.location.origin,
-    position: script?.getAttribute('position') || 'bottom-right',
-    theme: script?.getAttribute('theme') || 'purple',
-    apiUrl: script?.getAttribute('api-url') || (script?.getAttribute('domain') || window.location.origin) + '/api'
+    chatbotId:
+      embedConfig.chatbotId ||
+      script?.getAttribute('chatbot-id') ||
+      window.botsmithConfig?.chatbotId,
+
+    domain:
+      embedConfig.domain ||
+      script?.getAttribute('domain') ||
+      window.botsmithConfig?.domain ||
+      window.location.origin,
+
+    position:
+      script?.getAttribute('position') ||
+      window.botsmithConfig?.position ||
+      'bottom-right',
+
+    theme:
+      script?.getAttribute('theme') ||
+      window.botsmithConfig?.theme ||
+      'purple',
+
+    apiUrl:
+      embedConfig.apiUrl ||
+      script?.getAttribute('api-url') ||
+      window.botsmithConfig?.apiUrl ||
+      (
+        embedConfig.domain ||
+        script?.getAttribute('domain') ||
+        window.location.origin
+      ) + '/api'
   };
   
   if (!config.chatbotId) {
@@ -1207,13 +1234,128 @@
     micButton.style.display = 'none';
   }
 
-  // API
+  // Public BotSmith API
+  //
+  // The embed loader may create a temporary command queue before this
+  // runtime finishes loading. Replace the temporary API with the real
+  // widget API and flush any queued commands exactly once.
+  function resetChat() {
+    messages.length = 0;
+    hideTyping();
+
+    const input = document.getElementById('botsmith-input');
+    if (input) {
+      input.value = '';
+    }
+
+    renderMessages();
+
+    if (chatbot?.welcome_message) {
+      addMessage('assistant', chatbot.welcome_message);
+    }
+
+    if (isOpen && input) {
+      input.focus();
+    }
+  }
+
+  function identifyUser(data) {
+    /*
+     * The current public-chat backend does not expose a documented
+     * identify endpoint in this widget runtime. Keep the method safe
+     * and observable without inventing a backend contract.
+     */
+    window.BotSmithWidget = window.BotSmithWidget || {};
+    window.BotSmithWidget.user = data ?? null;
+
+    try {
+      window.dispatchEvent(
+        new CustomEvent('botsmithUserIdentified', {
+          detail: data ?? null
+        })
+      );
+    } catch (error) {
+      // CustomEvent may be unavailable in unusual legacy environments.
+    }
+  }
+
   window.BotSmith = {
-    open: () => { if (!isOpen) toggleChat(); },
-    close: () => { if (isOpen) toggleChat(); },
+    open: () => {
+      if (!isOpen) toggleChat();
+    },
+
+    close: () => {
+      if (isOpen) toggleChat();
+    },
+
     toggle: toggleChat,
-    isOpen: () => isOpen
+
+    reset: resetChat,
+
+    identify: identifyUser,
+
+    sendMessage: (message) => sendMessage(String(message ?? '')),
+
+    isOpen: () => isOpen,
+
+    _flushQueue: (queue) => {
+      if (!Array.isArray(queue) || queue.length === 0) {
+        return;
+      }
+
+      const pendingCommands = queue.splice(0, queue.length);
+
+      pendingCommands.forEach((command) => {
+        if (!command || typeof command.method !== 'string') {
+          return;
+        }
+
+        try {
+          switch (command.method) {
+            case 'open':
+              if (!isOpen) toggleChat();
+              break;
+
+            case 'close':
+              if (isOpen) toggleChat();
+              break;
+
+            case 'toggle':
+              toggleChat();
+              break;
+
+            case 'reset':
+              resetChat();
+              break;
+
+            case 'identify':
+              identifyUser(command.args?.[0]);
+              break;
+
+            case 'sendMessage':
+              sendMessage(String(command.args?.[0] ?? ''));
+              break;
+
+            default:
+              console.warn(
+                '[BotSmith] Unknown queued command:',
+                command.method
+              );
+          }
+        } catch (error) {
+          window.BotSmithWidget.handleError(
+            error,
+            'queued_command_' + command.method
+          );
+        }
+      });
+    }
   };
+
+  // Flush commands that were issued before fast-widget.js finished loading.
+  if (Array.isArray(window.__BOTSMITH_COMMAND_QUEUE__)) {
+    window.BotSmith._flushQueue(window.__BOTSMITH_COMMAND_QUEUE__);
+  }
   
   loadChatbot();
   
@@ -2883,7 +3025,12 @@ function botsmithInitLeadCapture() {
   } catch (error) {
     // ✅ ULTIMATE FAILSAFE: If widget completely fails, don't break customer site
     console.error('[BotSmith Widget] Fatal error during initialization:', error);
-    // Silently fail - customer's website continues to work
+
+    // Tell the loader that runtime initialization failed so the page does
+    // not remain permanently marked as successfully initialized.
+    window.__BOTSMITH_EMBED_RUNTIME_LOADED__ = false;
+
+    // Silently fail - customer's website continues to work.
   }
 })();
 

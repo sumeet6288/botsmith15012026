@@ -433,7 +433,8 @@ async def get_public_chatbot(chatbot_id: str):
         widget_size=chatbot.get("widget_size", "medium"),
         auto_expand=chatbot.get("auto_expand", False),
         lead_capture_enabled=chatbot.get("lead_capture_enabled", True),
-        powered_by_text=chatbot.get("powered_by_text")
+        powered_by_text=chatbot.get("powered_by_text"),
+        ai_actions=chatbot.get("ai_actions", {})
     )
     
     # Cache for 5 minutes
