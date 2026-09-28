@@ -125,13 +125,31 @@ class SubscriptionChecker:
                     "allow_access": True  # ✅ Allow access during grace period
                 }
             else:
+                # Reset only the monthly message counter once for this expired
+                # billing period. Keep message/conversation/lead documents and all
+                # other usage counters intact. Including expires_at in the filter
+                # prevents a stale status check from resetting a renewed plan.
+                await self.subscriptions.update_one(
+                    {
+                        "_id": subscription["_id"],
+                        "expires_at": subscription.get("expires_at"),
+                        "usage.expiry_message_reset_for": {"$ne": subscription.get("expires_at")}
+                    },
+                    {
+                        "$set": {
+                            "usage.messages_this_month": 0,
+                            "usage.expiry_message_reset_for": subscription.get("expires_at"),
+                            "usage.expiry_message_reset_at": now
+                        }
+                    }
+                )
                 return {
                     "status": "expired",
                     "plan_id": subscription.get("plan_id"),
                     "expires_at": expires_at,
                     "days_remaining": 0,
                     "days_since_expiry": days_since_expiry,
-                    "allow_access": False  # ❌ No access after grace period
+                    "allow_access": False  # No access after grace period
                 }
         
         # Active subscription
