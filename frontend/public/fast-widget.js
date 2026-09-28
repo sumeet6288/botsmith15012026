@@ -817,6 +817,36 @@
         `;
       }
       
+      // Keyword Link Actions: show configured buttons only for matching assistant replies.
+      if (msg.role === 'assistant') {
+        const keywordConfig = chatbot?.ai_actions?.keyword_links;
+        const configuredActions = keywordConfig?.enabled === true && Array.isArray(keywordConfig.actions)
+          ? keywordConfig.actions
+          : [];
+        const matchingActions = configuredActions.filter((action) => {
+          const keyword = String(action?.keyword ?? '').trim();
+          const link = String(action?.link ?? '').trim();
+          return keyword && link && String(msg.content ?? '').toLowerCase().includes(keyword.toLowerCase())
+            && /^https?:\/\//i.test(link);
+        });
+
+        if (matchingActions.length > 0) {
+          const actionWrap = document.createElement('div');
+          actionWrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 0 46px;';
+          matchingActions.forEach((action) => {
+            const actionButton = document.createElement('a');
+            actionButton.className = 'botsmith-keyword-link-action';
+            actionButton.textContent = String(action.button_name ?? '').trim() || 'Learn more';
+            actionButton.href = String(action.link).trim();
+            actionButton.target = '_blank';
+            actionButton.rel = 'noopener noreferrer';
+            actionButton.style.cssText = `display:inline-flex; align-items:center; justify-content:center; padding:9px 14px; border-radius:999px; background:${customization.accent_color}; color:#fff; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer;`;
+            actionWrap.appendChild(actionButton);
+          });
+          msgDiv.appendChild(actionWrap);
+        }
+      }
+
       messagesContainer.appendChild(msgDiv);
     });
     
@@ -946,6 +976,35 @@
 
     // Convert URLs into clickable links after the streaming animation completes.
     contentElement.innerHTML = formatMessageContent(plainText);
+
+    // Render configured keyword actions on the live assistant reply.
+    const keywordConfig = chatbot?.ai_actions?.keyword_links;
+    const configuredActions = keywordConfig?.enabled === true && Array.isArray(keywordConfig.actions)
+      ? keywordConfig.actions
+      : [];
+    const matchingActions = configuredActions.filter((action) => {
+      const keyword = String(action?.keyword ?? '').trim();
+      const link = String(action?.link ?? '').trim();
+      return keyword && link && plainText.toLowerCase().includes(keyword.toLowerCase())
+        && /^https?:\/\//i.test(link);
+    });
+
+    if (matchingActions.length > 0) {
+      const actionWrap = document.createElement('div');
+      actionWrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 0 0; width:100%;';
+      matchingActions.forEach((action) => {
+        const actionButton = document.createElement('a');
+        actionButton.className = 'botsmith-keyword-link-action';
+        actionButton.textContent = String(action.button_name ?? '').trim() || 'Learn more';
+        actionButton.href = String(action.link).trim();
+        actionButton.target = '_blank';
+        actionButton.rel = 'noopener noreferrer';
+        actionButton.style.cssText = `display:inline-flex; align-items:center; justify-content:center; padding:9px 14px; border-radius:999px; background:${customization.accent_color}; color:#fff; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer;`;
+        actionWrap.appendChild(actionButton);
+      });
+      const assistantBubble = msgDiv.children[1];
+      if (assistantBubble) assistantBubble.appendChild(actionWrap);
+    }
 
     // Save the completed response so conversation history still works
     messages.push({
