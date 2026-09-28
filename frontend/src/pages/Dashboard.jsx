@@ -511,31 +511,12 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
           }}
         />
         <div className="relative p-8 max-w-7xl mx-auto">
-        {/* Personalized Welcome Header */}
-        <div className="mb-8">
-          <h1 style={{ 
-            fontFamily: 'Inter, sans-serif', 
-            fontSize: '20px', 
-            fontWeight: '600',
-            color: '#0B0B0B',
-            marginBottom: '4px'
-          }}>
-            𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑏𝑎𝑐𝑘, {user?.name || 'Demo User'}
-          </h1>
-          <p style={{ 
-            fontFamily: 'Inter, sans-serif', 
-            fontSize: '14px',
-            color: '#6B7280'
-          }}>
-            Monitor your agent's activity and usage
-          </p>
-        </div>
-
+        
         {/* Primary Action - Create New Chatbot */}
         <div className="mb-8">
           <Button
             onClick={handleCreateChatbot}
-            className="bg-purple-600 hover:bg-purple-700 text-white rounded-md px-6 py-2"
+            className="bg-black hover:bg-gray-900 text-white rounded-md px-6 py-2"
             style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px', fontWeight: '500' }}
           >
             <Plus className="w-4 h-4 mr-2" />
