@@ -35,7 +35,7 @@ const DashboardSidebar = ({ user, onLogout, usageStats }) => {
   };
 
   return (
-    <div className="w-64 h-screen bg-gray-50 border-r border-gray-200 flex flex-col">
+    <div className="w-[220px] h-screen bg-gray-50 border-r border-gray-200 flex flex-col">
       {/* Logo Section - Enhanced Branding */}
       <div className="p-6 border-b border-gray-200">
         <div className="cursor-pointer" onClick={() => navigate('/')}>

@@ -108,6 +108,53 @@ const ChatbotBuilder = () => {
     const saved = localStorage.getItem('botsmith-chatbot-builder-sidebar-collapsed');
     return saved === 'true';
   });
+  const [agentList, setAgentList] = useState([]);
+  const [isAgentMenuOpen, setIsAgentMenuOpen] = useState(false);
+  const [loadingAgentList, setLoadingAgentList] = useState(false);
+
+  useEffect(() => {
+    let isActive = true;
+
+    const loadAgentList = async () => {
+      try {
+        setLoadingAgentList(true);
+        const response = await chatbotAPI.list();
+        const agents = Array.isArray(response.data)
+          ? response.data
+          : Array.isArray(response.data?.chatbots)
+            ? response.data.chatbots
+            : [];
+
+        if (isActive) {
+          setAgentList(agents);
+        }
+      } catch (error) {
+        console.error('Error loading agents:', error);
+      } finally {
+        if (isActive) {
+          setLoadingAgentList(false);
+        }
+      }
+    };
+
+    loadAgentList();
+    return () => {
+      isActive = false;
+    };
+  }, []);
+
+  const handleAgentSelect = (agent) => {
+    const selectedId = agent?.id || agent?._id;
+    if (!selectedId || selectedId === id) {
+      setIsAgentMenuOpen(false);
+      return;
+    }
+
+    const currentPath = window.location.pathname.replace(/\/+$/, '');
+    const builderBase = currentPath.substring(0, currentPath.lastIndexOf('/'));
+    setIsAgentMenuOpen(false);
+    navigate(`${builderBase}/${selectedId}`);
+  };
 
   useEffect(() => {
     loadChatbot();
@@ -440,11 +487,71 @@ const ChatbotBuilder = () => {
               <div className="lg:sticky lg:top-[80px] lg:h-[calc(100vh-80px)] flex flex-col">
                 <div className="flex-1 overflow-y-auto p-3">
                   {!isSidebarCollapsed && (
-                    <div className="px-3 pt-1 pb-3">
-                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
-                        Agent workspace
-                      </p>
-                    </div>
+                    <>
+                      {/* Compact agent selector */}
+                      <div className="relative px-2 pt-1 pb-3">
+                        <button
+                          type="button"
+                          aria-haspopup="listbox"
+                          aria-expanded={isAgentMenuOpen}
+                          aria-label={`Select agent. Current agent: ${chatbot.name}`}
+                          title="Switch agent"
+                          onClick={() => setIsAgentMenuOpen((open) => !open)}
+                          className="w-full min-h-[48px] rounded-xl border border-gray-200 bg-white px-3 py-2 text-left shadow-sm transition-colors hover:border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-300 focus:ring-offset-1"
+                        >
+                          <span className="flex items-center justify-between gap-3">
+                            <span className="min-w-0 flex-1">
+                              <span className="block truncate text-[16px] font-medium leading-5 text-gray-950">
+                                {chatbot.name}
+                              </span>
+                            </span>
+                            <span className="flex flex-shrink-0 flex-col items-center justify-center text-gray-700">
+                              <ChevronUp className={`h-3.5 w-3.5 -mb-1 transition-transform ${isAgentMenuOpen ? 'rotate-180' : ''}`} />
+                              <ChevronDown className={`h-3.5 w-3.5 -mt-1 transition-transform ${isAgentMenuOpen ? 'rotate-180' : ''}`} />
+                            </span>
+                          </span>
+                        </button>
+
+                        {isAgentMenuOpen && (
+                          <div
+                            role="listbox"
+                            aria-label="Your agents"
+                            className="absolute left-2 right-2 top-[calc(100%-4px)] z-50 max-h-64 overflow-y-auto rounded-xl border border-gray-200 bg-white py-1 shadow-lg"
+                          >
+                            {loadingAgentList ? (
+                              <p className="px-3 py-2.5 text-sm text-gray-500">Loading agents…</p>
+                            ) : agentList.length === 0 ? (
+                              <p className="px-3 py-2.5 text-sm text-gray-500">No agents found.</p>
+                            ) : (
+                              agentList.map((agent) => {
+                                const agentId = agent.id || agent._id;
+                                const isCurrentAgent = String(agentId) === String(id);
+                                return (
+                                  <button
+                                    key={agentId}
+                                    type="button"
+                                    role="option"
+                                    aria-selected={isCurrentAgent}
+                                    onClick={() => handleAgentSelect(agent)}
+                                    className={`flex w-full items-center justify-between gap-3 px-3 py-2.5 text-left text-sm transition-colors hover:bg-gray-50 ${
+                                      isCurrentAgent ? 'bg-gray-50 font-medium text-gray-950' : 'text-gray-700'
+                                    }`}
+                                  >
+                                    <span className="min-w-0 truncate">{agent.name || 'Untitled agent'}</span>
+                                    {isCurrentAgent && <Check className="h-4 w-4 flex-shrink-0 text-gray-700" />}
+                                  </button>
+                                );
+                              })
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-3 pt-1 pb-3">
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gray-400">
+                          Agent workspace
+                        </p>
+                      </div>
+                    </>
                   )}
 
                   <TabsList className={`flex flex-nowrap overflow-x-auto lg:overflow-visible scrollbar-hide lg:flex-col h-auto w-full gap-1 bg-transparent p-0 ${isSidebarCollapsed ? 'lg:items-center' : ''}`}>

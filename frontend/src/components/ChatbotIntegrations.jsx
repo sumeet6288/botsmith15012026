@@ -50,7 +50,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'whatsapp',
       name: 'WhatsApp',
       description: 'Connect your agent to WhatsApp Business API',
-      icon: <Phone className="w-6 h-6" />,
+      icon: <img src="https://cdn.simpleicons.org/whatsapp/25D366" alt="WhatsApp" />,
       accent: 'purple',
       fields: [
         { name: 'access_token', label: 'Access Token (from Meta Business Suite)', type: 'password', required: true },
@@ -62,7 +62,14 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'slack',
       name: 'Slack',
       description: 'Deploy agent to your Slack workspace',
-      icon: <Send className="w-6 h-6" />,
+      icon: (
+        <svg viewBox="0 0 24 24" role="img" aria-label="Slack" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#36C5F0" d="M9.2 1.5a1.7 1.7 0 0 0-1.7 1.7v4.1h3.4V3.2a1.7 1.7 0 0 0-1.7-1.7ZM3.2 7.3a1.7 1.7 0 1 0 0 3.4h4.1V7.3H3.2Z"/>
+          <path fill="#2EB67D" d="M22.5 9.2a1.7 1.7 0 0 0-1.7-1.7h-4.1v3.4h4.1a1.7 1.7 0 0 0 1.7-1.7ZM16.7 20.8a1.7 1.7 0 1 0-3.4 0v-4.1h3.4v4.1Z"/>
+          <path fill="#E01E5A" d="M14.8 22.5a1.7 1.7 0 0 0 1.7-1.7v-4.1h-3.4v4.1a1.7 1.7 0 0 0 1.7 1.7ZM20.8 16.7a1.7 1.7 0 1 0 0-3.4h-4.1v3.4h4.1Z"/>
+          <path fill="#ECB22E" d="M1.5 14.8a1.7 1.7 0 0 0 1.7 1.7h4.1v-3.4H3.2a1.7 1.7 0 0 0-1.7 1.7ZM7.3 3.2a1.7 1.7 0 1 0 3.4 0v4.1H7.3V3.2Z"/>
+        </svg>
+      ),
       accent: 'purple',
       fields: [
         { name: 'bot_token', label: 'Bot Token', type: 'password', required: true },
@@ -74,7 +81,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'telegram',
       name: 'Telegram',
       description: 'Create a Telegram bot for your agent',
-      icon: <Send className="w-6 h-6" />,
+      icon: <img src="https://cdn.simpleicons.org/telegram/26A5E4" alt="Telegram" />,
       accent: 'purple',
       fields: [
         { name: 'bot_token', label: 'Bot Token', type: 'password', required: true },
@@ -85,7 +92,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'discord',
       name: 'Discord',
       description: 'Add agent to your Discord server',
-      icon: <MessageCircle className="w-6 h-6" />,
+      icon: <img src="https://cdn.simpleicons.org/discord/5865F2" alt="Discord" />,
       accent: 'purple',
       fields: [
         { name: 'bot_token', label: 'Bot Token', type: 'password', required: true },
@@ -97,7 +104,15 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'msteams',
       name: 'Microsoft Teams',
       description: 'Deploy agent to Microsoft Teams',
-      icon: <MessageCircle className="w-6 h-6" />,
+      icon: (
+        <svg viewBox="0 0 24 24" role="img" aria-label="Microsoft Teams" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#7B83EB" d="M16.7 4.1h4.1A1.2 1.2 0 0 1 22 5.3v13.4a1.2 1.2 0 0 1-1.2 1.2h-4.1V4.1Z"/>
+          <path fill="#5059C9" d="M14.9 7.1h6v11.6a1.2 1.2 0 0 1-1.2 1.2h-4.8V7.1Z"/>
+          <circle cx="17.4" cy="3.8" r="2.3" fill="#7B83EB"/>
+          <path fill="#4B53BC" d="M2 6.1h12.2c.7 0 1.2.5 1.2 1.2v11.2c0 .7-.5 1.2-1.2 1.2H2c-.7 0-1.2-.5-1.2-1.2V7.3c0-.7.5-1.2 1.2-1.2Z"/>
+          <path fill="#FFF" d="M11.9 9.1H4.3v1.8h2.7v7h2.1v-7h2.8V9.1Z"/>
+        </svg>
+      ),
       accent: 'purple',
       fields: [
         { name: 'app_id', label: 'Bot App ID', type: 'text', required: true },
@@ -118,7 +133,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'messenger',
       name: 'Facebook Messenger',
       description: 'Connect to Facebook Messenger',
-      icon: <MessageCircle className="w-6 h-6" />,
+      icon: <img src="https://cdn.simpleicons.org/messenger/0866FF" alt="Facebook Messenger" />,
       accent: 'purple',
       fields: [
         { name: 'page_access_token', label: 'Page Access Token', type: 'password', required: true },
@@ -130,7 +145,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'instagram',
       name: 'Instagram',
       description: 'Connect your agent to Instagram Direct Messages',
-      icon: <MessageCircle className="w-6 h-6" />,
+      icon: <img src="https://cdn.simpleicons.org/instagram/E4405F" alt="Instagram" />,
       accent: 'purple',
       fields: [
         { name: 'page_access_token', label: 'Page Access Token', type: 'password', required: true },
@@ -142,7 +157,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'zapier',
       name: 'Zapier',
       description: 'Connect your agent to Zapier for workflow automation',
-      icon: <Zap className="w-6 h-6" />,
+      icon: <img src="https://cdn.simpleicons.org/zapier/FF4A00" alt="Zapier" />,
       accent: 'purple',
       fields: [
         { name: 'webhook_url', label: 'Webhook URL (from Zapier)', type: 'text', required: true },
@@ -153,7 +168,15 @@ const ChatbotIntegrations = ({ chatbot }) => {
       id: 'twilio',
       name: 'Twilio SMS',
       description: 'Connect your agent to SMS via Twilio',
-      icon: <Phone className="w-6 h-6" />,
+      icon: (
+        <svg viewBox="0 0 24 24" role="img" aria-label="Twilio SMS" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="11" fill="#F22F46"/>
+          <circle cx="8.1" cy="8.1" r="1.8" fill="#FFF"/>
+          <circle cx="15.9" cy="8.1" r="1.8" fill="#FFF"/>
+          <circle cx="8.1" cy="15.9" r="1.8" fill="#FFF"/>
+          <circle cx="15.9" cy="15.9" r="1.8" fill="#FFF"/>
+        </svg>
+      ),
       accent: 'purple',
       fields: [
         { name: 'account_sid', label: 'Account SID', type: 'text', required: true },
@@ -816,7 +839,7 @@ const ChatbotIntegrations = ({ chatbot }) => {
                   <div className="flex min-w-0 items-start gap-3">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50 text-gray-600">
                       {React.cloneElement(definition.icon, {
-                        className: 'h-4.5 w-4.5',
+                        className: 'h-5 w-5 object-contain',
                         strokeWidth: 1.8,
                       })}
                     </div>

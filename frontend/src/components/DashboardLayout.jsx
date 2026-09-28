@@ -1,3 +1,4 @@
+
 import React from 'react';
 import DashboardSidebar from './DashboardSidebar';
 import ResponsiveNav from './ResponsiveNav';
@@ -23,7 +24,26 @@ const DashboardLayout = ({ children, user, onLogout, usageStats }) => {
         <div className="hidden lg:block bg-white border-b border-gray-200">
           <div className="flex items-center justify-between px-6 py-3">
             <div className="flex-1">
-              {/* Breadcrumb or Page Title could go here */}
+              <h1
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '20px',
+                  fontWeight: '600',
+                  color: '#0B0B0B',
+                  marginBottom: '2px'
+                }}
+              >
+                𝑊𝑒𝑙𝑐𝑜𝑚𝑒 𝑏𝑎𝑐𝑘, {user?.name || 'Demo User'}
+              </h1>
+              <p
+                style={{
+                  fontFamily: 'Inter, sans-serif',
+                  fontSize: '14px',
+                  color: '#6B7280'
+                }}
+              >
+                Monitor your agent's activity and usage
+              </p>
             </div>
             <div className="flex items-center gap-4">
               <NotificationBell />

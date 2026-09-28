@@ -460,25 +460,12 @@ const LandingPage = () => {
             </div>
           </div>
           <div className="relative animate-fade-in-right">
-            {/* Animated glow effect for the card */}
-            <div className="absolute -inset-4 bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl blur-2xl opacity-20 animate-pulse-slow"></div>
-            
-            {/* Card preview with animations */}
-            <div 
+            {/* Standalone chatbot demo: no surrounding card, glow, or decorative frame */}
+            <div
               onClick={() => navigate('/signup')}
-              className="relative w-full h-[500px] rounded-3xl bg-white/20 backdrop-blur-sm border border-white/40 p-8 flex items-center justify-center transform hover:scale-105 transition-transform duration-500 shadow-2xl cursor-pointer animate-float"
+              className="relative w-full flex items-center justify-center cursor-pointer"
             >
-              {/* Shine effect overlay */}
-              <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-white/20 via-transparent to-transparent opacity-40 pointer-events-none"></div>
-              <div className="absolute inset-0 rounded-3xl overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent"></div>
-              </div>
-              
-              {/* Floating decorative elements */}
-              <div className="absolute top-8 right-8 w-4 h-4 bg-white/30 rounded-full animate-ping pointer-events-none"></div>
-              <div className="absolute bottom-12 left-12 w-3 h-3 bg-yellow-300/40 rounded-full animate-ping animation-delay-1000 pointer-events-none"></div>
-              
-              <div className="relative bg-white/95 backdrop-blur-sm rounded-2xl p-6 shadow-2xl w-full max-w-lg transition-shadow duration-300 border border-white/50 pointer-events-none">
+              <div className="relative bg-white rounded-2xl p-6 shadow-xl w-full max-w-lg border border-gray-200 pointer-events-none">
                 <div className="relative">
                   {/* Premium Modular Chat Preview */}
                   <div className="flex items-center justify-between mb-5 pb-4 border-b border-gray-100">
