@@ -123,6 +123,8 @@
   let isLoading = false;
   let isSending = false;
   let attentionAnimationTimeout = null;
+  let suggestedMessages = [];
+  let suggestedMessagesVisible = false;
   
   // Customization defaults
   let customization = {
@@ -334,6 +336,42 @@
       transition: all 0.3s ease;
     }
     
+    #botsmith-suggested-messages {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+      max-width: 90%;
+      margin: 0 0 10px 0;
+      margin-left: auto;
+    }
+
+    .botsmith-suggested-message {
+      border: 1px solid #e5e7eb;
+      background: #ffffff;
+      color: #374151;
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 13px;
+      line-height: 1.25;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      max-width: 100%;
+      text-align: left;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+    }
+
+    .botsmith-suggested-message:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+      transform: translateY(-1px);
+    }
+
+    .botsmith-suggested-message:active {
+      transform: translateY(0);
+    }
+
     .botsmith-send-button {
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
@@ -535,12 +573,15 @@
   // Input area with modern design
   const inputArea = document.createElement('div');
   inputArea.style.cssText = `
-    border-top: 1px solid #e5e7eb; 
     padding: 16px 20px; 
-    background: white;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    background-color: #fafafa;
+    background-image: radial-gradient(circle, rgba(100, 116, 139, 0.16) 1px, transparent 1px);
+    background-size: 20px 20px;
+    background-repeat: repeat;
+    box-shadow: none;
   `;
   inputArea.innerHTML = `
+    <div id="botsmith-suggested-messages" style="display: none;"></div>
     <form id="botsmith-form" style="display: flex; gap: 10px; margin: 0;">
       <input
         type="text"
@@ -615,6 +656,62 @@
   document.body.appendChild(container);
 
   // Functions
+  function hideSuggestedMessages() {
+    suggestedMessagesVisible = false;
+    const suggestedContainer = document.getElementById('botsmith-suggested-messages');
+    if (suggestedContainer) {
+      suggestedContainer.style.display = 'none';
+      suggestedContainer.innerHTML = '';
+    }
+  }
+
+  function renderSuggestedMessages() {
+    const suggestedContainer = document.getElementById('botsmith-suggested-messages');
+
+    if (!suggestedContainer) return;
+
+    suggestedContainer.innerHTML = '';
+
+    if (!suggestedMessagesVisible || suggestedMessages.length === 0) {
+      suggestedContainer.style.display = 'none';
+      return;
+    }
+
+    suggestedMessages.forEach((message) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'botsmith-suggested-message';
+      button.textContent = message;
+
+      button.addEventListener('click', () => {
+        hideSuggestedMessages();
+        sendMessage(message);
+      });
+
+      suggestedContainer.appendChild(button);
+    });
+
+    suggestedContainer.style.display = 'flex';
+  }
+
+  function initializeSuggestedMessages() {
+    const configuredMessages =
+      chatbot?.ai_actions?.suggested_messages;
+
+    const enabled =
+      configuredMessages?.enabled === true;
+
+    suggestedMessages = enabled &&
+      Array.isArray(configuredMessages.messages)
+      ? configuredMessages.messages
+          .map((message) => String(message ?? '').trim())
+          .filter(Boolean)
+      : [];
+
+    suggestedMessagesVisible = suggestedMessages.length > 0;
+    renderSuggestedMessages();
+  }
+
   function addMessage(role, content) {
     messages.push({ role, content, timestamp: new Date() });
     renderMessages();
@@ -898,6 +995,8 @@
       }
       if (chatbot.font_size) customization.font_size = chatbot.font_size;
       if (chatbot.bubble_style) customization.bubble_style = chatbot.bubble_style;
+
+      initializeSuggestedMessages();
       
       if (messages.length > 0) renderMessages();
       
@@ -1031,6 +1130,8 @@
 
   async function sendMessage(message) {
     if (!message.trim() || isSending) return;
+
+    hideSuggestedMessages();
     
     isSending = true;
     const input = document.getElementById('botsmith-input');
@@ -1253,6 +1354,9 @@
     if (chatbot?.welcome_message) {
       addMessage('assistant', chatbot.welcome_message);
     }
+
+    suggestedMessagesVisible = suggestedMessages.length > 0;
+    renderSuggestedMessages();
 
     if (isOpen && input) {
       input.focus();
@@ -2123,6 +2227,10 @@
         }
 
 
+        suggestedMessagesVisible = suggestedMessages.length > 0;
+        renderSuggestedMessages();
+
+
         /*
          Close menu
         */
@@ -2565,6 +2673,9 @@ function botsmithInitLeadCapture() {
   existingInputArea.style.display =
     'none';
 
+  hideSuggestedMessages();
+
+
 
 
   /* =========================
@@ -2976,6 +3087,10 @@ function botsmithInitLeadCapture() {
           existingInputArea.style.display =
             originalInputDisplay ||
             'flex';
+          
+          suggestedMessagesVisible = suggestedMessages.length > 0;
+          renderSuggestedMessages();
+
 
 
 

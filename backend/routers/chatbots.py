@@ -522,6 +522,16 @@ async def update_chatbot(
         # Handle instructions field - map it to both instructions and system_message
         if "instructions" in update_data and update_data["instructions"] is not None:
             update_data["system_message"] = update_data["instructions"]
+
+        # Merge ai_actions so updating one action type does not erase other
+        # action settings (for example, suggested_messages or keyword_links).
+        if isinstance(update_data.get("ai_actions"), dict):
+            existing_ai_actions = chatbot.get("ai_actions") or {}
+            if isinstance(existing_ai_actions, dict):
+                update_data["ai_actions"] = {
+                    **existing_ai_actions,
+                    **update_data["ai_actions"],
+                }
         
         # Validate white label branding feature (powered_by_text) - only for paid plans
         if "powered_by_text" in update_data and update_data["powered_by_text"] is not None:
