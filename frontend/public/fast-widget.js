@@ -1194,6 +1194,7 @@
     eventTypes: [],
     selectedEventType: null,
     availability: [],
+    selectedDateKey: null,
     selectedSlot: null,
     name: '',
     email: '',
@@ -1204,6 +1205,35 @@
   function removeCalendlyBookingUI() {
     const existing = document.getElementById('botsmith-calendly-booking');
     if (existing) existing.remove();
+  }
+
+  function getCalendlySlotStart(slot) {
+    if (!slot || typeof slot !== 'object') return null;
+    return slot.start_time || slot.startTime || slot.start || null;
+  }
+
+  function getCalendlyDateKey(value) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return null;
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return date.getFullYear() + '-' + month + '-' + day;
+  }
+
+  function formatCalendlyDate(value, options) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value || '');
+    return date.toLocaleDateString([], options);
+  }
+
+  function isCalendlyBookingIntent(message) {
+    const text = String(message || '').trim();
+    if (!text) return false;
+
+    const bookingPattern = '\\b(book|schedule|set up|arrange)\\b[\\s\\S]*\\b(demo|meeting|call|appointment|slot|time)\\b';
+    return new RegExp(bookingPattern, 'i').test(text)
+      || /^i(?: would|['’]d)? like to (book|schedule)\\b/i.test(text)
+      || /^can i (book|schedule)\\b/i.test(text);
   }
 
   function renderCalendlyBookingUI() {
@@ -1222,10 +1252,12 @@
       title.textContent = 'Booking confirmed';
       title.style.cssText = 'font-weight:700;font-size:15px;margin-bottom:6px;';
       card.appendChild(title);
+
       const detail = document.createElement('div');
       detail.textContent = 'Your Calendly meeting was booked successfully.';
       detail.style.cssText = 'font-size:13px;color:#4b5563;line-height:1.5;';
       card.appendChild(detail);
+
       wrap.appendChild(card);
       messagesContainer.appendChild(wrap);
       requestAnimationFrame(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; });
@@ -1245,7 +1277,9 @@
     card.appendChild(title);
 
     const subtitle = document.createElement('div');
-    subtitle.textContent = calendlyBooking.loading ? 'Loading available times…' : 'Choose a time that works for you.';
+    subtitle.textContent = calendlyBooking.loading
+      ? 'Loading your availability…'
+      : 'Choose a date and time that works for you.';
     subtitle.style.cssText = 'font-size:12px;color:#6b7280;margin-bottom:12px;';
     card.appendChild(subtitle);
 
@@ -1269,29 +1303,135 @@
         card.appendChild(button);
       });
     } else if (calendlyBooking.selectedEventType) {
+      const labelRow = document.createElement('div');
+      labelRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;';
+
       const label = document.createElement('div');
       label.textContent = calendlyBooking.selectedEventType.name || 'Meeting';
-      label.style.cssText = 'font-size:13px;font-weight:600;margin-bottom:10px;';
-      card.appendChild(label);
+      label.style.cssText = 'font-size:13px;font-weight:600;';
+      labelRow.appendChild(label);
+
+      const changeType = document.createElement('button');
+      changeType.type = 'button';
+      changeType.textContent = 'Change';
+      changeType.style.cssText = 'border:none;background:transparent;color:#6b7280;font-size:11px;cursor:pointer;padding:2px 0;';
+      changeType.onclick = () => {
+        calendlyBooking.selectedEventType = null;
+        calendlyBooking.selectedDateKey = null;
+        calendlyBooking.selectedSlot = null;
+        calendlyBooking.availability = [];
+        calendlyBooking.error = null;
+        renderCalendlyBookingUI();
+      };
+      labelRow.appendChild(changeType);
+      card.appendChild(labelRow);
+
+      const availableByDate = {};
+      calendlyBooking.availability.forEach((slot) => {
+        const start = getCalendlySlotStart(slot);
+        const dateKey = getCalendlyDateKey(start);
+        if (!start || !dateKey) return;
+        if (!availableByDate[dateKey]) availableByDate[dateKey] = [];
+        availableByDate[dateKey].push(slot);
+      });
+
+      const calendarTitle = document.createElement('div');
+      calendarTitle.textContent = 'Select a date';
+      calendarTitle.style.cssText = 'font-size:12px;font-weight:600;color:#374151;margin-bottom:7px;';
+      card.appendChild(calendarTitle);
+
+      const weekdayRow = document.createElement('div');
+      weekdayRow.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:4px;';
+      ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((day) => {
+        const cell = document.createElement('div');
+        cell.textContent = day;
+        cell.style.cssText = 'font-size:9px;text-align:center;color:#9ca3af;font-weight:600;padding:2px 0;';
+        weekdayRow.appendChild(cell);
+      });
+      card.appendChild(weekdayRow);
+
+      const calendar = document.createElement('div');
+      calendar.style.cssText = 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;margin-bottom:14px;';
+
+      const startDay = new Date();
+      startDay.setHours(0, 0, 0, 0);
+
+      for (let offset = 0; offset < 14; offset += 1) {
+        const date = new Date(startDay);
+        date.setDate(startDay.getDate() + offset);
+        const dateKey = getCalendlyDateKey(date);
+        const slotsForDate = availableByDate[dateKey] || [];
+        const isSelected = calendlyBooking.selectedDateKey === dateKey;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.disabled = slotsForDate.length === 0;
+        button.style.cssText =
+          'min-width:0;padding:7px 2px;border:1px solid ' +
+          (isSelected ? currentTheme.primary : '#e5e7eb') +
+          ';background:' +
+          (isSelected ? currentTheme.primary + '12' : '#fff') +
+          ';border-radius:10px;text-align:center;cursor:' +
+          (slotsForDate.length ? 'pointer' : 'default') +
+          ';opacity:' + (slotsForDate.length ? '1' : '0.38') + ';';
+
+        const dayName = document.createElement('div');
+        dayName.textContent = date.toLocaleDateString([], {weekday:'short'});
+        dayName.style.cssText = 'font-size:9px;color:#9ca3af;line-height:1.1;';
+        button.appendChild(dayName);
+
+        const dateNumber = document.createElement('div');
+        dateNumber.textContent = String(date.getDate());
+        dateNumber.style.cssText = 'font-size:13px;font-weight:700;color:#111827;line-height:1.3;margin-top:2px;';
+        button.appendChild(dateNumber);
+
+        if (slotsForDate.length) {
+          const count = document.createElement('div');
+          count.textContent = String(slotsForDate.length);
+          count.style.cssText = 'font-size:8px;color:' + currentTheme.primary + ';line-height:1.1;margin-top:2px;';
+          button.appendChild(count);
+        }
+
+        if (slotsForDate.length) {
+          button.onclick = () => {
+            calendlyBooking.selectedDateKey = dateKey;
+            calendlyBooking.selectedSlot = null;
+            calendlyBooking.error = null;
+            renderCalendlyBookingUI();
+          };
+        }
+
+        calendar.appendChild(button);
+      }
+
+      card.appendChild(calendar);
+
+      const selectedDate = calendlyBooking.selectedDateKey;
+      const daySlots = selectedDate ? (availableByDate[selectedDate] || []) : [];
+
+      const slotTitle = document.createElement('div');
+      slotTitle.textContent = selectedDate
+        ? 'Available times for ' + formatCalendlyDate(selectedDate + 'T12:00:00', {month:'short', day:'numeric'})
+        : 'Select a date';
+      slotTitle.style.cssText = 'font-size:12px;font-weight:600;color:#374151;margin-bottom:8px;';
+      card.appendChild(slotTitle);
 
       const slotGrid = document.createElement('div');
       slotGrid.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px;';
 
-      calendlyBooking.availability.slice(0, 20).forEach((slot) => {
-        const start = slot.start_time || slot.startTime || slot.start;
+      daySlots.forEach((slot) => {
+        const start = getCalendlySlotStart(slot);
         if (!start) return;
 
-        const date = new Date(start);
         const button = document.createElement('button');
         button.type = 'button';
-        button.textContent = Number.isNaN(date.getTime())
-          ? String(start)
-          : date.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
-        button.style.cssText = 'padding:9px 8px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;font-size:12px;cursor:pointer;';
-        if (calendlyBooking.selectedSlot === start) {
-          button.style.borderColor = currentTheme.primary;
-          button.style.background = currentTheme.primary + '12';
-        }
+        button.textContent = new Date(start).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+        button.style.cssText =
+          'padding:9px 8px;border:1px solid ' +
+          (calendlyBooking.selectedSlot === start ? currentTheme.primary : '#e5e7eb') +
+          ';background:' +
+          (calendlyBooking.selectedSlot === start ? currentTheme.primary + '12' : '#fff') +
+          ';border-radius:10px;font-size:12px;cursor:pointer;';
         button.onclick = () => {
           calendlyBooking.selectedSlot = start;
           calendlyBooking.error = null;
@@ -1302,7 +1442,7 @@
 
       if (!slotGrid.children.length) {
         const empty = document.createElement('div');
-        empty.textContent = 'No available times were returned.';
+        empty.textContent = 'Select a date with available times.';
         empty.style.cssText = 'font-size:12px;color:#6b7280;padding:8px 0;';
         card.appendChild(empty);
       } else {
@@ -1327,9 +1467,17 @@
 
       const confirm = document.createElement('button');
       confirm.type = 'button';
-      confirm.textContent = calendlyBooking.loading ? 'Booking…' : 'Confirm Booking';
-      confirm.disabled = calendlyBooking.loading || !calendlyBooking.selectedSlot || !calendlyBooking.name.trim() || !calendlyBooking.email.trim();
-      confirm.style.cssText = 'width:100%;padding:10px 12px;border:0;border-radius:10px;background:' + currentTheme.primary + ';color:#fff;font-size:13px;font-weight:600;cursor:pointer;opacity:' + (confirm.disabled ? '0.5' : '1') + ';';
+      confirm.textContent = 'Confirm Booking';
+      confirm.disabled =
+        !calendlyBooking.selectedSlot ||
+        !calendlyBooking.name.trim() ||
+        !calendlyBooking.email.trim() ||
+        calendlyBooking.loading;
+      confirm.style.cssText =
+        'width:100%;padding:10px 12px;border:0;border-radius:10px;background:' +
+        currentTheme.primary +
+        ';color:#fff;font-size:13px;font-weight:600;cursor:pointer;opacity:' +
+        (confirm.disabled ? '0.5' : '1') + ';';
       confirm.onclick = bookCalendlySlot;
       card.appendChild(confirm);
     }
@@ -1340,20 +1488,32 @@
   }
 
   async function startCalendlyBooking() {
-    calendlyBooking = {...calendlyBooking, visible:true, loading:true, error:null, booked:null};
+    calendlyBooking = {
+      ...calendlyBooking,
+      visible: true,
+      loading: true,
+      error: null,
+      booked: null,
+      selectedDateKey: null,
+      selectedSlot: null
+    };
     renderCalendlyBookingUI();
+
     try {
       const response = await fetch(
         config.apiUrl + '/public/calendly/event-types/' + encodeURIComponent(config.chatbotId)
       );
       const data = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(data.detail || 'Unable to load Calendly meeting types.');
+
       const eventTypes = Array.isArray(data.collection) ? data.collection : [];
       if (!eventTypes.length) throw new Error('No Calendly meeting types are available.');
+
       calendlyBooking.eventTypes = eventTypes;
       calendlyBooking.selectedEventType = eventTypes.length === 1 ? eventTypes[0] : null;
       calendlyBooking.loading = false;
       renderCalendlyBookingUI();
+
       if (calendlyBooking.selectedEventType) {
         await loadCalendlyAvailability(calendlyBooking.selectedEventType);
       }
@@ -1367,11 +1527,12 @@
   async function loadCalendlyAvailability(eventType) {
     calendlyBooking = {
       ...calendlyBooking,
-      selectedEventType:eventType,
-      selectedSlot:null,
-      availability:[],
-      loading:true,
-      error:null
+      selectedEventType: eventType,
+      selectedDateKey: null,
+      selectedSlot: null,
+      availability: [],
+      loading: true,
+      error: null
     };
     renderCalendlyBookingUI();
 
@@ -1383,17 +1544,29 @@
         start_time: now.toISOString(),
         end_time: end.toISOString()
       });
+
       const response = await fetch(
         config.apiUrl + '/public/calendly/availability/' +
         encodeURIComponent(config.chatbotId) + '?' + query.toString()
       );
       const data = await response.json().catch(() => ({}));
+
       if (!response.ok) throw new Error(data.detail || 'Unable to load available times.');
+
       calendlyBooking.availability = Array.isArray(data.collection) ? data.collection : [];
       calendlyBooking.loading = false;
+
+      const firstAvailable = calendlyBooking.availability.find((slot) => {
+        return getCalendlySlotStart(slot) && getCalendlyDateKey(getCalendlySlotStart(slot));
+      });
+      calendlyBooking.selectedDateKey = firstAvailable
+        ? getCalendlyDateKey(getCalendlySlotStart(firstAvailable))
+        : null;
+
       if (!calendlyBooking.availability.length) {
         calendlyBooking.error = 'No available times were returned for this meeting type.';
       }
+
       renderCalendlyBookingUI();
     } catch (error) {
       calendlyBooking.loading = false;
@@ -1403,7 +1576,11 @@
   }
 
   async function bookCalendlySlot() {
-    if (calendlyBooking.loading || !calendlyBooking.selectedEventType || !calendlyBooking.selectedSlot) return;
+    if (
+      calendlyBooking.loading ||
+      !calendlyBooking.selectedEventType ||
+      !calendlyBooking.selectedSlot
+    ) return;
 
     if (!calendlyBooking.name.trim() || !calendlyBooking.email.trim()) {
       calendlyBooking.error = 'Please enter your name and email.';
@@ -1419,17 +1596,18 @@
       const response = await fetch(
         config.apiUrl + '/public/calendly/book/' + encodeURIComponent(config.chatbotId),
         {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            session_id:sessionId,
-            event_type:calendlyBooking.selectedEventType.uri,
-            start_time:calendlyBooking.selectedSlot,
-            name:calendlyBooking.name.trim(),
-            email:calendlyBooking.email.trim()
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            session_id: sessionId,
+            event_type: calendlyBooking.selectedEventType.uri,
+            start_time: calendlyBooking.selectedSlot,
+            name: calendlyBooking.name.trim(),
+            email: calendlyBooking.email.trim()
           })
         }
       );
+
       const data = await response.json().catch(() => ({}));
       if (!response.ok) {
         throw new Error(data.detail || 'That time is no longer available. Please choose another time.');
