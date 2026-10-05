@@ -920,6 +920,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
 
     # AI Actions
     ai_actions: Dict[str, Any] = Field(default_factory=dict)
+    calendly_connected: bool = False
 
 
 class ChatbotCreate(BaseModel):
