@@ -1628,7 +1628,7 @@
 
     hideSuggestedMessages();
 
-    if (/\\b(book|schedule|appointment|meeting|demo)\\b/i.test(message) && chatbot?.calendly_connected === true) {
+    if (isCalendlyBookingIntent(message) && chatbot?.calendly_connected === true) {
       addMessage('user', message);
       const input = document.getElementById('botsmith-input');
       input.value = '';
