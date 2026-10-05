@@ -1187,34 +1187,298 @@
     }
   }
 
+  // ---------------- Calendly booking UI ----------------
+  let calendlyBooking = {
+    visible: false,
+    loading: false,
+    eventTypes: [],
+    selectedEventType: null,
+    availability: [],
+    selectedSlot: null,
+    name: '',
+    email: '',
+    error: null,
+    booked: null
+  };
+
+  function removeCalendlyBookingUI() {
+    const existing = document.getElementById('botsmith-calendly-booking');
+    if (existing) existing.remove();
+  }
+
+  function renderCalendlyBookingUI() {
+    removeCalendlyBookingUI();
+    if (!calendlyBooking.visible) return;
+
+    const wrap = document.createElement('div');
+    wrap.id = 'botsmith-calendly-booking';
+    wrap.style.cssText = 'margin:8px 0 4px 46px;max-width:calc(100% - 46px);';
+
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:16px;box-shadow:0 4px 14px rgba(0,0,0,.06);font-family:inherit;';
+
+    if (calendlyBooking.booked) {
+      const title = document.createElement('div');
+      title.textContent = 'Booking confirmed';
+      title.style.cssText = 'font-weight:700;font-size:15px;margin-bottom:6px;';
+      card.appendChild(title);
+      const detail = document.createElement('div');
+      detail.textContent = 'Your Calendly meeting was booked successfully.';
+      detail.style.cssText = 'font-size:13px;color:#4b5563;line-height:1.5;';
+      card.appendChild(detail);
+      wrap.appendChild(card);
+      messagesContainer.appendChild(wrap);
+      requestAnimationFrame(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; });
+      return;
+    }
+
+    if (calendlyBooking.error) {
+      const errorBox = document.createElement('div');
+      errorBox.style.cssText = 'margin-bottom:10px;padding:9px 10px;border-radius:10px;background:#fef2f2;color:#991b1b;font-size:12px;line-height:1.4;';
+      errorBox.textContent = calendlyBooking.error;
+      card.appendChild(errorBox);
+    }
+
+    const title = document.createElement('div');
+    title.textContent = 'Book a meeting';
+    title.style.cssText = 'font-weight:700;font-size:15px;margin-bottom:4px;';
+    card.appendChild(title);
+
+    const subtitle = document.createElement('div');
+    subtitle.textContent = calendlyBooking.loading ? 'Loading available times…' : 'Choose a time that works for you.';
+    subtitle.style.cssText = 'font-size:12px;color:#6b7280;margin-bottom:12px;';
+    card.appendChild(subtitle);
+
+    if (calendlyBooking.loading) {
+      const loading = document.createElement('div');
+      loading.textContent = 'Loading…';
+      loading.style.cssText = 'font-size:13px;color:#6b7280;padding:10px 0;';
+      card.appendChild(loading);
+    } else if (!calendlyBooking.selectedEventType && calendlyBooking.eventTypes.length) {
+      const label = document.createElement('div');
+      label.textContent = 'Meeting type';
+      label.style.cssText = 'font-size:12px;font-weight:600;color:#374151;margin-bottom:7px;';
+      card.appendChild(label);
+
+      calendlyBooking.eventTypes.forEach((eventType) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = eventType.name || 'Meeting';
+        button.style.cssText = 'display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:7px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;font-size:13px;cursor:pointer;';
+        button.onclick = () => loadCalendlyAvailability(eventType);
+        card.appendChild(button);
+      });
+    } else if (calendlyBooking.selectedEventType) {
+      const label = document.createElement('div');
+      label.textContent = calendlyBooking.selectedEventType.name || 'Meeting';
+      label.style.cssText = 'font-size:13px;font-weight:600;margin-bottom:10px;';
+      card.appendChild(label);
+
+      const slotGrid = document.createElement('div');
+      slotGrid.style.cssText = 'display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px;';
+
+      calendlyBooking.availability.slice(0, 20).forEach((slot) => {
+        const start = slot.start_time || slot.startTime || slot.start;
+        if (!start) return;
+
+        const date = new Date(start);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = Number.isNaN(date.getTime())
+          ? String(start)
+          : date.toLocaleString([], {month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+        button.style.cssText = 'padding:9px 8px;border:1px solid #e5e7eb;background:#fff;border-radius:10px;font-size:12px;cursor:pointer;';
+        if (calendlyBooking.selectedSlot === start) {
+          button.style.borderColor = currentTheme.primary;
+          button.style.background = currentTheme.primary + '12';
+        }
+        button.onclick = () => {
+          calendlyBooking.selectedSlot = start;
+          calendlyBooking.error = null;
+          renderCalendlyBookingUI();
+        };
+        slotGrid.appendChild(button);
+      });
+
+      if (!slotGrid.children.length) {
+        const empty = document.createElement('div');
+        empty.textContent = 'No available times were returned.';
+        empty.style.cssText = 'font-size:12px;color:#6b7280;padding:8px 0;';
+        card.appendChild(empty);
+      } else {
+        card.appendChild(slotGrid);
+      }
+
+      const name = document.createElement('input');
+      name.type = 'text';
+      name.placeholder = 'Name';
+      name.value = calendlyBooking.name;
+      name.style.cssText = 'width:100%;box-sizing:border-box;padding:10px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:8px;font-size:13px;';
+      name.oninput = () => { calendlyBooking.name = name.value; };
+      card.appendChild(name);
+
+      const email = document.createElement('input');
+      email.type = 'email';
+      email.placeholder = 'Email';
+      email.value = calendlyBooking.email;
+      email.style.cssText = 'width:100%;box-sizing:border-box;padding:10px;border:1px solid #e5e7eb;border-radius:10px;margin-bottom:10px;font-size:13px;';
+      email.oninput = () => { calendlyBooking.email = email.value; };
+      card.appendChild(email);
+
+      const confirm = document.createElement('button');
+      confirm.type = 'button';
+      confirm.textContent = calendlyBooking.loading ? 'Booking…' : 'Confirm Booking';
+      confirm.disabled = calendlyBooking.loading || !calendlyBooking.selectedSlot || !calendlyBooking.name.trim() || !calendlyBooking.email.trim();
+      confirm.style.cssText = 'width:100%;padding:10px 12px;border:0;border-radius:10px;background:' + currentTheme.primary + ';color:#fff;font-size:13px;font-weight:600;cursor:pointer;opacity:' + (confirm.disabled ? '0.5' : '1') + ';';
+      confirm.onclick = bookCalendlySlot;
+      card.appendChild(confirm);
+    }
+
+    wrap.appendChild(card);
+    messagesContainer.appendChild(wrap);
+    requestAnimationFrame(() => { messagesContainer.scrollTop = messagesContainer.scrollHeight; });
+  }
+
+  async function startCalendlyBooking() {
+    calendlyBooking = {...calendlyBooking, visible:true, loading:true, error:null, booked:null};
+    renderCalendlyBookingUI();
+    try {
+      const response = await fetch(
+        config.apiUrl + '/public/calendly/event-types/' + encodeURIComponent(config.chatbotId)
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || 'Unable to load Calendly meeting types.');
+      const eventTypes = Array.isArray(data.collection) ? data.collection : [];
+      if (!eventTypes.length) throw new Error('No Calendly meeting types are available.');
+      calendlyBooking.eventTypes = eventTypes;
+      calendlyBooking.selectedEventType = eventTypes.length === 1 ? eventTypes[0] : null;
+      calendlyBooking.loading = false;
+      renderCalendlyBookingUI();
+      if (calendlyBooking.selectedEventType) {
+        await loadCalendlyAvailability(calendlyBooking.selectedEventType);
+      }
+    } catch (error) {
+      calendlyBooking.loading = false;
+      calendlyBooking.error = error?.message || 'Unable to start Calendly booking.';
+      renderCalendlyBookingUI();
+    }
+  }
+
+  async function loadCalendlyAvailability(eventType) {
+    calendlyBooking = {
+      ...calendlyBooking,
+      selectedEventType:eventType,
+      selectedSlot:null,
+      availability:[],
+      loading:true,
+      error:null
+    };
+    renderCalendlyBookingUI();
+
+    try {
+      const now = new Date();
+      const end = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+      const query = new URLSearchParams({
+        event_type: eventType.uri,
+        start_time: now.toISOString(),
+        end_time: end.toISOString()
+      });
+      const response = await fetch(
+        config.apiUrl + '/public/calendly/availability/' +
+        encodeURIComponent(config.chatbotId) + '?' + query.toString()
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.detail || 'Unable to load available times.');
+      calendlyBooking.availability = Array.isArray(data.collection) ? data.collection : [];
+      calendlyBooking.loading = false;
+      if (!calendlyBooking.availability.length) {
+        calendlyBooking.error = 'No available times were returned for this meeting type.';
+      }
+      renderCalendlyBookingUI();
+    } catch (error) {
+      calendlyBooking.loading = false;
+      calendlyBooking.error = error?.message || 'Unable to load available times.';
+      renderCalendlyBookingUI();
+    }
+  }
+
+  async function bookCalendlySlot() {
+    if (calendlyBooking.loading || !calendlyBooking.selectedEventType || !calendlyBooking.selectedSlot) return;
+
+    if (!calendlyBooking.name.trim() || !calendlyBooking.email.trim()) {
+      calendlyBooking.error = 'Please enter your name and email.';
+      renderCalendlyBookingUI();
+      return;
+    }
+
+    calendlyBooking.loading = true;
+    calendlyBooking.error = null;
+    renderCalendlyBookingUI();
+
+    try {
+      const response = await fetch(
+        config.apiUrl + '/public/calendly/book/' + encodeURIComponent(config.chatbotId),
+        {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({
+            session_id:sessionId,
+            event_type:calendlyBooking.selectedEventType.uri,
+            start_time:calendlyBooking.selectedSlot,
+            name:calendlyBooking.name.trim(),
+            email:calendlyBooking.email.trim()
+          })
+        }
+      );
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.detail || 'That time is no longer available. Please choose another time.');
+      }
+
+      calendlyBooking.loading = false;
+      calendlyBooking.booked = data.booking || data;
+      renderCalendlyBookingUI();
+    } catch (error) {
+      calendlyBooking.loading = false;
+      calendlyBooking.error = error?.message || 'Booking failed. Please choose another time.';
+      renderCalendlyBookingUI();
+    }
+  }
+
   async function sendMessage(message) {
     if (!message.trim() || isSending) return;
 
     hideSuggestedMessages();
-    
+
+    if (/\\b(book|schedule|appointment|meeting|demo)\\b/i.test(message) && chatbot?.calendly_connected === true) {
+      addMessage('user', message);
+      const input = document.getElementById('botsmith-input');
+      input.value = '';
+      await startCalendlyBooking();
+      return;
+    }
+
     isSending = true;
     const input = document.getElementById('botsmith-input');
     input.disabled = true;
-    
+
     addMessage('user', message);
     input.value = '';
-    
+
     showTyping();
-    
+
     try {
-      const response = await fetch(`${config.apiUrl}/public/chat/${config.chatbotId}`, {
+      const response = await fetch(config.apiUrl + '/public/chat/' + config.chatbotId, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message, session_id: sessionId })
       });
-      
+
       if (!response.ok) {
         const error = await response.json().catch(() => ({}));
         hideTyping();
-        
-        // ✅ HANDLE SUBSCRIPTION ERRORS GRACEFULLY
+
         if (response.status === 402) {
-          // Payment required (expired/payment failed)
           if (error.detail?.error === 'subscription_expired') {
             addMessage('assistant', '⚠️ This chatbot is temporarily unavailable. The subscription has expired.');
           } else if (error.detail?.error === 'payment_failed') {
@@ -1224,26 +1488,22 @@
           }
           return;
         }
-        
+
         if (response.status === 403) {
-          // Suspended
           addMessage('assistant', '⚠️ This chatbot is currently unavailable.');
           return;
         }
-        
+
         if (response.status === 429) {
-          // Limit exceeded
           addMessage('assistant', '⚠️ Monthly message limit reached. Please try again later.');
           return;
         }
-        
+
         throw new Error('Failed to send message');
       }
-      
+
       const data = await response.json();
       hideTyping();
-
-      // Show the AI response with a smooth ChatGPT-style streaming animation
       await streamAssistantMessage(data.message);
     } catch (error) {
       console.error('[BotSmith Widget] Error sending message:', error);
