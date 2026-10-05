@@ -13,6 +13,8 @@ from services.lead_service import LeadService
 from services.cache_service import cache_service
 from services.usage_service import UsageService, UsageLimitExceededError
 from services.subscription_checker import SubscriptionChecker
+from agents.tools.calendly import CalendlyService
+from agents.tools.calendly.credentials import CalendlyCredentialResolver
 import json
 import logging
 import asyncio
@@ -397,6 +399,83 @@ def init_router(db: AsyncIOMotorDatabase):
     usage_service = UsageService()
     subscription_checker = SubscriptionChecker()
 
+@router.get("/calendly/event-types/{chatbot_id}")
+async def public_calendly_event_types(chatbot_id: str):
+    chatbot = await db_instance.chatbots.find_one({"id": chatbot_id})
+    if not chatbot or not chatbot.get("public_access", False):
+        raise HTTPException(status_code=404, detail="Chatbot not found")
+    user_id = chatbot.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=404, detail="Calendly is not connected")
+    resolver = CalendlyCredentialResolver(database=db_instance)
+    try:
+        access_token = await resolver.get_access_token(chatbot_id=chatbot_id, user_id=user_id)
+        if not access_token:
+            raise HTTPException(status_code=404, detail="Calendly is not connected")
+        return await CalendlyService(access_token).get_event_types(count=20)
+    finally:
+        await resolver.close()
+
+
+@router.get("/calendly/availability/{chatbot_id}")
+async def public_calendly_availability(chatbot_id: str, event_type: str, start_time: str, end_time: str):
+    chatbot = await db_instance.chatbots.find_one({"id": chatbot_id})
+    if not chatbot or not chatbot.get("public_access", False):
+        raise HTTPException(status_code=404, detail="Chatbot not found")
+    user_id = chatbot.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=404, detail="Calendly is not connected")
+    resolver = CalendlyCredentialResolver(database=db_instance)
+    try:
+        access_token = await resolver.get_access_token(chatbot_id=chatbot_id, user_id=user_id)
+        if not access_token:
+            raise HTTPException(status_code=404, detail="Calendly is not connected")
+        return await CalendlyService(access_token).get_available_times(
+            event_type=event_type,
+            start_time=start_time,
+            end_time=end_time,
+        )
+    finally:
+        await resolver.close()
+
+
+class PublicCalendlyBookingRequest(BaseModel):
+    session_id: str
+    event_type: str
+    start_time: str
+    name: str
+    email: EmailStr
+
+
+@router.post("/calendly/book/{chatbot_id}")
+async def public_calendly_book(chatbot_id: str, request: PublicCalendlyBookingRequest):
+    chatbot = await db_instance.chatbots.find_one({"id": chatbot_id})
+    if not chatbot or not chatbot.get("public_access", False):
+        raise HTTPException(status_code=404, detail="Chatbot not found")
+    user_id = chatbot.get("user_id")
+    if not user_id:
+        raise HTTPException(status_code=404, detail="Calendly is not connected")
+    resolver = CalendlyCredentialResolver(database=db_instance)
+    try:
+        access_token = await resolver.get_access_token(chatbot_id=chatbot_id, user_id=user_id)
+        if not access_token:
+            raise HTTPException(status_code=404, detail="Calendly is not connected")
+        service = CalendlyService(access_token)
+        booking = await service.book_meeting(
+            event_type=request.event_type,
+            start_time=request.start_time,
+            invitee={"name": request.name.strip(), "email": str(request.email)},
+        )
+        return {"booking": booking}
+    except HTTPException:
+        raise
+    except Exception:
+        logger.warning("Public Calendly booking failed", exc_info=True)
+        raise HTTPException(status_code=409, detail="That time is no longer available. Please choose another time.")
+    finally:
+        await resolver.close()
+
+
 @router.get("/chatbot/{chatbot_id}", response_model=PublicChatbotInfo)
 async def get_public_chatbot(chatbot_id: str):
     """Get public chatbot information (no authentication required) - CACHED"""
@@ -434,7 +513,17 @@ async def get_public_chatbot(chatbot_id: str):
         auto_expand=chatbot.get("auto_expand", False),
         lead_capture_enabled=chatbot.get("lead_capture_enabled", True),
         powered_by_text=chatbot.get("powered_by_text"),
-        ai_actions=chatbot.get("ai_actions", {})
+        ai_actions=chatbot.get("ai_actions", {}),
+        calendly_connected=bool(
+            await db_instance.calendly_connections.find_one(
+                {
+                    "chatbot_id": chatbot_id,
+                    "user_id": chatbot.get("user_id"),
+                    "provider": "calendly",
+                },
+                {"_id": 1},
+            )
+        )
     )
     
     # Cache for 5 minutes
