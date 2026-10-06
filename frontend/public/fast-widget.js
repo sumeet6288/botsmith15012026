@@ -1203,9 +1203,35 @@
 
   let bookingModeActive = false;
 
+  function showBookingLoader() {
+    hideBookingLoader();
+    const loader = document.createElement('div');
+    loader.className = 'botsmith-booking-loading';
+    loader.style.cssText = `
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+    `;
+    loader.innerHTML = `
+      <span class="botsmith-typing-dot"></span>
+      <span class="botsmith-typing-dot"></span>
+      <span class="botsmith-typing-dot"></span>
+    `;
+    chatWindow.appendChild(loader);
+  }
+
+  function hideBookingLoader() {
+    const loader = chatWindow.querySelector('.botsmith-booking-loading');
+    if (loader) loader.remove();
+  }
+
   function enterBookingMode() {
     bookingModeActive = true;
     clearBookingCard();
+    showBookingLoader();
     chatWindow.classList.add('botsmith-booking-mode');
     messagesContainer.style.display = 'none';
     inputArea.style.display = 'none';
@@ -1214,6 +1240,7 @@
 
   function exitBookingMode() {
     bookingModeActive = false;
+    hideBookingLoader();
     clearBookingCard();
     chatWindow.classList.remove('botsmith-booking-mode');
     messagesContainer.style.display = 'flex';
@@ -1440,6 +1467,7 @@
   }
 
   function renderBookingCard() {
+    hideBookingLoader();
     clearBookingCard();
 
     const bookingCard = document.createElement('div');
