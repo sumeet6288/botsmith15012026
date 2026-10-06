@@ -45,6 +45,7 @@ class CalendlyGetAvailableTimesTool(Tool):
             "event_type": {"type": "string", "minLength": 1},
             "start_time": {"type": "string", "minLength": 1},
             "end_time": {"type": "string", "minLength": 1},
+            "timezone": {"type": "string", "minLength": 1},
         },
         "additionalProperties": False,
     }
@@ -69,6 +70,11 @@ class CalendlyGetAvailableTimesTool(Tool):
             event_type=str(arguments["event_type"]),
             start_time=str(arguments["start_time"]),
             end_time=str(arguments["end_time"]),
+            timezone=(
+                str(arguments["timezone"])
+                if arguments.get("timezone")
+                else None
+            ),
         )
 
 
@@ -84,14 +90,24 @@ class CalendlyBookMeetingTool(Tool):
             "name": {"type": "string", "minLength": 1},
             "email": {"type": "string", "format": "email"},
             "timezone": {"type": "string"},
+            "location": {
+                "type": "object",
+                "properties": {
+                    "kind": {"type": "string"},
+                    "location": {"type": "string"},
+                },
+                "required": ["kind"],
+                "additionalProperties": False,
+            },
             "questions_and_answers": {
                 "type": "array",
                 "items": {
                     "type": "object",
-                    "required": ["question", "answer"],
+                    "required": ["question", "answer", "position"],
                     "properties": {
                         "question": {"type": "string"},
                         "answer": {"type": "string"},
+                        "position": {"type": "integer"},
                     },
                     "additionalProperties": False,
                 },
@@ -121,14 +137,22 @@ class CalendlyBookMeetingTool(Tool):
         invitee: Dict[str, Any] = {
             "name": str(arguments["name"]),
             "email": str(arguments["email"]),
+            "timezone": str(arguments.get("timezone") or "UTC"),
         }
-        if arguments.get("timezone"):
-            invitee["timezone"] = str(arguments["timezone"])
-        if arguments.get("questions_and_answers"):
-            invitee["questions_and_answers"] = arguments["questions_and_answers"]
+        location = arguments.get("location")
+        if location is not None and not isinstance(location, dict):
+            raise ValueError("Location must be an object")
+
+        questions_and_answers = arguments.get("questions_and_answers")
+        if questions_and_answers is not None and not isinstance(
+            questions_and_answers, list
+        ):
+            raise ValueError("Questions and answers must be a list")
 
         return await self._service.book_meeting(
             event_type=str(arguments["event_type"]),
             start_time=str(arguments["start_time"]),
             invitee=invitee,
+            location=location,
+            questions_and_answers=questions_and_answers,
         )
