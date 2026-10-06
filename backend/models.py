@@ -1600,6 +1600,48 @@ class PublicChatRequest(BaseModel):
     user_email: Optional[str] = None
 
 
+class CalendlyEventType(BaseModel):
+    """Calendly event type metadata."""
+    uri: str
+    name: str
+    duration: int = 0
+    active: bool = True
+
+
+class CalendlyAvailabilityRequest(BaseModel):
+    """Request model for public Calendly availability lookups."""
+    event_type: str
+    start_time: str
+    end_time: str
+    timezone: str = "UTC"
+
+
+class CalendlyAvailabilityResult(BaseModel):
+    """Response model for public Calendly availability lookups."""
+    event_type: CalendlyEventType
+    slots: List[str] = Field(default_factory=list)
+
+
+class CalendlyBookingRequest(BaseModel):
+    """Request model for public Calendly booking confirmation."""
+    attempt_id: str
+    event_type: str
+    start_time: str
+    name: str
+    email: str
+    timezone: str = "UTC"
+    invitee_location: Optional[str] = None
+    questions_and_answers: List[Dict[str, Any]] = Field(default_factory=list)
+
+
+class CalendlyBookingResult(BaseModel):
+    """Response model for public Calendly booking attempts."""
+    status: str
+    message: str
+    booking: Optional[Dict[str, Any]] = None
+    slots: Optional[List[str]] = None
+
+
 class EmbedConfig(BaseModel):
     """Embed configuration for chatbot widget"""
     chatbot_id: str

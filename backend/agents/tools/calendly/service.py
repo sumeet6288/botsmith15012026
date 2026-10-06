@@ -3,7 +3,8 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from datetime import datetime, timezone
+from typing import Any, Dict, List, Optional
 
 import httpx
 
@@ -44,11 +45,35 @@ class CalendlyService:
             )
 
         if response.status_code >= 400:
+            error_details: Dict[str, Any] = {"status": response.status_code}
+            try:
+                provider_error = response.json()
+            except (ValueError, httpx.DecodingError):
+                provider_error = {}
+
+            if isinstance(provider_error, dict):
+                for field in ("title", "message"):
+                    value = provider_error.get(field)
+                    if isinstance(value, str):
+                        error_details[field] = value[:500]
+
+                details = provider_error.get("details")
+                if isinstance(details, list):
+                    error_details["details"] = [
+                        {
+                            key: value[:500] if isinstance(value, str) else value
+                            for key, value in item.items()
+                            if key in {"message", "parameter", "code"}
+                        }
+                        for item in details[:10]
+                        if isinstance(item, dict)
+                    ]
+
             logger.warning(
-                "Calendly API request failed method=%s path=%s status=%s",
+                "Calendly API request failed method=%s path=%s provider_error=%s",
                 method,
                 path,
-                response.status_code,
+                error_details,
             )
             raise RuntimeError("Calendly API request failed")
 
@@ -103,15 +128,19 @@ class CalendlyService:
         event_type: str,
         start_time: str,
         end_time: str,
+        timezone: Optional[str] = None,
     ) -> Dict[str, Any]:
+        params = {
+            "event_type": event_type,
+            "start_time": start_time,
+            "end_time": end_time,
+        }
+        if timezone:
+            params["timezone"] = timezone
         return await self._request(
             "GET",
             "/event_type_available_times",
-            params={
-                "event_type": event_type,
-                "start_time": start_time,
-                "end_time": end_time,
-            },
+            params=params,
         )
 
     async def book_meeting(
@@ -120,13 +149,27 @@ class CalendlyService:
         event_type: str,
         start_time: str,
         invitee: Dict[str, Any],
+        location: Optional[Dict[str, Any]] = None,
+        questions_and_answers: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
+        start = datetime.fromisoformat(start_time.replace("Z", "+00:00"))
+        if start.tzinfo is None:
+            raise ValueError("Calendly booking start_time must include a timezone")
+
+        payload: Dict[str, Any] = {
+            "event_type": event_type,
+            "start_time": start.astimezone(timezone.utc).isoformat().replace(
+                "+00:00", "Z"
+            ),
+            "invitee": invitee,
+        }
+        if location:
+            payload["location"] = location
+        if questions_and_answers:
+            payload["questions_and_answers"] = questions_and_answers
+
         return await self._request(
             "POST",
             "/invitees",
-            json={
-                "event_type": event_type,
-                "start_time": start_time,
-                "invitee": invitee,
-            },
+            json=payload,
         )
