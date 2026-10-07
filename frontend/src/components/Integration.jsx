@@ -129,82 +129,66 @@ const Integration = ({ chatbotId }) => {
   };
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-white p-6 sm:p-8">
-      <div className="max-w-5xl mx-auto">
-
-        {/* Header */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold tracking-tight text-gray-950">
+    <div className="w-full bg-white px-2 py-5 sm:py-6">
+      <div className="w-full max-w-4xl">
+        <div className="mb-6">
+          <h2 className="text-xl font-semibold tracking-tight text-gray-950">
             Integrations
           </h2>
-
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="mt-1 text-sm text-gray-500">
             Connect external tools and services to make your agent more powerful.
           </p>
         </div>
 
-        {/* Calendly */}
-        <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <div className="p-5 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-5">
-
-            <div className="flex items-start gap-4">
-
-              {/* Icon */}
-              <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
-                <CalendarDays className="w-5 h-5 text-gray-700" />
-              </div>
-
-              {/* Content */}
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-base font-semibold text-gray-950">
-                    Calendly
-                  </h3>
-
-                  {connected && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Connected
-                    </span>
-                  )}
-                </div>
-
-                <p className="text-sm text-gray-500 mt-1">
-                  Let your AI schedule meetings directly with your customers.
-                </p>
-
-                {!connected && !loading && (
-                  <span className="inline-flex mt-3 items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600">
-                    Available
-                  </span>
-                )}
-
-                {loading && (
-                  <span className="inline-flex mt-3 items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-500">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Checking connection...
-                  </span>
-                )}
-
-                {error && (
-                  <p className="mt-3 text-xs text-red-600">
-                    {error}
-                  </p>
-                )}
-              </div>
-
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <section className="flex min-h-[224px] flex-col rounded-xl border border-gray-200 bg-white p-5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-lg border border-gray-200 bg-gray-50">
+              <CalendarDays className="h-5 w-5 text-gray-700" />
             </div>
 
-            {/* Actions */}
-            <div className="flex-shrink-0">
+            <div className="mt-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-semibold text-gray-950">Calendly</h3>
+                {connected && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Connected
+                  </span>
+                )}
+              </div>
 
+              <p className="mt-1 text-sm leading-6 text-gray-500">
+                Let your AI schedule meetings directly with your customers.
+              </p>
+
+              {!connected && !loading && (
+                <span className="mt-3 inline-flex items-center rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600">
+                  Available
+                </span>
+              )}
+
+              {loading && (
+                <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-500">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Checking connection...
+                </span>
+              )}
+
+              {error && (
+                <p role="alert" className="mt-3 text-xs text-red-600">
+                  {error}
+                </p>
+              )}
+            </div>
+
+            <div className="mt-auto pt-5">
               {loading ? (
                 <button
                   type="button"
                   disabled
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-400 cursor-not-allowed"
+                  className="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-sm font-medium text-gray-400"
                 >
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Checking...
                 </button>
               ) : connected ? (
@@ -212,16 +196,16 @@ const Integration = ({ chatbotId }) => {
                   type="button"
                   onClick={handleDisconnect}
                   disabled={disconnecting}
-                  className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {disconnecting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Disconnecting...
                     </>
                   ) : (
                     <>
-                      <Unplug className="w-4 h-4" />
+                      <Unplug className="h-4 w-4" />
                       Disconnect
                     </>
                   )}
@@ -231,27 +215,24 @@ const Integration = ({ chatbotId }) => {
                   type="button"
                   onClick={handleConnect}
                   disabled={connecting || !chatbotId}
-                  className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {connecting ? (
                     <>
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <Loader2 className="h-4 w-4 animate-spin" />
                       Connecting...
                     </>
                   ) : (
                     <>
                       Connect
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="h-4 w-4" />
                     </>
                   )}
                 </button>
               )}
-
             </div>
-
-          </div>
+          </section>
         </div>
-
       </div>
     </div>
   );
