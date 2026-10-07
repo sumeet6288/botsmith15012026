@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 
 from .context import AgentContext, ContextBuilder
 from .executor import AgentExecutionError, Executor, LegacyRunner
-from .models import AgentConfig, AgentResult, ExecutionLimits, PlanDecision
+from .models import AgentConfig, AgentPlanStep, AgentResult, ExecutionLimits, PlanDecision
 from .planner import Planner
 from .registry import ToolRegistry
 from .state import AgentState, AgentStateStore
@@ -214,7 +214,112 @@ Tool observations:
             "next_action": decision.next_action,
             "intent": decision.intent,
             "confidence": decision.confidence,
+            "goal_steps": [
+                step.model_dump(mode="json") for step in decision.goal_steps
+            ],
+            "active_step_id": decision.active_step_id,
         }
+
+    @staticmethod
+    def _compose_context_task(state: AgentState, max_chars: int) -> str:
+        """Keep the original goal and recent clarification in the bounded prompt."""
+
+        if not state.clarifications:
+            return state.task[:max_chars]
+        goal_header = "Original user goal:\n"
+        details_header = "\n\nUser clarification(s):\n"
+        detail_budget = min(
+            3_000,
+            max(0, max_chars - len(goal_header) - len(details_header) - 1),
+        )
+        details = "\n".join(
+            f"- {item}" for item in state.clarifications[-3:]
+        )[-detail_budget:]
+        goal_budget = max(
+            0,
+            max_chars - len(goal_header) - len(details_header) - len(details),
+        )
+        return (
+            f"{goal_header}{state.task[:goal_budget]}"
+            f"{details_header}{details}"
+        )[:max_chars]
+
+    @staticmethod
+    def _apply_plan_decision(
+        state: AgentState,
+        decision: PlanDecision,
+    ) -> PlanDecision:
+        """Merge a planner update and assign progress to the runtime."""
+
+        if decision.goal_steps_supplied:
+            state.update_goal_steps(decision.goal_steps)
+
+        active_step_id = None
+        if decision.action == "tool":
+            available_ids = {step.id for step in state.goal_steps}
+            selected_step = next(
+                (
+                    step
+                    for step in state.goal_steps
+                    if step.id == decision.active_step_id
+                ),
+                None,
+            )
+            if (
+                selected_step is not None
+                and selected_step.status != "completed"
+                and selected_step.id in available_ids
+            ):
+                active_step_id = decision.active_step_id
+            else:
+                matching = next(
+                    (
+                        step.id
+                        for step in state.goal_steps
+                        if step.tool_name == decision.tool_name
+                        and step.status != "completed"
+                    ),
+                    None,
+                )
+                if matching:
+                    active_step_id = matching
+                else:
+                    active_step_id = next(
+                        (
+                            step.id
+                            for step in state.goal_steps
+                            if step.status != "completed"
+                        ),
+                        None,
+                    )
+            state.active_step_id = active_step_id
+            if active_step_id:
+                state.mark_active_step("in_progress")
+        else:
+            state.active_step_id = None
+
+        return decision.model_copy(
+            update={
+                "goal_steps": list(state.goal_steps),
+                "goal_steps_supplied": True,
+                "active_step_id": active_step_id,
+            }
+        )
+
+    @staticmethod
+    def _has_unfinished_goal_steps(state: AgentState) -> bool:
+        return any(
+            step.status != "completed"
+            for step in state.goal_steps
+        )
+
+    @staticmethod
+    def _tool_result_succeeded(result: Any) -> bool:
+        if not isinstance(result, dict):
+            return False
+        if result.get("success") is False or result.get("ok") is False:
+            return False
+        return not bool(result.get("error"))
 
     @staticmethod
     def _remaining_timeout(started: float, limit: float) -> float:
@@ -253,11 +358,21 @@ Tool observations:
                 limits=limits,
             )
         else:
-            state.task = task[: limits.max_task_chars]
             state.limits = limits
-            state.status = "running"
+            if state.status == "awaiting_input":
+                if task:
+                    state.clarifications.append(task[:2_000])
+                    state.clarifications = state.clarifications[-10:]
+                state.pending_question = None
+                state.current_step = 0
+                state.status = "running"
+                await self._state_store.save(state)
+            else:
+                state.task = task[: limits.max_task_chars]
+                state.status = "running"
 
-        context = ContextBuilder.build(config, task)
+        context_task = self._compose_context_task(state, limits.max_task_chars)
+        context = ContextBuilder.build(config, context_task)
         state.record_step("run_started", metadata={"resumed": resumed})
         registry = ToolRegistry()
         executor = Executor(self._legacy_runner, registry)
@@ -278,6 +393,7 @@ Tool observations:
                 current_context = context.with_runtime_data(
                     tool_descriptions=tool_descriptions,
                     observations=state.observation_payload(),
+                    current_plan=state.goal_steps,
                 )
                 remaining = self._remaining_timeout(
                     started,
@@ -293,13 +409,53 @@ Tool observations:
                     ),
                     timeout=remaining,
                 )
+                last_decision = self._apply_plan_decision(state, last_decision)
                 state.record_step(
                     "plan_created",
                     metadata={
                         "action": last_decision.action,
                         "tool": last_decision.tool_name,
+                        "goal_steps": len(state.goal_steps),
                     },
                 )
+
+                if (
+                    last_decision.action == "stop"
+                    and self._has_unfinished_goal_steps(state)
+                ):
+                    state.record_step(
+                        "replan_incomplete_goal",
+                        metadata={"unfinished_steps": sum(
+                            step.status != "completed"
+                            for step in state.goal_steps
+                        )},
+                    )
+                    continue
+
+                if last_decision.action == "clarify":
+                    response = last_decision.final_response or (
+                        "Could you provide a little more detail so I can continue?"
+                    )
+                    state.pending_question = response[:2_000]
+                    state.status = "awaiting_input"
+                    state.record_step(
+                        "awaiting_user_input",
+                        metadata={"question_chars": len(response)},
+                    )
+                    await self._state_store.save(state)
+                    return self._with_runtime_metadata(
+                        AgentResult(
+                            response=response,
+                            plan=self._public_plan(last_decision),
+                            intent=last_decision.intent,
+                            status="completed",
+                            steps=state.steps,
+                        ).model_dump(),
+                        state=state,
+                        started=started,
+                        plan=self._public_plan(last_decision),
+                        resumed=resumed,
+                    )
 
                 if last_decision.action == "delegate":
                     remaining = self._remaining_timeout(
@@ -373,6 +529,23 @@ Tool observations:
                     ),
                     timeout=remaining,
                 )
+                last_result = (
+                    state.tool_results[-1].get("result")
+                    if state.tool_results
+                    else None
+                )
+                state.mark_active_step(
+                    "completed"
+                    if self._tool_result_succeeded(last_result)
+                    else "failed"
+                )
+                state.active_step_id = None
+                last_decision = last_decision.model_copy(
+                    update={
+                        "goal_steps": list(state.goal_steps),
+                        "active_step_id": None,
+                    }
+                )
                 state.record_step(
                     "tool_completed",
                     metadata={"tool": last_decision.tool_name},
@@ -381,7 +554,10 @@ Tool observations:
 
                 if (
                     state.tool_call_count >= limits.max_tool_calls
-                    or last_decision.next_action != "continue"
+                    or (
+                        last_decision.next_action != "continue"
+                        and not self._has_unfinished_goal_steps(state)
+                    )
                     or (
                         last_decision.tool_name
                         and registry.get(last_decision.tool_name).risk_level
@@ -467,6 +643,7 @@ Tool observations:
                 "tool_calls": state.tool_call_count,
                 "resumed": resumed,
                 "elapsed_ms": round((monotonic() - started) * 1000, 2),
+                "awaiting_input": state.status == "awaiting_input",
             }
         )
         return result

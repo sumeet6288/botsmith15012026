@@ -45,6 +45,8 @@ class FakeChatService:
     async def generate_response(self, **kwargs):
         self.calls.append(kwargs)
         if kwargs["session_id"].endswith(":agent-planner"):
+            if isinstance(self.planner_json, list):
+                return self.planner_json.pop(0), None
             return self.planner_json, None
         return "The requested action is complete.", None
 
@@ -195,6 +197,22 @@ class ToolRuntime(AgentRuntime):
         return registry
 
 
+class MemoryStateStore:
+    def __init__(self):
+        self.state = None
+
+    async def load(self, **kwargs):
+        if self.state is None:
+            return None
+        return type(self.state).model_validate(self.state.model_dump())
+
+    async def save(self, state):
+        self.state = type(state).model_validate(state.model_dump())
+
+    async def delete(self, state):
+        self.state = None
+
+
 class CountingTool(EchoTool):
     name: str = "counting_echo"
 
@@ -246,6 +264,152 @@ def test_runtime_executes_tool_then_writes_final_response():
     assert result["response"] == "The requested action is complete."
     assert result["runtime"]["tool_calls"] == 1
     assert result["plan"]["tool_name"] == "echo"
+
+
+def test_runtime_tracks_and_replans_multi_step_goal():
+    first_plan = (
+        '{"action":"tool","tool_name":"echo","arguments":{"value":"first"},'
+        '"goal_steps":[{"id":"first","description":"Complete the first action",'
+        '"tool_name":"echo"},{"id":"second","description":"Complete the next action",'
+        '"tool_name":"echo"}],"active_step_id":"first",'
+        '"next_action":"continue","intent":"multi_step"}'
+    )
+    second_plan = (
+        '{"action":"tool","tool_name":"echo","arguments":{"value":"second"},'
+        '"goal_steps":[{"id":"first","description":"Complete the first action",'
+        '"tool_name":"echo"},{"id":"second","description":"Complete the next action",'
+        '"tool_name":"echo"}],"active_step_id":"second",'
+        '"next_action":"finish","intent":"multi_step"}'
+    )
+    chat = FakeChatService([first_plan, second_plan])
+    runtime = ToolRuntime(_legacy_runner, chat_service=chat)
+
+    result = asyncio.run(
+        runtime.run(
+            message="Complete two actions",
+            session_id="session-a",
+            chatbot_id="chatbot-a",
+            owner_user_id=None,
+            conversation_id=None,
+            system_message="Be helpful.",
+            model="gpt-4o-mini",
+            provider="openai",
+            limits=ExecutionLimits(max_steps=8, max_tool_calls=3),
+        )
+    )
+
+    planner_calls = [
+        call for call in chat.calls
+        if call["session_id"].endswith(":agent-planner")
+    ]
+    assert len(planner_calls) == 2
+    assert '"status": "completed"' in planner_calls[1]["system_message"]
+    assert result["runtime"]["tool_calls"] == 2
+    assert [step["status"] for step in result["plan"]["goal_steps"]] == [
+        "completed",
+        "completed",
+    ]
+
+
+def test_runtime_replans_when_planner_stops_with_unfinished_steps():
+    execute_first_step = (
+        '{"action":"tool","tool_name":"echo","arguments":{"value":"first"},'
+        '"goal_steps":[{"id":"first","description":"Complete the first action",'
+        '"tool_name":"echo"},{"id":"second","description":"Complete the next action",'
+        '"tool_name":"echo"}],"active_step_id":"first",'
+        '"next_action":"continue"}'
+    )
+    premature_stop = '{"action":"stop","goal_steps":null}'
+    completed_replan = (
+        '{"action":"stop","goal_steps":[],"final_response":"The goal is complete."}'
+    )
+    chat = FakeChatService(
+        [execute_first_step, premature_stop, completed_replan]
+    )
+    runtime = ToolRuntime(_legacy_runner, chat_service=chat)
+
+    result = asyncio.run(
+        runtime.run(
+            message="Complete the goal",
+            session_id="session-a",
+            chatbot_id="chatbot-a",
+            owner_user_id=None,
+            conversation_id=None,
+            system_message="Be helpful.",
+            model="gpt-4o-mini",
+            provider="openai",
+            limits=ExecutionLimits(max_steps=8, max_tool_calls=3),
+        )
+    )
+
+    planner_calls = [
+        call for call in chat.calls
+        if call["session_id"].endswith(":agent-planner")
+    ]
+    assert len(planner_calls) == 3
+    assert result["response"] == "The goal is complete."
+    assert result["runtime"]["tool_calls"] == 1
+    assert result["plan"]["goal_steps"] == []
+
+
+def test_runtime_resumes_after_clarification_with_original_goal():
+    clarify = (
+        '{"action":"clarify","final_response":"Which day should I use?",'
+        '"goal_steps":[{"id":"book","description":"Book the requested meeting",'
+        '"tool_name":"echo"}],"intent":"scheduling"}'
+    )
+    continue_after_clarification = (
+        '{"action":"tool","tool_name":"echo","arguments":{"value":"Friday"},'
+        '"goal_steps":[{"id":"book","description":"Book the requested meeting",'
+        '"tool_name":"echo"}],"active_step_id":"book",'
+        '"next_action":"finish","intent":"scheduling"}'
+    )
+    chat = FakeChatService([clarify, continue_after_clarification])
+    runtime = ToolRuntime(_legacy_runner, chat_service=chat)
+    state_store = MemoryStateStore()
+    runtime._state_store = state_store
+
+    first_result = asyncio.run(
+        runtime.run(
+            message="Book a meeting",
+            session_id="session-a",
+            chatbot_id="chatbot-a",
+            owner_user_id="owner-a",
+            conversation_id="conversation-a",
+            system_message="Be helpful.",
+            model="gpt-4o-mini",
+            provider="openai",
+        )
+    )
+
+    assert first_result["response"] == "Which day should I use?"
+    assert first_result["runtime"]["awaiting_input"] is True
+    assert state_store.state.status == "awaiting_input"
+    assert state_store.state.task == "Book a meeting"
+
+    second_result = asyncio.run(
+        runtime.run(
+            message="Friday",
+            session_id="session-a",
+            chatbot_id="chatbot-a",
+            owner_user_id="owner-a",
+            conversation_id="conversation-a",
+            system_message="Be helpful.",
+            model="gpt-4o-mini",
+            provider="openai",
+        )
+    )
+
+    resumed_prompt = next(
+        call["system_message"]
+        for call in chat.calls
+        if call["session_id"].endswith(":agent-planner")
+        and "User clarification(s):" in call["system_message"]
+    )
+    assert "Book a meeting" in resumed_prompt
+    assert "Friday" in resumed_prompt
+    assert second_result["runtime"]["tool_calls"] == 1
+    assert state_store.state is None
 
 
 def test_runtime_does_not_repeat_a_tool_when_planner_says_finish():

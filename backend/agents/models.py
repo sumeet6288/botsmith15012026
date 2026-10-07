@@ -18,6 +18,15 @@ class ExecutionLimits(BaseModel):
     max_result_chars: int = Field(default=20_000, ge=1_000, le=100_000)
 
 
+class AgentPlanStep(BaseModel):
+    """A short, user-goal step; progress is tracked by the runtime."""
+
+    id: str = Field(min_length=1, max_length=64)
+    description: str = Field(min_length=1, max_length=500)
+    tool_name: Optional[str] = Field(default=None, max_length=128)
+    status: Literal["pending", "in_progress", "completed", "failed"] = "pending"
+
+
 class AgentConfig(BaseModel):
     """Runtime configuration derived from an existing chatbot request."""
 
@@ -44,7 +53,7 @@ class AgentStep(BaseModel):
 class PlanDecision(BaseModel):
     """A validated, non-executable planner decision."""
 
-    action: Literal["delegate", "tool", "stop"] = "delegate"
+    action: Literal["delegate", "tool", "stop", "clarify"] = "delegate"
     tool_calls: int = Field(default=0, ge=0)
     tool_name: Optional[str] = Field(default=None, max_length=128)
     arguments: Dict[str, Any] = Field(default_factory=dict)
@@ -53,6 +62,9 @@ class PlanDecision(BaseModel):
     final_response: Optional[str] = Field(default=None, max_length=20_000)
     intent: str = Field(default="unknown", max_length=128)
     confidence: float = Field(default=0.5, ge=0.0, le=1.0)
+    goal_steps: List[AgentPlanStep] = Field(default_factory=list, max_length=20)
+    goal_steps_supplied: bool = False
+    active_step_id: Optional[str] = Field(default=None, max_length=64)
 
 
 class AgentResult(BaseModel):

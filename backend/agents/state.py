@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from .models import AgentStep, ExecutionLimits
+from .models import AgentPlanStep, AgentStep, ExecutionLimits
 
 logger = logging.getLogger(__name__)
 
@@ -49,6 +49,10 @@ class AgentState(BaseModel):
     messages: List[Dict[str, Any]] = Field(default_factory=list)
     retrieved_context: Optional[str] = Field(default=None, max_length=20_000)
     tool_results: List[Dict[str, Any]] = Field(default_factory=list)
+    goal_steps: List[AgentPlanStep] = Field(default_factory=list, max_length=20)
+    active_step_id: Optional[str] = Field(default=None, max_length=64)
+    clarifications: List[str] = Field(default_factory=list, max_length=10)
+    pending_question: Optional[str] = Field(default=None, max_length=2_000)
     steps: List[AgentStep] = Field(default_factory=list)
     pending_action: Optional[str] = None
     status: str = "running"
@@ -77,16 +81,51 @@ class AgentState(BaseModel):
         self.current_step += 1
         self.updated_at = datetime.now(timezone.utc).isoformat()
 
-    def record_tool_result(self, tool_name: str, result: Any) -> None:
+    def record_tool_result(
+        self,
+        tool_name: str,
+        result: Any,
+        plan_step_id: Optional[str] = None,
+    ) -> None:
         self.tool_call_count += 1
         self.tool_results.append(
             {
                 "tool": tool_name,
                 "result": _bounded(result, self.limits.max_result_chars),
+                "plan_step_id": plan_step_id,
             }
         )
         self.tool_results = self.tool_results[-10:]
         self.updated_at = datetime.now(timezone.utc).isoformat()
+
+    def update_goal_steps(self, steps: List[AgentPlanStep]) -> None:
+        """Apply a replanned step list while keeping progress for retained IDs."""
+
+        previous = {step.id: step for step in self.goal_steps}
+        self.goal_steps = [
+            step.model_copy(
+                update={
+                    "status": previous[step.id].status
+                    if step.id in previous
+                    else "pending"
+                }
+            )
+            for step in steps[:20]
+        ]
+        if self.active_step_id not in {step.id for step in self.goal_steps}:
+            self.active_step_id = None
+
+    def mark_active_step(self, status: str) -> None:
+        """Update one runtime-owned step status after an attempted action."""
+
+        if status not in {"in_progress", "completed", "failed"}:
+            return
+        self.goal_steps = [
+            step.model_copy(update={"status": status})
+            if step.id == self.active_step_id
+            else step
+            for step in self.goal_steps
+        ]
 
     def observation_payload(self) -> List[Dict[str, Any]]:
         return _bounded(self.tool_results, self.limits.max_result_chars)
