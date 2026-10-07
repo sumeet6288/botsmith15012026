@@ -47,9 +47,6 @@ const SignIn = () => {
             {/* Main card */}
             <div className="rounded-[20px] border border-[#DEDED9] bg-white p-6 shadow-[0_12px_35px_rgba(0,0,0,0.06)] sm:p-8">
               <div className="mb-8">
-                <p className="mb-3 font-body text-[11px] font-semibold uppercase tracking-[0.18em] text-[#777]">
-                  Welcome
-                </p>
 
                 <h1 className="font-heading text-5xl leading-[0.95] tracking-tight text-[#171717] sm:text-6xl">
                   Welcome back

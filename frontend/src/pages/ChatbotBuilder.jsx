@@ -1366,7 +1366,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                       className="h-9 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Export JSON
+                      Export all agent conversations in JSON
                     </Button>
                     <Button
                       onClick={() => handleExport('csv')}
@@ -1375,7 +1375,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                       className="h-9 flex-1 border-gray-300 text-gray-700 hover:bg-gray-50 shadow-none"
                     >
                       <Download className="w-4 h-4 mr-2" />
-                      Export CSV
+                      Export all agent conversations in CSV
                     </Button>
                   </div>
                 </div>
