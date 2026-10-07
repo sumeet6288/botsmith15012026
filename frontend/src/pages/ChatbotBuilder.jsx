@@ -690,7 +690,7 @@ const ChatbotBuilder = () => {
                   </span>
                   <Button
                     onClick={() => setIsAddSourceModalOpen(true)}
-                    className="bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-none"
+                    className="bg-black hover:bg-gray-800 text-white rounded-lg shadow-none"
                   >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Source
