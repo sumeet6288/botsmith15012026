@@ -69,7 +69,11 @@ class Executor:
                 f"Tool {decision.tool_name} failed"
             ) from exc
 
-        state.record_tool_result(decision.tool_name, result)
+        state.record_tool_result(
+            decision.tool_name,
+            result,
+            plan_step_id=state.active_step_id,
+        )
         state.pending_action = decision.next_action
         return {
             "response": "",

@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
-from .models import AgentConfig
+from .models import AgentConfig, AgentPlanStep
 
 
 class AgentContext(BaseModel):
@@ -31,12 +31,14 @@ class AgentContext(BaseModel):
     max_result_chars: int = Field(ge=1_000)
     tool_descriptions: List[Dict[str, Any]] = Field(default_factory=list)
     observations: List[Dict[str, Any]] = Field(default_factory=list)
+    current_plan: List[AgentPlanStep] = Field(default_factory=list, max_length=20)
 
     def with_runtime_data(
         self,
         *,
         tool_descriptions: Optional[List[Dict[str, Any]]] = None,
         observations: Optional[List[Dict[str, Any]]] = None,
+        current_plan: Optional[List[AgentPlanStep]] = None,
     ) -> "AgentContext":
         """Return a bounded copy with current tool/observation data."""
 
@@ -44,6 +46,7 @@ class AgentContext(BaseModel):
             update={
                 "tool_descriptions": (tool_descriptions or [])[:20],
                 "observations": (observations or [])[-5:],
+                "current_plan": (current_plan or [])[:20],
             }
         )
 

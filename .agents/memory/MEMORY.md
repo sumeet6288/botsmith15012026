@@ -1,0 +1,1 @@
+- [Python package bootstrap side effects](python-package-bootstrap.md) — package installation in repos without a root Python manifest can create starter files and alter Replit config.
