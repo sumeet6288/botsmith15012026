@@ -817,6 +817,36 @@
         `;
       }
       
+      // Keyword Link Actions: show configured buttons only for matching assistant replies.
+      if (msg.role === 'assistant') {
+        const keywordConfig = chatbot?.ai_actions?.keyword_links;
+        const configuredActions = keywordConfig?.enabled === true && Array.isArray(keywordConfig.actions)
+          ? keywordConfig.actions
+          : [];
+        const matchingActions = configuredActions.filter((action) => {
+          const keyword = String(action?.keyword ?? '').trim();
+          const link = String(action?.link ?? '').trim();
+          return keyword && link && String(msg.content ?? '').toLowerCase().includes(keyword.toLowerCase())
+            && /^https?:\/\//i.test(link);
+        });
+
+        if (matchingActions.length > 0) {
+          const actionWrap = document.createElement('div');
+          actionWrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 0 46px;';
+          matchingActions.forEach((action) => {
+            const actionButton = document.createElement('a');
+            actionButton.className = 'botsmith-keyword-link-action';
+            actionButton.textContent = String(action.button_name ?? '').trim() || 'Learn more';
+            actionButton.href = String(action.link).trim();
+            actionButton.target = '_blank';
+            actionButton.rel = 'noopener noreferrer';
+            actionButton.style.cssText = `display:inline-flex; align-items:center; justify-content:center; padding:9px 14px; border-radius:999px; background:${customization.accent_color}; color:#fff; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer;`;
+            actionWrap.appendChild(actionButton);
+          });
+          msgDiv.appendChild(actionWrap);
+        }
+      }
+
       messagesContainer.appendChild(msgDiv);
     });
     
@@ -946,6 +976,35 @@
 
     // Convert URLs into clickable links after the streaming animation completes.
     contentElement.innerHTML = formatMessageContent(plainText);
+
+    // Render configured keyword actions on the live assistant reply.
+    const keywordConfig = chatbot?.ai_actions?.keyword_links;
+    const configuredActions = keywordConfig?.enabled === true && Array.isArray(keywordConfig.actions)
+      ? keywordConfig.actions
+      : [];
+    const matchingActions = configuredActions.filter((action) => {
+      const keyword = String(action?.keyword ?? '').trim();
+      const link = String(action?.link ?? '').trim();
+      return keyword && link && plainText.toLowerCase().includes(keyword.toLowerCase())
+        && /^https?:\/\//i.test(link);
+    });
+
+    if (matchingActions.length > 0) {
+      const actionWrap = document.createElement('div');
+      actionWrap.style.cssText = 'display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 0 0; width:100%;';
+      matchingActions.forEach((action) => {
+        const actionButton = document.createElement('a');
+        actionButton.className = 'botsmith-keyword-link-action';
+        actionButton.textContent = String(action.button_name ?? '').trim() || 'Learn more';
+        actionButton.href = String(action.link).trim();
+        actionButton.target = '_blank';
+        actionButton.rel = 'noopener noreferrer';
+        actionButton.style.cssText = `display:inline-flex; align-items:center; justify-content:center; padding:9px 14px; border-radius:999px; background:${customization.accent_color}; color:#fff; font-size:13px; font-weight:600; text-decoration:none; cursor:pointer;`;
+        actionWrap.appendChild(actionButton);
+      });
+      const assistantBubble = msgDiv.children[1];
+      if (assistantBubble) assistantBubble.appendChild(actionWrap);
+    }
 
     // Save the completed response so conversation history still works
     messages.push({
@@ -1128,6 +1187,867 @@
     }
   }
 
+  const bookingState = {
+    eventTypes: [],
+    selectedEventType: null,
+    selectedDate: '',
+    selectedTime: '',
+    name: '',
+    email: '',
+    inviteeLocation: '',
+    questionAnswers: {},
+    slots: [],
+    loading: false,
+    error: ''
+  };
+
+  let bookingModeActive = false;
+
+  function showBookingLoader() {
+    hideBookingLoader();
+    const loader = document.createElement('div');
+    loader.className = 'botsmith-booking-loading';
+    loader.style.cssText = `
+      flex: 1 1 auto;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+    `;
+    loader.innerHTML = `
+      <span class="botsmith-typing-dot"></span>
+      <span class="botsmith-typing-dot"></span>
+      <span class="botsmith-typing-dot"></span>
+    `;
+    chatWindow.appendChild(loader);
+  }
+
+  function hideBookingLoader() {
+    const loader = chatWindow.querySelector('.botsmith-booking-loading');
+    if (loader) loader.remove();
+  }
+
+  function enterBookingMode() {
+    bookingModeActive = true;
+    clearBookingCard();
+    showBookingLoader();
+    chatWindow.classList.add('botsmith-booking-mode');
+    messagesContainer.style.display = 'none';
+    inputArea.style.display = 'none';
+    brandingFooter.style.display = 'none';
+  }
+
+  function exitBookingMode() {
+    bookingModeActive = false;
+    hideBookingLoader();
+    clearBookingCard();
+    chatWindow.classList.remove('botsmith-booking-mode');
+    messagesContainer.style.display = 'flex';
+    inputArea.style.display = 'block';
+    updateBrandingFooter();
+    smartScrollToBottom(true);
+    const input = document.getElementById('botsmith-input');
+    if (input) input.focus();
+  }
+
+  function clearBookingCard() {
+    const existing = chatWindow.querySelector('.botsmith-booking-card');
+    if (existing) existing.remove();
+  }
+
+  function escapeBookingHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, (character) => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    })[character]);
+  }
+
+  function isBookingIntent(message) {
+    const text = String(message || '').trim();
+    if (!text) return false;
+    return /(book|schedule|demo|appointment|call)/i.test(text) &&
+      /(meeting|demo|call|appointment|consultation)/i.test(text);
+  }
+
+  function getLocalDateKey(dateString) {
+    try {
+      const date = new Date(dateString);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    } catch (error) {
+      return String(dateString).slice(0, 10);
+    }
+  }
+
+  function normalizePhoneNumber(value) {
+    const raw = String(value ?? '').trim();
+    if (!raw) return '';
+
+    const cleaned = raw.replace(/[^\d+]/g, '');
+    if (!cleaned) return '';
+
+    if (cleaned.startsWith('00')) {
+      const digits = cleaned.slice(2).replace(/\D/g, '');
+      return digits ? `+${digits}` : '';
+    }
+
+    if (cleaned.startsWith('+')) {
+      const digits = cleaned.replace(/\D/g, '');
+      return digits ? `+${digits}` : '';
+    }
+
+    return cleaned.replace(/\D/g, '');
+  }
+
+  function isValidPhoneNumber(value) {
+    const normalized = normalizePhoneNumber(value);
+    if (!normalized) return false;
+
+    const digits = normalized.startsWith('+') ? normalized.slice(1) : normalized;
+    return /^[0-9]{7,15}$/.test(digits);
+  }
+
+  function formatTimeLabel(dateString) {
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat(undefined, {
+        hour: 'numeric',
+        minute: '2-digit'
+      }).format(date);
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  function formatDateLabel(dateString) {
+    try {
+      const date = new Date(dateString);
+      return new Intl.DateTimeFormat(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric'
+      }).format(date);
+    } catch (error) {
+      return dateString;
+    }
+  }
+
+  async function loadBookingFlow() {
+    if (!chatbot) return false;
+
+    try {
+      const response = await fetch(`${config.apiUrl}/public/chatbot/${config.chatbotId}/calendly/event-types`);
+      if (!response.ok) return false;
+
+      const eventTypes = await response.json();
+      if (!Array.isArray(eventTypes) || eventTypes.length === 0) {
+        return false;
+      }
+
+      bookingState.eventTypes = eventTypes;
+      bookingState.selectedEventType = eventTypes[0]?.uri || null;
+      bookingState.selectedDate = '';
+      bookingState.selectedTime = '';
+      bookingState.name = '';
+      bookingState.email = '';
+      bookingState.inviteeLocation = '';
+      bookingState.questionAnswers = {};
+      bookingState.slots = [];
+      bookingState.error = '';
+
+      enterBookingMode();
+
+      if (eventTypes.length === 1) {
+        await loadBookingAvailability();
+      }
+
+      renderBookingCard();
+      return true;
+    } catch (error) {
+      console.error('[BotSmith Widget] Booking flow load failed:', error);
+      return false;
+    }
+  }
+
+  async function loadBookingAvailability() {
+    if (!bookingState.selectedEventType) return;
+
+    bookingState.loading = true;
+    bookingState.error = '';
+
+    const intervalRequests = [];
+    const start = new Date(Math.ceil(Date.now() / 60000) * 60000 + 60000);
+
+    try {
+      const horizonEnd = new Date(start);
+      horizonEnd.setTime(horizonEnd.getTime() + 180 * 24 * 60 * 60 * 1000);
+
+      for (let cursor = new Date(start); cursor < horizonEnd;) {
+        const intervalEnd = new Date(
+          Math.min(cursor.getTime() + 7 * 24 * 60 * 60 * 1000, horizonEnd.getTime())
+        );
+
+        intervalRequests.push({
+          start_time: cursor.toISOString(),
+          end_time: intervalEnd.toISOString()
+        });
+        cursor = intervalEnd;
+      }
+
+      let foundSlots = [];
+      let failedRequests = 0;
+
+      for (let index = 0; index < intervalRequests.length; index += 4) {
+        const batch = intervalRequests.slice(index, index + 4);
+        const results = await Promise.all(batch.map(async (interval) => {
+          const response = await fetch(`${config.apiUrl}/public/chatbot/${config.chatbotId}/calendly/availability`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              event_type: bookingState.selectedEventType,
+              ...interval,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+            })
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || `Availability request failed (${response.status})`);
+          }
+
+          const data = await response.json();
+          return Array.isArray(data.slots) ? data.slots : [];
+        }).map((request) => request.catch((error) => {
+          failedRequests += 1;
+          console.warn('[BotSmith Widget] Calendly availability request failed:', error);
+          return [];
+        })));
+
+        foundSlots = foundSlots.concat(...results);
+        if (foundSlots.length > 0) break;
+      }
+
+      bookingState.slots = [...new Set(foundSlots)];
+      if (bookingState.slots.length === 0) {
+        bookingState.selectedDate = '';
+        bookingState.selectedTime = '';
+        bookingState.error = failedRequests > 0
+          ? 'Could not load Calendly availability. Please try again shortly.'
+          : 'No dates are available for this meeting type right now.';
+        return;
+      }
+
+      const dates = [...new Set(bookingState.slots.map((slot) => getLocalDateKey(slot)))];
+
+      if (!bookingState.selectedDate && dates.length > 0) {
+        bookingState.selectedDate = dates[0];
+      }
+
+      if (bookingState.selectedDate) {
+        const timeOptions = bookingState.slots
+          .filter((slot) => getLocalDateKey(slot) === bookingState.selectedDate)
+          .sort();
+        if (!bookingState.selectedTime && timeOptions.length > 0) {
+          bookingState.selectedTime = timeOptions[0];
+        }
+      }
+    } catch (error) {
+      console.error('[BotSmith Widget] Failed to load booking availability:', error);
+      bookingState.error = 'Unable to load available times. Please try again.';
+    } finally {
+      bookingState.loading = false;
+      renderBookingCard();
+    }
+  }
+
+  function renderBookingCard() {
+    hideBookingLoader();
+    clearBookingCard();
+
+    const bookingCard = document.createElement('div');
+    bookingCard.className = 'botsmith-booking-card';
+
+    const bookingStyleId = 'botsmith-booking-mode-style';
+    if (!document.getElementById(bookingStyleId)) {
+      const bookingStyle = document.createElement('style');
+      bookingStyle.id = bookingStyleId;
+      bookingStyle.textContent = `
+        #botsmith-window.botsmith-booking-mode {
+          background:#ffffff;
+        }
+        #botsmith-window.botsmith-booking-mode #botsmith-messages,
+        #botsmith-window.botsmith-booking-mode > div:not(#botsmith-messages) {
+          transition:opacity .18s ease, transform .18s ease;
+        }
+        .botsmith-booking-card {
+          flex:1 1 auto;
+          min-height:0;
+          width:100%;
+          height:100%;
+          max-height:none;
+          margin:0;
+          border:0;
+          border-radius:0;
+          background:#fff;
+          overflow-y:auto;
+          overflow-x:hidden;
+          overscroll-behavior:contain;
+          -webkit-overflow-scrolling:touch;
+          scrollbar-width:thin;
+          scrollbar-color:#d6d8de transparent;
+          font-family:${customization.font_family};
+        }
+        .botsmith-booking-card::-webkit-scrollbar { width:6px; }
+        .botsmith-booking-card::-webkit-scrollbar-track { background:transparent; }
+        .botsmith-booking-card::-webkit-scrollbar-thumb { background:#d6d8de; border-radius:10px; }
+        .bs-full-booking-head {
+          position:sticky;
+          top:0;
+          z-index:5;
+          padding:14px 16px 13px;
+          display:flex;
+          align-items:center;
+          gap:10px;
+          background:rgba(255,255,255,.97);
+          border-bottom:1px solid #f0f1f3;
+          backdrop-filter:blur(8px);
+        }
+        .bs-full-booking-icon {
+          width:36px;height:36px;flex:0 0 36px;border-radius:10px;
+          display:flex;align-items:center;justify-content:center;
+          color:${customization.accent_color};
+          background:${customization.accent_color}10;
+          border:1px solid ${customization.accent_color}18;
+        }
+        .bs-full-booking-copy { min-width:0;flex:1; }
+        .bs-full-booking-title {
+          font-size:15px;line-height:1.2;font-weight:750;color:#111827;
+          letter-spacing:-.15px;
+        }
+        .bs-full-booking-subtitle {
+          margin-top:3px;font-size:11px;line-height:1.35;color:#7b8190;
+        }
+        .bs-full-booking-cancel {
+          flex:0 0 auto;
+          height:34px;
+          padding:0 11px;
+          border:1px solid #e3e5e9;
+          border-radius:9px;
+          background:#fff;
+          color:#646b77;
+          font-size:11px;
+          font-weight:700;
+          cursor:pointer;
+          transition:background .15s ease,border-color .15s ease,color .15s ease;
+        }
+        .bs-full-booking-cancel:hover {
+          background:#f8f8f9;
+          border-color:#d9dce1;
+          color:#111827;
+        }
+        .bs-full-booking-body {
+          width:100%;
+          max-width:520px;
+          margin:0 auto;
+          padding:18px 18px 22px;
+        }
+        .bs-booking-error {
+          margin-bottom:12px;
+          padding:10px 12px;
+          border-radius:10px;
+          background:#fff7ed;
+          color:#b45309;
+          border:1px solid #fed7aa;
+          font-size:12px;
+          line-height:1.4;
+        }
+        .bs-booking-section { margin-top:15px; }
+        .bs-booking-section:first-child { margin-top:0; }
+        .bs-section-head {
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          gap:8px;
+          margin-bottom:8px;
+        }
+        .bs-section-label {
+          font-size:10px;
+          font-weight:750;
+          color:#68707d;
+          text-transform:uppercase;
+          letter-spacing:.5px;
+        }
+        .bs-section-meta { font-size:10px;color:#a0a5ae; }
+        .bs-meeting-select-wrap {
+          display:flex;align-items:center;gap:8px;width:100%;
+          padding:3px 9px;
+          border:1px solid #e1e4e8;
+          border-radius:11px;
+          background:#fff;
+        }
+        .bs-meeting-select-icon {
+          width:28px;height:28px;flex:0 0 28px;border-radius:8px;
+          display:flex;align-items:center;justify-content:center;
+          background:#fafafa;color:${customization.accent_color};
+        }
+        .bs-meeting-select {
+          width:100%;border:0;outline:0;background:transparent;
+          color:#111827;font-size:12px;font-weight:650;padding:8px 0;cursor:pointer;
+        }
+        .bs-date-strip {
+          display:flex;
+          gap:6px;
+          overflow-x:auto;
+          padding:2px 1px 5px;
+          scrollbar-width:thin;
+          -webkit-overflow-scrolling:touch;
+        }
+        .bs-date-strip::-webkit-scrollbar { height:5px; }
+        .bs-date-strip::-webkit-scrollbar-thumb { background:#d6d8de;border-radius:10px; }
+        .bs-date-button {
+          min-width:58px;height:56px;flex:0 0 58px;
+          padding:6px 5px;
+          border-radius:11px;
+          border:1px solid #e5e7eb;
+          background:#fff;
+          color:#111827;
+          cursor:pointer;
+          display:flex;
+          flex-direction:column;
+          align-items:center;
+          justify-content:center;
+          gap:1px;
+        }
+        .bs-date-button:hover { border-color:${customization.accent_color}55; }
+        .bs-date-button.bs-selected {
+          background:${customization.accent_color};
+          color:#fff;
+          border-color:${customization.accent_color};
+          box-shadow:0 5px 12px ${customization.accent_color}24;
+        }
+        .bs-date-weekday {
+          font-size:8px;font-weight:750;text-transform:uppercase;
+          letter-spacing:.45px;opacity:.65;
+        }
+        .bs-date-button.bs-selected .bs-date-weekday,
+        .bs-date-button.bs-selected .bs-date-month { opacity:.9; }
+        .bs-date-number { font-size:16px;line-height:1;font-weight:780; }
+        .bs-date-month { font-size:8px;opacity:.65; }
+        .bs-empty {
+          width:100%;padding:12px;border:1px dashed #d9dde5;
+          border-radius:10px;text-align:center;color:#989eaa;
+          background:#fafafa;font-size:11px;
+        }
+        .bs-time-grid {
+          display:grid;
+          grid-template-columns:repeat(2,minmax(0,1fr));
+          gap:7px;
+        }
+        .bs-time-button {
+          min-height:40px;
+          padding:9px 10px;
+          border-radius:10px;
+          border:1px solid #e5e7eb;
+          background:#fff;
+          color:#303641;
+          font-size:11px;
+          font-weight:700;
+          cursor:pointer;
+        }
+        .bs-time-button:hover { border-color:${customization.accent_color}55; }
+        .bs-time-button.bs-selected {
+          background:${customization.accent_color};
+          color:#fff;
+          border-color:${customization.accent_color};
+          box-shadow:0 5px 12px ${customization.accent_color}22;
+        }
+        .bs-selected-summary {
+          margin-top:11px;
+          padding:9px 10px;
+          border-radius:10px;
+          border:1px solid #eceef1;
+          background:#fafafa;
+          font-size:11px;
+          color:#4f5560;
+        }
+        .bs-selected-summary strong { color:#20242b; }
+        .bs-form-grid { display:grid;gap:8px;margin-top:12px; }
+        .bs-field-label {
+          display:block;margin-bottom:5px;font-size:10px;
+          font-weight:700;color:#59606c;
+        }
+        .bs-booking-input,.bs-booking-textarea,.bs-booking-select {
+          width:100%;border:1px solid #e1e4e8;border-radius:10px;
+          background:#fff;color:#111827;font-size:12px;padding:9px 10px;
+          outline:0;font-family:inherit;
+        }
+        .bs-booking-input:focus,.bs-booking-textarea:focus,.bs-booking-select:focus {
+          border-color:${customization.accent_color};
+          box-shadow:0 0 0 3px ${customization.accent_color}12;
+        }
+        .bs-booking-textarea { min-height:66px;resize:vertical; }
+        .bs-booking-submit {
+          width:100%;margin-top:11px;padding:10px 12px;border:0;border-radius:10px;
+          background:${customization.accent_color};color:#fff;font-size:12px;
+          font-weight:750;cursor:pointer;
+        }
+        .bs-booking-submit:disabled { opacity:.58;cursor:not-allowed; }
+        .bs-booking-footer {
+          margin-top:8px;text-align:center;color:#a0a5ae;font-size:9px;
+        }
+        @media (max-width:520px) {
+          .bs-full-booking-body { padding:15px 14px 20px; }
+        }
+      `;
+      document.head.appendChild(bookingStyle);
+    }
+
+    const selectedEventType = bookingState.eventTypes.find(
+      (eventType) => eventType.uri === bookingState.selectedEventType
+    );
+    const requiredQuestions = selectedEventType?.required_questions || [];
+    const locationKind = selectedEventType?.invitee_location_kind || null;
+    const requiresPhoneInput = locationKind === 'outbound_call' && selectedEventType?.invitee_location_required;
+    const requiresMeetingLocationInput = selectedEventType?.invitee_location_required && !requiresPhoneInput;
+    const dateOptions = [...new Set(bookingState.slots.map((slot) => getLocalDateKey(slot)))];
+    const timeOptions = bookingState.selectedDate
+      ? bookingState.slots
+          .filter((slot) => getLocalDateKey(slot) === bookingState.selectedDate)
+          .sort()
+      : [];
+
+    const eventTypeOptions = bookingState.eventTypes.map((eventType) => `
+      <option value="${escapeBookingHtml(eventType.uri)}" ${eventType.uri === bookingState.selectedEventType ? 'selected' : ''}>
+        ${escapeBookingHtml(eventType.name)}
+      </option>
+    `).join('');
+
+    const dateMarkup = dateOptions.length === 0
+      ? '<div class="bs-empty">No dates available for this meeting type right now.</div>'
+      : dateOptions.map((day) => {
+          const parsedDate = new Date(`${day}T12:00:00`);
+          const weekday = new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(parsedDate);
+          const dayNumber = parsedDate.getDate();
+          const month = new Intl.DateTimeFormat(undefined, { month: 'short' }).format(parsedDate);
+          const selected = bookingState.selectedDate === day;
+          return `
+            <button type="button" data-date="${escapeBookingHtml(day)}"
+              class="bs-date-button${selected ? ' bs-selected' : ''}">
+              <span class="bs-date-weekday">${escapeBookingHtml(weekday)}</span>
+              <span class="bs-date-number">${dayNumber}</span>
+              <span class="bs-date-month">${escapeBookingHtml(month)}</span>
+            </button>
+          `;
+        }).join('');
+
+    const timeMarkup = timeOptions.length === 0
+      ? '<div class="bs-empty">Select a date to view available times.</div>'
+      : timeOptions.map((slot) => `
+          <button type="button" data-time="${escapeBookingHtml(slot)}"
+            class="bs-time-button${bookingState.selectedTime === slot ? ' bs-selected' : ''}">
+            ${escapeBookingHtml(formatTimeLabel(slot))}
+          </button>
+        `).join('');
+
+    const customQuestionFields = requiredQuestions.map((question, index) => {
+      const questionName = String(question.name || '');
+      const escapedName = escapeBookingHtml(questionName);
+      const escapedValue = escapeBookingHtml(bookingState.questionAnswers[questionName] || '');
+      const choices = Array.isArray(question.answer_choices) ? question.answer_choices : [];
+      let input;
+
+      if (question.type === 'single_select' || question.type === 'multi_select') {
+        input = `
+          <select class="bs-booking-select" data-booking-question="${escapedName}" ${question.type === 'multi_select' ? 'multiple' : ''}>
+            ${question.type === 'single_select' ? '<option value="">Select an answer</option>' : ''}
+            ${choices.map((choice) => {
+              const escapedChoice = escapeBookingHtml(choice);
+              const selected = question.type === 'multi_select'
+                ? String(bookingState.questionAnswers[questionName] || '').split(', ').includes(String(choice))
+                : bookingState.questionAnswers[questionName] === choice;
+              return `<option value="${escapedChoice}" ${selected ? 'selected' : ''}>${escapedChoice}</option>`;
+            }).join('')}
+          </select>
+        `;
+      } else if (question.type === 'text') {
+        input = `<textarea class="bs-booking-textarea" data-booking-question="${escapedName}" rows="3">${escapedValue}</textarea>`;
+      } else {
+        input = `<input class="bs-booking-input" data-booking-question="${escapedName}" type="${question.type === 'phone_number' ? 'tel' : 'text'}" value="${escapedValue}" />`;
+      }
+
+      return `
+        <div>
+          <label class="bs-field-label">${index + 1}. ${escapedName}</label>
+          ${input}
+        </div>
+      `;
+    }).join('');
+
+    bookingCard.innerHTML = `
+      <div class="bs-full-booking-head">
+        <div class="bs-full-booking-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3.5" y="5" width="17" height="16" rx="3"></rect>
+            <path d="M7.5 3.5v4M16.5 3.5v4M3.5 9.5h17"></path>
+          </svg>
+        </div>
+        <div class="bs-full-booking-copy">
+          <div class="bs-full-booking-title">Book a meeting</div>
+          <div class="bs-full-booking-subtitle">Choose a date and time that works for you.</div>
+        </div>
+        <button id="botsmith-booking-cancel" type="button" class="bs-full-booking-cancel">Cancel</button>
+      </div>
+
+      <div class="bs-full-booking-body">
+        ${bookingState.error ? `<div class="bs-booking-error">${escapeBookingHtml(bookingState.error)}</div>` : ''}
+
+        <div class="bs-booking-section">
+          <div class="bs-section-head">
+            <div class="bs-section-label">Meeting type</div>
+            <div class="bs-section-meta">${bookingState.eventTypes.length} option${bookingState.eventTypes.length === 1 ? '' : 's'}</div>
+          </div>
+          <div class="bs-meeting-select-wrap">
+            <div class="bs-meeting-select-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="4" y="5.5" width="16" height="15" rx="3"></rect>
+                <path d="M8 3.5v3M16 3.5v3M4 9h16"></path>
+              </svg>
+            </div>
+            <select id="botsmith-booking-event-type" class="bs-meeting-select">
+              ${eventTypeOptions}
+            </select>
+          </div>
+        </div>
+
+        <div class="bs-booking-section">
+          <div class="bs-section-head">
+            <div class="bs-section-label">Select a date</div>
+            <div class="bs-section-meta">${dateOptions.length} available</div>
+          </div>
+          <div class="bs-date-strip">
+            ${dateMarkup}
+          </div>
+        </div>
+
+        <div class="bs-booking-section">
+          <div class="bs-section-head">
+            <div class="bs-section-label">Available times</div>
+            <div class="bs-section-meta">${timeOptions.length} slot${timeOptions.length === 1 ? '' : 's'}</div>
+          </div>
+          <div class="bs-time-grid">
+            ${timeMarkup}
+          </div>
+        </div>
+
+        ${bookingState.selectedDate && bookingState.selectedTime ? `
+          <div class="bs-selected-summary">
+            <strong>${escapeBookingHtml(formatDateLabel(bookingState.selectedDate))}</strong>
+            · ${escapeBookingHtml(formatTimeLabel(bookingState.selectedTime))}
+          </div>
+        ` : ''}
+
+        <div class="bs-form-grid">
+          <div>
+            <label class="bs-field-label" for="botsmith-booking-name">Name</label>
+            <input id="botsmith-booking-name" class="bs-booking-input"
+              value="${escapeBookingHtml(bookingState.name)}"
+              placeholder="Your name" autocomplete="name" />
+          </div>
+
+          <div>
+            <label class="bs-field-label" for="botsmith-booking-email">Email</label>
+            <input id="botsmith-booking-email" class="bs-booking-input"
+              type="email" value="${escapeBookingHtml(bookingState.email)}"
+              placeholder="you@example.com" autocomplete="email" />
+          </div>
+
+          ${requiresPhoneInput ? `
+            <div>
+              <label class="bs-field-label" for="botsmith-booking-location">Phone number</label>
+              <input id="botsmith-booking-location" class="bs-booking-input" type="tel" inputmode="tel"
+                value="${escapeBookingHtml(bookingState.inviteeLocation)}"
+                placeholder="Enter your phone number" />
+            </div>
+          ` : requiresMeetingLocationInput ? `
+            <div>
+              <label class="bs-field-label" for="botsmith-booking-location">Meeting location</label>
+              <input id="botsmith-booking-location" class="bs-booking-input"
+                value="${escapeBookingHtml(bookingState.inviteeLocation)}"
+                placeholder="Enter the requested meeting location" />
+            </div>
+          ` : ''}
+
+          ${customQuestionFields}
+        </div>
+
+        <button id="botsmith-booking-submit" type="button"
+          class="bs-booking-submit" ${bookingState.loading ? 'disabled' : ''}>
+          ${bookingState.loading ? 'Confirming…' : 'Confirm booking'}
+        </button>
+
+        <div class="bs-booking-footer">Securely booked through Calendly</div>
+      </div>
+    `;
+
+    chatWindow.appendChild(bookingCard);
+    chatWindow.scrollTop = 0;
+
+    const cancelBookingButton = document.getElementById('botsmith-booking-cancel');
+    if (cancelBookingButton) {
+      cancelBookingButton.addEventListener('click', () => {
+        exitBookingMode();
+      });
+    }
+
+    const eventTypeSelect = document.getElementById('botsmith-booking-event-type');
+    if (eventTypeSelect) {
+      eventTypeSelect.addEventListener('change', async (event) => {
+        bookingState.selectedEventType = event.target.value;
+        bookingState.selectedDate = '';
+        bookingState.selectedTime = '';
+        bookingState.inviteeLocation = '';
+        bookingState.questionAnswers = {};
+        await loadBookingAvailability();
+      });
+    }
+
+    bookingCard.querySelectorAll('[data-date]').forEach((button) => {
+      button.addEventListener('click', () => {
+        bookingState.selectedDate = button.dataset.date;
+        bookingState.selectedTime = '';
+        renderBookingCard();
+      });
+    });
+
+    bookingCard.querySelectorAll('[data-time]').forEach((button) => {
+      button.addEventListener('click', () => {
+        bookingState.selectedTime = button.dataset.time;
+        renderBookingCard();
+      });
+    });
+
+    const nameInput = document.getElementById('botsmith-booking-name');
+    const emailInput = document.getElementById('botsmith-booking-email');
+    if (nameInput) nameInput.addEventListener('input', (event) => { bookingState.name = event.target.value; });
+    if (emailInput) emailInput.addEventListener('input', (event) => { bookingState.email = event.target.value; });
+    const locationInput = document.getElementById('botsmith-booking-location');
+    if (locationInput) {
+      locationInput.addEventListener('input', (event) => {
+        bookingState.inviteeLocation = event.target.value;
+      });
+    }
+    bookingCard.querySelectorAll('[data-booking-question]').forEach((field) => {
+      const updateAnswer = () => {
+        const answer = field.multiple
+          ? Array.from(field.selectedOptions).map((option) => option.value).join(', ')
+          : field.value;
+        bookingState.questionAnswers[field.dataset.bookingQuestion] = answer;
+      };
+      field.addEventListener('input', updateAnswer);
+      field.addEventListener('change', updateAnswer);
+    });
+
+    const submitButton = document.getElementById('botsmith-booking-submit');
+    if (submitButton) {
+      submitButton.addEventListener('click', async () => {
+        let bookingConfirmed = false;
+        if (!bookingState.selectedEventType || !bookingState.selectedTime || !bookingState.name.trim() || !bookingState.email.trim()) {
+          bookingState.error = 'Please complete the meeting type, date, time, your name, and email.';
+          renderBookingCard();
+          return;
+        }
+        if (requiresPhoneInput) {
+          if (!bookingState.inviteeLocation.trim()) {
+            bookingState.error = 'Please provide a valid phone number.';
+            renderBookingCard();
+            return;
+          }
+          const normalizedPhone = normalizePhoneNumber(bookingState.inviteeLocation);
+          if (!isValidPhoneNumber(normalizedPhone)) {
+            bookingState.error = 'Please provide a valid phone number.';
+            renderBookingCard();
+            return;
+          }
+          bookingState.inviteeLocation = normalizedPhone;
+        } else if (selectedEventType?.invitee_location_required && !bookingState.inviteeLocation.trim()) {
+          bookingState.error = 'Please provide the requested meeting location.';
+          renderBookingCard();
+          return;
+        }
+        const missingQuestion = requiredQuestions.find(
+          (question) => !String(bookingState.questionAnswers[question.name] || '').trim()
+        );
+        if (missingQuestion) {
+          bookingState.error = `Please answer the required question: ${missingQuestion.name}`;
+          renderBookingCard();
+          return;
+        }
+
+        bookingState.error = '';
+        bookingState.loading = true;
+        renderBookingCard();
+
+        try {
+          const response = await fetch(`${config.apiUrl}/public/chatbot/${config.chatbotId}/calendly/book`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              attempt_id: `booking-${Date.now()}`,
+              event_type: bookingState.selectedEventType,
+              start_time: bookingState.selectedTime,
+              name: bookingState.name.trim(),
+              email: bookingState.email.trim(),
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC',
+              invitee_location: bookingState.inviteeLocation.trim() || null,
+              questions_and_answers: requiredQuestions.map((question) => ({
+                question: question.name,
+                answer: bookingState.questionAnswers[question.name],
+                position: question.position
+              }))
+            })
+          });
+
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) {
+            throw new Error(data?.detail || 'Unable to confirm booking');
+          }
+
+          if (data.status === 'stale_slot') {
+            bookingState.error = data.message || 'That time slot is no longer available. Please choose another time.';
+            bookingState.slots = Array.isArray(data.slots) ? data.slots : [];
+            bookingState.selectedTime = '';
+            bookingState.loading = false;
+            renderBookingCard();
+            return;
+          }
+
+          if (data.status === 'confirmed') {
+            bookingConfirmed = true;
+            const confirmationTime = formatTimeLabel(data.booking?.start_time || bookingState.selectedTime);
+            const confirmationEmail = bookingState.email.trim();
+            exitBookingMode();
+            addMessage('assistant', `✅ Your meeting has been confirmed for ${confirmationTime}. A confirmation email will be sent to ${confirmationEmail}.`);
+            return;
+          }
+
+          bookingState.error = data.message || 'We could not confirm this meeting. Please try another slot.';
+        } catch (error) {
+          console.error('[BotSmith Widget] Booking failed:', error);
+          bookingState.error = error.message || 'We could not confirm this meeting. Please try another slot.';
+        } finally {
+          bookingState.loading = false;
+          if (!bookingConfirmed) renderBookingCard();
+        }
+      });
+    }
+  }
+
   async function sendMessage(message) {
     if (!message.trim() || isSending) return;
 
@@ -1139,10 +2059,20 @@
     
     addMessage('user', message);
     input.value = '';
-    
-    showTyping();
-    
+
     try {
+      if (isBookingIntent(message)) {
+        const shouldOpenBooking = await loadBookingFlow();
+        if (shouldOpenBooking) {
+          hideTyping();
+          isSending = false;
+          input.disabled = false;
+          input.focus();
+          return;
+        }
+      }
+
+      showTyping();
       const response = await fetch(`${config.apiUrl}/public/chat/${config.chatbotId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1177,10 +2107,10 @@
           addMessage('assistant', '⚠️ Monthly message limit reached. Please try again later.');
           return;
         }
-        
+
         throw new Error('Failed to send message');
       }
-      
+
       const data = await response.json();
       hideTyping();
 

@@ -1466,6 +1466,9 @@
     }
   }
 
+  // UI-only booking step. Calendly state, API calls, validation and booking logic remain unchanged.
+  let bookingUiStep = 'date';
+
   function renderBookingCard() {
     hideBookingLoader();
     clearBookingCard();
@@ -1478,481 +1481,144 @@
       const bookingStyle = document.createElement('style');
       bookingStyle.id = bookingStyleId;
       bookingStyle.textContent = `
-        #botsmith-window.botsmith-booking-mode {
-          background:#ffffff;
-        }
-        #botsmith-window.botsmith-booking-mode #botsmith-messages,
-        #botsmith-window.botsmith-booking-mode > div:not(#botsmith-messages) {
-          transition:opacity .18s ease, transform .18s ease;
-        }
-        .botsmith-booking-card {
-          flex:1 1 auto;
-          min-height:0;
-          width:100%;
-          height:100%;
-          max-height:none;
-          margin:0;
-          border:0;
-          border-radius:0;
-          background:#fff;
-          overflow-y:auto;
-          overflow-x:hidden;
-          overscroll-behavior:contain;
-          -webkit-overflow-scrolling:touch;
-          scrollbar-width:thin;
-          scrollbar-color:#d6d8de transparent;
-          font-family:${customization.font_family};
-        }
-        .botsmith-booking-card::-webkit-scrollbar { width:6px; }
-        .botsmith-booking-card::-webkit-scrollbar-track { background:transparent; }
-        .botsmith-booking-card::-webkit-scrollbar-thumb { background:#d6d8de; border-radius:10px; }
-        .bs-full-booking-head {
-          position:sticky;
-          top:0;
-          z-index:5;
-          padding:14px 16px 13px;
-          display:flex;
-          align-items:center;
-          gap:10px;
-          background:rgba(255,255,255,.97);
-          border-bottom:1px solid #f0f1f3;
-          backdrop-filter:blur(8px);
-        }
-        .bs-full-booking-icon {
-          width:36px;height:36px;flex:0 0 36px;border-radius:10px;
-          display:flex;align-items:center;justify-content:center;
-          color:${customization.accent_color};
-          background:${customization.accent_color}10;
-          border:1px solid ${customization.accent_color}18;
-        }
-        .bs-full-booking-copy { min-width:0;flex:1; }
-        .bs-full-booking-title {
-          font-size:15px;line-height:1.2;font-weight:750;color:#111827;
-          letter-spacing:-.15px;
-        }
-        .bs-full-booking-subtitle {
-          margin-top:3px;font-size:11px;line-height:1.35;color:#7b8190;
-        }
-        .bs-full-booking-cancel {
-          flex:0 0 auto;
-          height:34px;
-          padding:0 11px;
-          border:1px solid #e3e5e9;
-          border-radius:9px;
-          background:#fff;
-          color:#646b77;
-          font-size:11px;
-          font-weight:700;
-          cursor:pointer;
-          transition:background .15s ease,border-color .15s ease,color .15s ease;
-        }
-        .bs-full-booking-cancel:hover {
-          background:#f8f8f9;
-          border-color:#d9dce1;
-          color:#111827;
-        }
-        .bs-full-booking-body {
-          width:100%;
-          max-width:520px;
-          margin:0 auto;
-          padding:18px 18px 22px;
-        }
-        .bs-booking-error {
-          margin-bottom:12px;
-          padding:10px 12px;
-          border-radius:10px;
-          background:#fff7ed;
-          color:#b45309;
-          border:1px solid #fed7aa;
-          font-size:12px;
-          line-height:1.4;
-        }
-        .bs-booking-section { margin-top:15px; }
-        .bs-booking-section:first-child { margin-top:0; }
-        .bs-section-head {
-          display:flex;
-          align-items:center;
-          justify-content:space-between;
-          gap:8px;
-          margin-bottom:8px;
-        }
-        .bs-section-label {
-          font-size:10px;
-          font-weight:750;
-          color:#68707d;
-          text-transform:uppercase;
-          letter-spacing:.5px;
-        }
-        .bs-section-meta { font-size:10px;color:#a0a5ae; }
-        .bs-meeting-select-wrap {
-          display:flex;align-items:center;gap:8px;width:100%;
-          padding:3px 9px;
-          border:1px solid #e1e4e8;
-          border-radius:11px;
-          background:#fff;
-        }
-        .bs-meeting-select-icon {
-          width:28px;height:28px;flex:0 0 28px;border-radius:8px;
-          display:flex;align-items:center;justify-content:center;
-          background:#fafafa;color:${customization.accent_color};
-        }
-        .bs-meeting-select {
-          width:100%;border:0;outline:0;background:transparent;
-          color:#111827;font-size:12px;font-weight:650;padding:8px 0;cursor:pointer;
-        }
-        .bs-date-strip {
-          display:flex;
-          gap:6px;
-          overflow-x:auto;
-          padding:2px 1px 5px;
-          scrollbar-width:thin;
-          -webkit-overflow-scrolling:touch;
-        }
-        .bs-date-strip::-webkit-scrollbar { height:5px; }
-        .bs-date-strip::-webkit-scrollbar-thumb { background:#d6d8de;border-radius:10px; }
-        .bs-date-button {
-          min-width:58px;height:56px;flex:0 0 58px;
-          padding:6px 5px;
-          border-radius:11px;
-          border:1px solid #e5e7eb;
-          background:#fff;
-          color:#111827;
-          cursor:pointer;
-          display:flex;
-          flex-direction:column;
-          align-items:center;
-          justify-content:center;
-          gap:1px;
-        }
-        .bs-date-button:hover { border-color:${customization.accent_color}55; }
-        .bs-date-button.bs-selected {
-          background:${customization.accent_color};
-          color:#fff;
-          border-color:${customization.accent_color};
-          box-shadow:0 5px 12px ${customization.accent_color}24;
-        }
-        .bs-date-weekday {
-          font-size:8px;font-weight:750;text-transform:uppercase;
-          letter-spacing:.45px;opacity:.65;
-        }
-        .bs-date-button.bs-selected .bs-date-weekday,
-        .bs-date-button.bs-selected .bs-date-month { opacity:.9; }
-        .bs-date-number { font-size:16px;line-height:1;font-weight:780; }
-        .bs-date-month { font-size:8px;opacity:.65; }
-        .bs-empty {
-          width:100%;padding:12px;border:1px dashed #d9dde5;
-          border-radius:10px;text-align:center;color:#989eaa;
-          background:#fafafa;font-size:11px;
-        }
-        .bs-time-grid {
-          display:grid;
-          grid-template-columns:repeat(2,minmax(0,1fr));
-          gap:7px;
-        }
-        .bs-time-button {
-          min-height:40px;
-          padding:9px 10px;
-          border-radius:10px;
-          border:1px solid #e5e7eb;
-          background:#fff;
-          color:#303641;
-          font-size:11px;
-          font-weight:700;
-          cursor:pointer;
-        }
-        .bs-time-button:hover { border-color:${customization.accent_color}55; }
-        .bs-time-button.bs-selected {
-          background:${customization.accent_color};
-          color:#fff;
-          border-color:${customization.accent_color};
-          box-shadow:0 5px 12px ${customization.accent_color}22;
-        }
-        .bs-selected-summary {
-          margin-top:11px;
-          padding:9px 10px;
-          border-radius:10px;
-          border:1px solid #eceef1;
-          background:#fafafa;
-          font-size:11px;
-          color:#4f5560;
-        }
-        .bs-selected-summary strong { color:#20242b; }
-        .bs-form-grid { display:grid;gap:8px;margin-top:12px; }
-        .bs-field-label {
-          display:block;margin-bottom:5px;font-size:10px;
-          font-weight:700;color:#59606c;
-        }
-        .bs-booking-input,.bs-booking-textarea,.bs-booking-select {
-          width:100%;border:1px solid #e1e4e8;border-radius:10px;
-          background:#fff;color:#111827;font-size:12px;padding:9px 10px;
-          outline:0;font-family:inherit;
-        }
-        .bs-booking-input:focus,.bs-booking-textarea:focus,.bs-booking-select:focus {
-          border-color:${customization.accent_color};
-          box-shadow:0 0 0 3px ${customization.accent_color}12;
-        }
-        .bs-booking-textarea { min-height:66px;resize:vertical; }
-        .bs-booking-submit {
-          width:100%;margin-top:11px;padding:10px 12px;border:0;border-radius:10px;
-          background:${customization.accent_color};color:#fff;font-size:12px;
-          font-weight:750;cursor:pointer;
-        }
-        .bs-booking-submit:disabled { opacity:.58;cursor:not-allowed; }
-        .bs-booking-footer {
-          margin-top:8px;text-align:center;color:#a0a5ae;font-size:9px;
-        }
-        @media (max-width:520px) {
-          .bs-full-booking-body { padding:15px 14px 20px; }
-        }
+        #botsmith-window.botsmith-booking-mode { background:#f7f7f5; }
+        .botsmith-booking-card{flex:1 1 auto;min-height:0;width:100%;height:100%;background:#f7f7f5;overflow:auto;font-family:${customization.font_family};color:#171717;}
+        .botsmith-booking-card::-webkit-scrollbar{width:5px}.botsmith-booking-card::-webkit-scrollbar-thumb{background:#d9d9d3;border-radius:99px}
+        .bs-step-head{position:sticky;top:0;z-index:8;padding:12px 14px 11px;background:rgba(247,247,245,.94);backdrop-filter:blur(14px);border-bottom:1px solid #e4e4de;display:flex;align-items:center;gap:9px}
+        .bs-step-back{width:29px;height:29px;border:1px solid #deded8;border-radius:50%;background:#fff;color:#555;display:grid;place-items:center;cursor:pointer;font-size:16px;line-height:1}
+        .bs-step-back[disabled]{opacity:.25;pointer-events:none}.bs-step-copy{flex:1;min-width:0}.bs-step-eyebrow{font-size:7px;font-weight:800;letter-spacing:1.35px;text-transform:uppercase;color:#96968f;margin-bottom:4px}.bs-step-title{font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1;letter-spacing:-.5px}.bs-step-subtitle{font-size:9px;color:#85857e;margin-top:4px}
+        .bs-step-close{width:29px;height:29px;border:1px solid #deded8;border-radius:50%;background:#fff;color:#555;cursor:pointer;font-size:17px;line-height:1}
+        .bs-step-body{padding:13px 14px 20px;max-width:500px;margin:0 auto}.bs-step-progress{display:flex;align-items:center;gap:5px;margin-bottom:10px;padding:4px 5px;border:1px solid #e2e2dc;border-radius:9px;background:rgba(255,255,255,.68)}
+        .bs-progress-item{height:18px;flex:1;display:flex;align-items:center;gap:5px}.bs-progress-dot{width:18px;height:18px;border:1px solid #d7d7d1;border-radius:6px;background:#fff;color:#8c8c85;display:grid;place-items:center;font-size:7px;font-weight:800}.bs-progress-item.active .bs-progress-dot,.bs-progress-item.done .bs-progress-dot{background:#171717;border-color:#171717;color:#fff}.bs-progress-line{height:1px;flex:1;background:#e1e1db}.bs-progress-item.done .bs-progress-line{background:#171717}
+        .bs-step-card{border:1px solid #e2e2dc;border-radius:14px;background:rgba(255,255,255,.78);padding:12px;box-shadow:0 2px 10px rgba(0,0,0,.018)}.bs-step-label{font-size:7px;font-weight:800;letter-spacing:1.25px;text-transform:uppercase;color:#999991;margin-bottom:5px}.bs-step-heading{font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.08;letter-spacing:-.3px;margin-bottom:10px}
+        .bs-meeting-select-wrap{height:42px;border:1px solid #deded8;border-radius:10px;background:#fff;display:flex;align-items:center;padding:0 9px;gap:8px}.bs-meeting-select-icon{width:27px;height:27px;border-radius:8px;background:#f1f1ed;display:grid;place-items:center;color:#555}.bs-meeting-select{flex:1;border:0;background:transparent;outline:0;font-size:10px;font-weight:750;color:#222}
+        .bs-date-strip{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px}.bs-date-button{height:62px;border:1px solid #deded8;border-radius:10px;background:#fff;color:#222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;transition:.16s}.bs-date-button:hover{border-color:#bdbdb6;transform:translateY(-1px)}.bs-date-button.bs-selected{background:#171717;border-color:#171717;color:#fff;box-shadow:0 6px 14px rgba(0,0,0,.12)}.bs-date-weekday,.bs-date-month{font-size:6.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;opacity:.48}.bs-date-button.bs-selected .bs-date-weekday,.bs-date-button.bs-selected .bs-date-month{opacity:.7}.bs-date-number{font-family:Georgia,'Times New Roman',serif;font-size:20px;line-height:1}
+        .bs-time-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.bs-time-button{height:40px;border:1px solid #deded8;border-radius:9px;background:#fff;color:#222;font-size:9px;font-weight:750;cursor:pointer;transition:.16s}.bs-time-button:hover{border-color:#bdbdb6;transform:translateY(-1px)}.bs-time-button.bs-selected{background:${customization.accent_color};border-color:${customization.accent_color};color:#fff;box-shadow:0 5px 12px ${customization.accent_color}28}
+        .bs-selected-summary{margin-top:8px;padding:9px 10px;border:1px solid #deded8;border-radius:10px;background:#fff;font-size:9px;color:#77776f}.bs-selected-summary strong{color:#171717}.bs-summary-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:${customization.accent_color};margin-right:6px}
+        .bs-form-grid{display:grid;gap:10px}.bs-field-label{display:block;margin-bottom:5px;font-size:7px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:#777770}.bs-booking-input,.bs-booking-select,.bs-booking-textarea{width:100%;border:1px solid #deded8;border-radius:9px;background:#fff;color:#171717;padding:10px;font:inherit;font-size:10px;outline:0}.bs-booking-input:focus,.bs-booking-select:focus,.bs-booking-textarea:focus{border-color:#171717;box-shadow:0 0 0 3px rgba(23,23,23,.055)}.bs-booking-textarea{resize:vertical}.bs-booking-submit{width:100%;height:42px;margin-top:11px;border:0;border-radius:10px;background:#171717;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 7px 15px rgba(0,0,0,.13)}.bs-booking-submit:disabled{opacity:.55;cursor:not-allowed}.bs-step-next{width:100%;height:42px;margin-top:10px;border:0;border-radius:10px;background:#171717;color:#fff;font-size:10px;font-weight:800;cursor:pointer;box-shadow:0 7px 15px rgba(0,0,0,.13)}.bs-step-next:disabled{opacity:.35;cursor:not-allowed}.bs-step-back-link{width:100%;height:36px;margin-top:7px;border:0;background:transparent;color:#777770;font-size:9px;font-weight:700;cursor:pointer}.bs-booking-error{margin-bottom:9px;padding:8px 10px;border:1px solid #ead4d4;border-radius:9px;background:#fff6f6;color:#a33a3a;font-size:9px;line-height:1.35}.bs-booking-footer{text-align:center;color:#aaa9a2;font-size:7px;letter-spacing:.2px;margin-top:8px}.bs-empty{padding:18px 10px;text-align:center;border:1px dashed #dcdcd6;border-radius:10px;color:#92928b;font-size:9px;background:#fff}
+        @media(max-width:520px){.bs-date-strip{grid-template-columns:repeat(4,minmax(0,1fr));}.bs-step-body{padding:11px 11px 18px}.bs-date-button{height:58px}.bs-time-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
       `;
       document.head.appendChild(bookingStyle);
     }
 
-    const selectedEventType = bookingState.eventTypes.find(
-      (eventType) => eventType.uri === bookingState.selectedEventType
-    );
+    const selectedEventType = bookingState.eventTypes.find((eventType) => eventType.uri === bookingState.selectedEventType);
     const requiredQuestions = selectedEventType?.required_questions || [];
     const locationKind = selectedEventType?.invitee_location_kind || null;
     const requiresPhoneInput = locationKind === 'outbound_call' && selectedEventType?.invitee_location_required;
     const requiresMeetingLocationInput = selectedEventType?.invitee_location_required && !requiresPhoneInput;
     const dateOptions = [...new Set(bookingState.slots.map((slot) => getLocalDateKey(slot)))];
-    const timeOptions = bookingState.selectedDate
-      ? bookingState.slots
-          .filter((slot) => getLocalDateKey(slot) === bookingState.selectedDate)
-          .sort()
-      : [];
+    const timeOptions = bookingState.selectedDate ? bookingState.slots.filter((slot) => getLocalDateKey(slot) === bookingState.selectedDate).sort() : [];
 
     const eventTypeOptions = bookingState.eventTypes.map((eventType) => `
-      <option value="${escapeBookingHtml(eventType.uri)}" ${eventType.uri === bookingState.selectedEventType ? 'selected' : ''}>
-        ${escapeBookingHtml(eventType.name)}
-      </option>
+      <option value="${escapeBookingHtml(eventType.uri)}" ${eventType.uri === bookingState.selectedEventType ? 'selected' : ''}>${escapeBookingHtml(eventType.name)}</option>
     `).join('');
 
-    const dateMarkup = dateOptions.length === 0
-      ? '<div class="bs-empty">No dates available for this meeting type right now.</div>'
-      : dateOptions.map((day) => {
-          const parsedDate = new Date(`${day}T12:00:00`);
-          const weekday = new Intl.DateTimeFormat(undefined, { weekday: 'short' }).format(parsedDate);
-          const dayNumber = parsedDate.getDate();
-          const month = new Intl.DateTimeFormat(undefined, { month: 'short' }).format(parsedDate);
-          const selected = bookingState.selectedDate === day;
-          return `
-            <button type="button" data-date="${escapeBookingHtml(day)}"
-              class="bs-date-button${selected ? ' bs-selected' : ''}">
-              <span class="bs-date-weekday">${escapeBookingHtml(weekday)}</span>
-              <span class="bs-date-number">${dayNumber}</span>
-              <span class="bs-date-month">${escapeBookingHtml(month)}</span>
-            </button>
-          `;
-        }).join('');
-
-    const timeMarkup = timeOptions.length === 0
-      ? '<div class="bs-empty">Select a date to view available times.</div>'
-      : timeOptions.map((slot) => `
-          <button type="button" data-time="${escapeBookingHtml(slot)}"
-            class="bs-time-button${bookingState.selectedTime === slot ? ' bs-selected' : ''}">
-            ${escapeBookingHtml(formatTimeLabel(slot))}
-          </button>
-        `).join('');
-
-    const customQuestionFields = requiredQuestions.map((question, index) => {
-      const questionName = String(question.name || '');
-      const escapedName = escapeBookingHtml(questionName);
-      const escapedValue = escapeBookingHtml(bookingState.questionAnswers[questionName] || '');
-      const choices = Array.isArray(question.answer_choices) ? question.answer_choices : [];
-      let input;
-
-      if (question.type === 'single_select' || question.type === 'multi_select') {
-        input = `
-          <select class="bs-booking-select" data-booking-question="${escapedName}" ${question.type === 'multi_select' ? 'multiple' : ''}>
-            ${question.type === 'single_select' ? '<option value="">Select an answer</option>' : ''}
-            ${choices.map((choice) => {
-              const escapedChoice = escapeBookingHtml(choice);
-              const selected = question.type === 'multi_select'
-                ? String(bookingState.questionAnswers[questionName] || '').split(', ').includes(String(choice))
-                : bookingState.questionAnswers[questionName] === choice;
-              return `<option value="${escapedChoice}" ${selected ? 'selected' : ''}>${escapedChoice}</option>`;
-            }).join('')}
-          </select>
-        `;
-      } else if (question.type === 'text') {
-        input = `<textarea class="bs-booking-textarea" data-booking-question="${escapedName}" rows="3">${escapedValue}</textarea>`;
-      } else {
-        input = `<input class="bs-booking-input" data-booking-question="${escapedName}" type="${question.type === 'phone_number' ? 'tel' : 'text'}" value="${escapedValue}" />`;
-      }
-
-      return `
-        <div>
-          <label class="bs-field-label">${index + 1}. ${escapedName}</label>
-          ${input}
-        </div>
-      `;
+    const dateMarkup = dateOptions.length === 0 ? '<div class="bs-empty">No dates available for this meeting type right now.</div>' : dateOptions.map((day) => {
+      const parsedDate = new Date(`${day}T12:00:00`);
+      const weekday = new Intl.DateTimeFormat(undefined,{weekday:'short'}).format(parsedDate);
+      const dayNumber = parsedDate.getDate();
+      const month = new Intl.DateTimeFormat(undefined,{month:'short'}).format(parsedDate);
+      const selected = bookingState.selectedDate === day;
+      return `<button type="button" data-date="${escapeBookingHtml(day)}" class="bs-date-button${selected?' bs-selected':''}"><span class="bs-date-weekday">${escapeBookingHtml(weekday)}</span><span class="bs-date-number">${dayNumber}</span><span class="bs-date-month">${escapeBookingHtml(month)}</span></button>`;
     }).join('');
 
-    bookingCard.innerHTML = `
-      <div class="bs-full-booking-head">
-        <div class="bs-full-booking-icon">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <rect x="3.5" y="5" width="17" height="16" rx="3"></rect>
-            <path d="M7.5 3.5v4M16.5 3.5v4M3.5 9.5h17"></path>
-          </svg>
+    const timeMarkup = timeOptions.length === 0 ? '<div class="bs-empty">No times are available for this date.</div>' : timeOptions.map((slot) => `<button type="button" data-time="${escapeBookingHtml(slot)}" class="bs-time-button${bookingState.selectedTime===slot?' bs-selected':''}">${escapeBookingHtml(formatTimeLabel(slot))}</button>`).join('');
+
+    const customQuestionFields = requiredQuestions.map((question,index) => {
+      const questionName=String(question.name||''); const escapedName=escapeBookingHtml(questionName); const escapedValue=escapeBookingHtml(bookingState.questionAnswers[questionName]||''); const choices=Array.isArray(question.answer_choices)?question.answer_choices:[]; let input;
+      if(question.type==='single_select'||question.type==='multi_select') input=`<select class="bs-booking-select" data-booking-question="${escapedName}" ${question.type==='multi_select'?'multiple':''}>${question.type==='single_select'?'<option value="">Select an answer</option>':''}${choices.map(choice=>{const escapedChoice=escapeBookingHtml(choice);const selected=question.type==='multi_select'?String(bookingState.questionAnswers[questionName]||'').split(', ').includes(String(choice)):bookingState.questionAnswers[questionName]===choice;return `<option value="${escapedChoice}" ${selected?'selected':''}>${escapedChoice}</option>`}).join('')}</select>`;
+      else if(question.type==='text') input=`<textarea class="bs-booking-textarea" data-booking-question="${escapedName}" rows="3">${escapedValue}</textarea>`;
+      else input=`<input class="bs-booking-input" data-booking-question="${escapedName}" type="${question.type==='phone_number'?'tel':'text'}" value="${escapedValue}" />`;
+      return `<div><label class="bs-field-label">${index+1}. ${escapedName}</label>${input}</div>`;
+    }).join('');
+
+    const stepTitle = bookingUiStep==='date' ? 'Pick a day' : bookingUiStep==='time' ? 'Choose a time' : 'Your details';
+    const stepSubtitle = bookingUiStep==='date' ? 'Select an available date.' : bookingUiStep==='time' ? formatDateLabel(bookingState.selectedDate) : 'Almost there — confirm your details.';
+    const stepNumber = bookingUiStep==='date' ? 1 : bookingUiStep==='time' ? 2 : 3;
+    const selectedSummary = bookingState.selectedDate && bookingState.selectedTime ? `<div class="bs-selected-summary"><span class="bs-summary-dot"></span><strong>${escapeBookingHtml(formatDateLabel(bookingState.selectedDate))}</strong> · ${escapeBookingHtml(formatTimeLabel(bookingState.selectedTime))}</div>` : '';
+
+    let stepContent = '';
+    if (bookingUiStep === 'date') {
+      stepContent = `
+        <div class="bs-step-card">
+          <div class="bs-step-label">01 / Date</div>
+          <div class="bs-step-heading">Pick a day</div>
+          <div class="bs-date-strip">${dateMarkup}</div>
         </div>
-        <div class="bs-full-booking-copy">
-          <div class="bs-full-booking-title">Book a meeting</div>
-          <div class="bs-full-booking-subtitle">Choose a date and time that works for you.</div>
+        <button type="button" class="bs-step-next" id="botsmith-booking-date-next" ${!bookingState.selectedDate?'disabled':''}>Continue →</button>
+      `;
+    } else if (bookingUiStep === 'time') {
+      stepContent = `
+        ${selectedSummary}
+        <div class="bs-step-card" style="margin-top:8px">
+          <div class="bs-step-label">02 / Time</div>
+          <div class="bs-step-heading">Available times</div>
+          <div class="bs-time-grid">${timeMarkup}</div>
         </div>
-        <button id="botsmith-booking-cancel" type="button" class="bs-full-booking-cancel">Cancel</button>
-      </div>
-
-      <div class="bs-full-booking-body">
-        ${bookingState.error ? `<div class="bs-booking-error">${escapeBookingHtml(bookingState.error)}</div>` : ''}
-
-        <div class="bs-booking-section">
-          <div class="bs-section-head">
-            <div class="bs-section-label">Meeting type</div>
-            <div class="bs-section-meta">${bookingState.eventTypes.length} option${bookingState.eventTypes.length === 1 ? '' : 's'}</div>
+        <button type="button" class="bs-step-next" id="botsmith-booking-time-next" ${!bookingState.selectedTime?'disabled':''}>Continue →</button>
+        <button type="button" class="bs-step-back-link" id="botsmith-booking-time-back">← Choose another date</button>
+      `;
+    } else {
+      stepContent = `
+        ${selectedSummary}
+        <div class="bs-step-card" style="margin-top:8px">
+          <div class="bs-step-label">03 / Your details</div>
+          <div class="bs-step-heading">Tell us about you</div>
+          <div class="bs-form-grid">
+            <div><label class="bs-field-label" for="botsmith-booking-name">Name</label><input id="botsmith-booking-name" class="bs-booking-input" value="${escapeBookingHtml(bookingState.name)}" placeholder="Your name" autocomplete="name" /></div>
+            <div><label class="bs-field-label" for="botsmith-booking-email">Email</label><input id="botsmith-booking-email" class="bs-booking-input" type="email" value="${escapeBookingHtml(bookingState.email)}" placeholder="you@example.com" autocomplete="email" /></div>
+            ${requiresPhoneInput?`<div><label class="bs-field-label" for="botsmith-booking-location">Phone number</label><input id="botsmith-booking-location" class="bs-booking-input" type="tel" inputmode="tel" value="${escapeBookingHtml(bookingState.inviteeLocation)}" placeholder="Enter your phone number" /></div>`:requiresMeetingLocationInput?`<div><label class="bs-field-label" for="botsmith-booking-location">Meeting location</label><input id="botsmith-booking-location" class="bs-booking-input" value="${escapeBookingHtml(bookingState.inviteeLocation)}" placeholder="Enter the requested meeting location" /></div>`:''}
+            ${customQuestionFields}
           </div>
-          <div class="bs-meeting-select-wrap">
-            <div class="bs-meeting-select-icon">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-                <rect x="4" y="5.5" width="16" height="15" rx="3"></rect>
-                <path d="M8 3.5v3M16 3.5v3M4 9h16"></path>
-              </svg>
-            </div>
-            <select id="botsmith-booking-event-type" class="bs-meeting-select">
-              ${eventTypeOptions}
-            </select>
-          </div>
+          <button id="botsmith-booking-submit" type="button" class="bs-booking-submit" ${bookingState.loading?'disabled':''}>${bookingState.loading?'Confirming…':'Confirm booking →'}</button>
         </div>
-
-        <div class="bs-booking-section">
-          <div class="bs-section-head">
-            <div class="bs-section-label">Select a date</div>
-            <div class="bs-section-meta">${dateOptions.length} available</div>
-          </div>
-          <div class="bs-date-strip">
-            ${dateMarkup}
-          </div>
-        </div>
-
-        <div class="bs-booking-section">
-          <div class="bs-section-head">
-            <div class="bs-section-label">Available times</div>
-            <div class="bs-section-meta">${timeOptions.length} slot${timeOptions.length === 1 ? '' : 's'}</div>
-          </div>
-          <div class="bs-time-grid">
-            ${timeMarkup}
-          </div>
-        </div>
-
-        ${bookingState.selectedDate && bookingState.selectedTime ? `
-          <div class="bs-selected-summary">
-            <strong>${escapeBookingHtml(formatDateLabel(bookingState.selectedDate))}</strong>
-            · ${escapeBookingHtml(formatTimeLabel(bookingState.selectedTime))}
-          </div>
-        ` : ''}
-
-        <div class="bs-form-grid">
-          <div>
-            <label class="bs-field-label" for="botsmith-booking-name">Name</label>
-            <input id="botsmith-booking-name" class="bs-booking-input"
-              value="${escapeBookingHtml(bookingState.name)}"
-              placeholder="Your name" autocomplete="name" />
-          </div>
-
-          <div>
-            <label class="bs-field-label" for="botsmith-booking-email">Email</label>
-            <input id="botsmith-booking-email" class="bs-booking-input"
-              type="email" value="${escapeBookingHtml(bookingState.email)}"
-              placeholder="you@example.com" autocomplete="email" />
-          </div>
-
-          ${requiresPhoneInput ? `
-            <div>
-              <label class="bs-field-label" for="botsmith-booking-location">Phone number</label>
-              <input id="botsmith-booking-location" class="bs-booking-input" type="tel" inputmode="tel"
-                value="${escapeBookingHtml(bookingState.inviteeLocation)}"
-                placeholder="Enter your phone number" />
-            </div>
-          ` : requiresMeetingLocationInput ? `
-            <div>
-              <label class="bs-field-label" for="botsmith-booking-location">Meeting location</label>
-              <input id="botsmith-booking-location" class="bs-booking-input"
-                value="${escapeBookingHtml(bookingState.inviteeLocation)}"
-                placeholder="Enter the requested meeting location" />
-            </div>
-          ` : ''}
-
-          ${customQuestionFields}
-        </div>
-
-        <button id="botsmith-booking-submit" type="button"
-          class="bs-booking-submit" ${bookingState.loading ? 'disabled' : ''}>
-          ${bookingState.loading ? 'Confirming…' : 'Confirm booking'}
-        </button>
-
+        <button type="button" class="bs-step-back-link" id="botsmith-booking-details-back">← Back to available times</button>
         <div class="bs-booking-footer">Securely booked through Calendly</div>
+      `;
+    }
+
+    bookingCard.innerHTML = `
+      <div class="bs-step-head">
+        <button id="botsmith-booking-step-back" type="button" class="bs-step-back" ${bookingUiStep==='date'?'disabled':''} aria-label="Back">←</button>
+        <div class="bs-step-copy"><div class="bs-step-eyebrow">${String(stepNumber).padStart(2,'0')} / Booking</div><div class="bs-step-title">${stepTitle}</div><div class="bs-step-subtitle">${escapeBookingHtml(stepSubtitle)}</div></div>
+        <button id="botsmith-booking-cancel" type="button" class="bs-step-close" aria-label="Close">×</button>
+      </div>
+      <div class="bs-step-body">
+        <div class="bs-step-progress">
+          ${[1,2,3].map(n=>`<div class="bs-progress-item ${n===stepNumber?'active':''} ${n<stepNumber?'done':''}"><span class="bs-progress-dot">${n}</span>${n<3?'<span class="bs-progress-line"></span>':''}</div>`).join('')}
+        </div>
+        ${bookingState.error?`<div class="bs-booking-error">${escapeBookingHtml(bookingState.error)}</div>`:''}
+        ${bookingUiStep==='date' && bookingState.eventTypes.length>1?`<div class="bs-step-card" style="margin-bottom:8px"><div class="bs-step-label">Meeting</div><div class="bs-meeting-select-wrap"><div class="bs-meeting-select-icon">▣</div><select id="botsmith-booking-event-type" class="bs-meeting-select">${eventTypeOptions}</select></div></div>`:''}
+        ${stepContent}
       </div>
     `;
 
     chatWindow.appendChild(bookingCard);
     chatWindow.scrollTop = 0;
 
-    const cancelBookingButton = document.getElementById('botsmith-booking-cancel');
-    if (cancelBookingButton) {
-      cancelBookingButton.addEventListener('click', () => {
-        exitBookingMode();
-      });
-    }
-
-    const eventTypeSelect = document.getElementById('botsmith-booking-event-type');
-    if (eventTypeSelect) {
-      eventTypeSelect.addEventListener('change', async (event) => {
-        bookingState.selectedEventType = event.target.value;
-        bookingState.selectedDate = '';
-        bookingState.selectedTime = '';
-        bookingState.inviteeLocation = '';
-        bookingState.questionAnswers = {};
-        await loadBookingAvailability();
-      });
-    }
-
-    bookingCard.querySelectorAll('[data-date]').forEach((button) => {
-      button.addEventListener('click', () => {
-        bookingState.selectedDate = button.dataset.date;
-        bookingState.selectedTime = '';
-        renderBookingCard();
-      });
-    });
-
-    bookingCard.querySelectorAll('[data-time]').forEach((button) => {
-      button.addEventListener('click', () => {
-        bookingState.selectedTime = button.dataset.time;
-        renderBookingCard();
-      });
-    });
-
-    const nameInput = document.getElementById('botsmith-booking-name');
-    const emailInput = document.getElementById('botsmith-booking-email');
-    if (nameInput) nameInput.addEventListener('input', (event) => { bookingState.name = event.target.value; });
-    if (emailInput) emailInput.addEventListener('input', (event) => { bookingState.email = event.target.value; });
-    const locationInput = document.getElementById('botsmith-booking-location');
-    if (locationInput) {
-      locationInput.addEventListener('input', (event) => {
-        bookingState.inviteeLocation = event.target.value;
-      });
-    }
-    bookingCard.querySelectorAll('[data-booking-question]').forEach((field) => {
-      const updateAnswer = () => {
-        const answer = field.multiple
-          ? Array.from(field.selectedOptions).map((option) => option.value).join(', ')
-          : field.value;
-        bookingState.questionAnswers[field.dataset.bookingQuestion] = answer;
-      };
-      field.addEventListener('input', updateAnswer);
-      field.addEventListener('change', updateAnswer);
-    });
-
+    const cancelBookingButton=document.getElementById('botsmith-booking-cancel');
+    if(cancelBookingButton) cancelBookingButton.addEventListener('click',()=>exitBookingMode());
+    const topBack=document.getElementById('botsmith-booking-step-back');
+    if(topBack) topBack.addEventListener('click',()=>{if(bookingUiStep==='time'){bookingUiStep='date';renderBookingCard();}else if(bookingUiStep==='details'){bookingUiStep='time';renderBookingCard();}});
+    const eventTypeSelect=document.getElementById('botsmith-booking-event-type');
+    if(eventTypeSelect) eventTypeSelect.addEventListener('change',async(event)=>{bookingState.selectedEventType=event.target.value;bookingState.selectedDate='';bookingState.selectedTime='';bookingState.inviteeLocation='';bookingState.questionAnswers={};bookingUiStep='date';await loadBookingAvailability();});
+    bookingCard.querySelectorAll('[data-date]').forEach(button=>button.addEventListener('click',()=>{bookingState.selectedDate=button.dataset.date;bookingState.selectedTime='';bookingUiStep='time';bookingState.error='';renderBookingCard();}));
+    bookingCard.querySelectorAll('[data-time]').forEach(button=>button.addEventListener('click',()=>{bookingState.selectedTime=button.dataset.time;bookingState.error='';renderBookingCard();}));
+    const dateNext=document.getElementById('botsmith-booking-date-next');
+    if(dateNext) dateNext.addEventListener('click',()=>{if(bookingState.selectedDate){bookingUiStep='time';renderBookingCard();}});
+    const timeNext=document.getElementById('botsmith-booking-time-next');
+    if(timeNext) timeNext.addEventListener('click',()=>{if(bookingState.selectedTime){bookingUiStep='details';renderBookingCard();}});
+    const timeBack=document.getElementById('botsmith-booking-time-back');
+    if(timeBack) timeBack.addEventListener('click',()=>{bookingUiStep='date';renderBookingCard();});
+    const detailsBack=document.getElementById('botsmith-booking-details-back');
+    if(detailsBack) detailsBack.addEventListener('click',()=>{bookingUiStep='time';renderBookingCard();});
+    const nameInput=document.getElementById('botsmith-booking-name');
+    const emailInput=document.getElementById('botsmith-booking-email');
+    if(nameInput) nameInput.addEventListener('input',(event)=>{bookingState.name=event.target.value;});
+    if(emailInput) emailInput.addEventListener('input',(event)=>{bookingState.email=event.target.value;});
+    const locationInput=document.getElementById('botsmith-booking-location');
+    if(locationInput) locationInput.addEventListener('input',(event)=>{bookingState.inviteeLocation=event.target.value;});
+    bookingCard.querySelectorAll('[data-booking-question]').forEach((field)=>{const updateAnswer=()=>{const answer=field.multiple?Array.from(field.selectedOptions).map(option=>option.value).join(', '):field.value;bookingState.questionAnswers[field.dataset.bookingQuestion]=answer;};field.addEventListener('input',updateAnswer);field.addEventListener('change',updateAnswer);});
     const submitButton = document.getElementById('botsmith-booking-submit');
     if (submitButton) {
       submitButton.addEventListener('click', async () => {
@@ -2047,7 +1713,6 @@
       });
     }
   }
-
   async function sendMessage(message) {
     if (!message.trim() || isSending) return;
 
