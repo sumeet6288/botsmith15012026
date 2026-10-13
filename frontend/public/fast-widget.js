@@ -120,6 +120,8 @@
   let isOpen = false;
   let messages = [];
   let chatbot = null;
+  let greetingConfigReady = false;
+  let updateSideGreeting;
   let isLoading = false;
   let isSending = false;
   let attentionAnimationTimeout = null;
@@ -1023,6 +1025,8 @@
       if (!response.ok) throw new Error('Failed to load chatbot');
       
       chatbot = await response.json();
+      greetingConfigReady = true;
+      updateSideGreeting?.();
       
       document.getElementById('botsmith-header-title').textContent = chatbot.name || 'Chat Support';
       
@@ -1129,6 +1133,8 @@
       bubble.style.visibility = 'visible';
     } catch (error) {
       console.error('Error loading chatbot:', error);
+      greetingConfigReady = true;
+      updateSideGreeting?.();
       addMessage('assistant', 'Hello! How can I help you today?');
       
       // ✅ Show widget even on error (with defaults)
@@ -2126,6 +2132,11 @@
       font-size: 14px;
     }
 
+    #botsmith-side-greeting div {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
     #botsmith-side-greeting button {
       position: absolute;
 
@@ -2169,13 +2180,14 @@
 
   greeting.id = 'botsmith-side-greeting';
 
-  greeting.innerHTML = `
-    <button aria-label="Close">×</button>
+  const closeGreetingButton = document.createElement('button');
+  closeGreetingButton.type = 'button';
+  closeGreetingButton.setAttribute('aria-label', 'Close');
+  closeGreetingButton.textContent = '×';
 
-    <strong>👋 I'm your AI assistant</strong><br>
-
-    I'm here to help!
-  `;
+  const greetingTitle = document.createElement('strong');
+  const greetingMessage = document.createElement('div');
+  greeting.append(closeGreetingButton, greetingTitle, greetingMessage);
 
   document.body.appendChild(greeting);
 
@@ -2234,16 +2246,29 @@
 
   }
 
+  let greetingDelayElapsed = false;
+
+  function updateGreetingContent() {
+    greetingTitle.textContent =
+      chatbot?.greeting_title ?? "👋 I'm your AI assistant";
+    greetingMessage.textContent =
+      chatbot?.greeting_message ?? "I'm here to help!";
+
+    if (chatbot?.greeting_enabled === false) {
+      greeting.classList.remove('botsmith-greeting-show');
+    } else if (greetingDelayElapsed && greetingConfigReady) {
+      positionGreeting();
+      greeting.classList.add('botsmith-greeting-show');
+    }
+  }
+  updateSideGreeting = updateGreetingContent;
+
 
   /* ---------- 5. SHOW AFTER DELAY ---------- */
 
   setTimeout(() => {
-
-    positionGreeting();
-
-    greeting.classList.add(
-      'botsmith-greeting-show'
-    );
+    greetingDelayElapsed = true;
+    updateGreetingContent();
 
   }, 1500);
 
@@ -2258,9 +2283,7 @@
 
   /* ---------- 7. CLOSE BUTTON ---------- */
 
-  greeting
-    .querySelector('button')
-    .addEventListener('click', (event) => {
+  closeGreetingButton.addEventListener('click', (event) => {
 
       event.stopPropagation();
 
