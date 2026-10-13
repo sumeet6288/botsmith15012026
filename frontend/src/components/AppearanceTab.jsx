@@ -281,6 +281,9 @@ const AppearanceTab = ({ chatbot, onUpdate }) => {
     widget_theme: chatbot?.widget_theme || 'light',
     font_family: chatbot?.font_family || 'Inter, system-ui, sans-serif',
     font_size: chatbot?.font_size || 'medium',
+    greeting_enabled: chatbot?.greeting_enabled ?? true,
+    greeting_title: chatbot?.greeting_title ?? "👋 I'm your AI assistant",
+    greeting_message: chatbot?.greeting_message ?? "I'm here to help!",
     bubble_style: chatbot?.bubble_style || 'rounded',
     widget_size: chatbot?.widget_size || 'medium',
     auto_expand: chatbot?.auto_expand || false,
@@ -296,6 +299,7 @@ const AppearanceTab = ({ chatbot, onUpdate }) => {
   const avatarInputRef = useRef(null);
   const [activeSection, setActiveSection] = useState('customization');
   const [previewVersion, setPreviewVersion] = useState(0);
+  const [greetingSettingsOpen, setGreetingSettingsOpen] = useState(false);
   const appearanceRootRef = useRef(null);
 
   // The parent screen currently wraps this component in its own card and heading.
@@ -349,6 +353,9 @@ const AppearanceTab = ({ chatbot, onUpdate }) => {
         widget_theme: chatbot?.widget_theme || 'light',
         font_family: chatbot?.font_family || 'Inter, system-ui, sans-serif',
         font_size: chatbot?.font_size || 'medium',
+        greeting_enabled: chatbot?.greeting_enabled ?? true,
+        greeting_title: chatbot?.greeting_title ?? "👋 I'm your AI assistant",
+        greeting_message: chatbot?.greeting_message ?? "I'm here to help!",
         bubble_style: chatbot?.bubble_style || 'rounded',
         widget_size: chatbot?.widget_size || 'medium',
         auto_expand: chatbot?.auto_expand || false,
@@ -633,6 +640,65 @@ const AppearanceTab = ({ chatbot, onUpdate }) => {
                       <option value="large">Large (18px)</option>
                     </select>
                   </div>
+                </div>
+
+                <div className="px-5 pb-5">
+                  <button
+                    type="button"
+                    onClick={() => setGreetingSettingsOpen(open => !open)}
+                    aria-expanded={greetingSettingsOpen}
+                    aria-controls="greeting-settings"
+                    className="inline-flex items-center px-4 py-2.5 text-sm font-semibold text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    Customize Greeting
+                  </button>
+
+                  {greetingSettingsOpen && (
+                    <div id="greeting-settings" className="mt-4 rounded-xl border border-gray-200 bg-gray-50/70 p-4 space-y-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <label htmlFor="greeting-enabled" className="text-sm font-semibold text-gray-900">Show greeting</label>
+                          <p className="mt-1 text-sm text-gray-500">Display the greeting beside the widget launcher.</p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
+                          <input
+                            id="greeting-enabled"
+                            type="checkbox"
+                            checked={customization.greeting_enabled}
+                            onChange={(e) => handleChange('greeting_enabled', e.target.checked)}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-purple-100 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-purple-600" />
+                        </label>
+                      </div>
+                      <div>
+                        <label htmlFor="greeting-title" className="block text-sm font-medium text-gray-700 mb-2">Greeting title</label>
+                        <input
+                          id="greeting-title"
+                          type="text"
+                          maxLength={80}
+                          value={customization.greeting_title}
+                          onChange={(e) => handleChange('greeting_title', e.target.value)}
+                          className={inputClass}
+                          aria-describedby="greeting-title-limit"
+                        />
+                        <p id="greeting-title-limit" className="mt-1 text-xs text-gray-500">Up to 80 characters.</p>
+                      </div>
+                      <div>
+                        <label htmlFor="greeting-message" className="block text-sm font-medium text-gray-700 mb-2">Greeting message</label>
+                        <textarea
+                          id="greeting-message"
+                          maxLength={160}
+                          rows={2}
+                          value={customization.greeting_message}
+                          onChange={(e) => handleChange('greeting_message', e.target.value)}
+                          className={`${inputClass} resize-y`}
+                          aria-describedby="greeting-message-limit"
+                        />
+                        <p id="greeting-message-limit" className="mt-1 text-xs text-gray-500">Up to 160 characters.</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

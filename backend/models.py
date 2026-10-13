@@ -890,6 +890,9 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
     secondary_color: str = "#ec4899"
     accent_color: str = "#ec4899"
     welcome_message: str = "Hi! I'm your AI assistant. How can I help you today?"
+    greeting_enabled: bool = True
+    greeting_title: str = Field(default="👋 I'm your AI assistant", max_length=80)
+    greeting_message: str = Field(default="I'm here to help!", max_length=160)
     logo_url: Optional[str] = None
     avatar_url: Optional[str] = None
     font_family: str = "Inter, system-ui, sans-serif"
@@ -1300,6 +1303,9 @@ class ChatbotUpdate(BaseModel):
     secondary_color: Optional[str] = None
     accent_color: Optional[str] = None
     welcome_message: Optional[str] = None
+    greeting_enabled: Optional[bool] = None
+    greeting_title: Optional[str] = Field(default=None, max_length=80)
+    greeting_message: Optional[str] = Field(default=None, max_length=160)
     logo_url: Optional[str] = None
     avatar_url: Optional[str] = None
     font_family: Optional[str] = None
@@ -1341,6 +1347,9 @@ class ChatbotResponse(BaseModel):
     secondary_color: str = "#ec4899"
     accent_color: str = "#ec4899"
     welcome_message: str = "Hi! I'm your AI assistant. How can I help you today?"
+    greeting_enabled: bool = True
+    greeting_title: str = Field(default="👋 I'm your AI assistant", max_length=80)
+    greeting_message: str = Field(default="I'm here to help!", max_length=160)
     logo_url: Optional[str] = None
     avatar_url: Optional[str] = None
     font_family: str = "Inter, system-ui, sans-serif"
@@ -1575,6 +1584,9 @@ class PublicChatbotInfo(BaseModel):
     id: str
     name: str
     welcome_message: str
+    greeting_enabled: bool = True
+    greeting_title: str = Field(default="👋 I'm your AI assistant", max_length=80)
+    greeting_message: str = Field(default="I'm here to help!", max_length=160)
     primary_color: Optional[str] = "#7c3aed"
     secondary_color: Optional[str] = "#a78bfa"
     accent_color: Optional[str] = "#ec4899"
