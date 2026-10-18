@@ -686,7 +686,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                           className="h-1.5 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(usageStats.usage?.chatbots?.percentage || 0, 100)}%`,
-                            backgroundColor: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                            backgroundColor: usageStats.usage?.chatbots?.percentage >= 100 ? '#EF4444' : '#000000'
                           }}
                         />
                       </div>
@@ -719,7 +719,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                           className="h-1.5 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(usageStats.usage?.messages?.percentage || 0, 100)}%`,
-                            backgroundColor: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                            backgroundColor: usageStats.usage?.messages?.percentage >= 100 ? '#EF4444' : '#000000'
                           }}
                         />
                       </div>
@@ -752,7 +752,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                           className="h-1.5 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(usageStats.usage?.file_uploads?.percentage || 0, 100)}%`,
-                            backgroundColor: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                            backgroundColor: usageStats.usage?.file_uploads?.percentage >= 100 ? '#EF4444' : '#000000'
                           }}
                         />
                       </div>
@@ -785,7 +785,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                           className="h-1.5 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(usageStats.usage?.website_sources?.percentage || 0, 100)}%`,
-                            backgroundColor: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                            backgroundColor: usageStats.usage?.website_sources?.percentage >= 100 ? '#EF4444' : '#000000'
                           }}
                         />
                       </div>
@@ -818,7 +818,7 @@ Accuracy, relevance, and usefulness always take priority over sounding confident
                           className="h-1.5 rounded-full transition-all duration-500"
                           style={{
                             width: `${Math.min(usageStats.usage?.text_sources?.percentage || 0, 100)}%`,
-                            backgroundColor: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#9333EA'
+                            backgroundColor: usageStats.usage?.text_sources?.percentage >= 100 ? '#EF4444' : '#000000'
                           }}
                         />
                       </div>
